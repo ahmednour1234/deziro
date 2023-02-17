@@ -86,10 +86,10 @@ class AuthController extends Controller
                 'email' => 'required|unique:users',
                 'password' => 'required|min:6',
                 'confirm_password' => 'required|min:6',
-                'phone' => 'required|min:8|max:8|unique:users',
-
+                'phone' => 'required|unique:users',
 
             ]);
+
 
             if ($validator->fails()) {
                 return response()->json([
@@ -117,22 +117,21 @@ class AuthController extends Controller
                         'user' => $user,
                         'token' => $token
                     ]);
-                }
-                else{
+                } else {
                     return response()->json([
                         'status' => false,
                         'message' => 'password # confirm password',
-                    ],200);
+                    ], 200);
                 }
             }
-        } else if($request->type == '1') {
+        } else if ($request->type == '1') {
 
 
             $validator = Validator::make($request->all(), [
                 'store_name' => 'required|string|min:3',
                 'first_name' => 'required|min:2|string',
                 'last_name' => 'required|min:2|string',
-                'phone' => 'required|min:8|max:8|unique:users',
+                'phone' => 'required|unique:users',
                 'email' => 'required|unique:users',
                 'password' => 'required|min:6',
                 'confirm_password' => 'required|min:6',
@@ -147,46 +146,46 @@ class AuthController extends Controller
                     'success' => false,
                     'errors' => $validator->messages(),
                 ], 200);
-            }else {
-                    if ($request->password == $request->confirm_password) {
-                        if ($request->hasFile('certificate')) {
+            } else {
+                if ($request->password == $request->confirm_password) {
+                    if ($request->hasFile('certificate')) {
 
-                            $certificate = $request->certificate;
-                            $fileName1 = time() . '.' . $certificate->extension();
-                            $certificate->move(public_path('/resources/assets/images/store_certificate/'), $fileName1);
-                            $uploadFile1 = '/resources/assets/images/store_certificate/' . $fileName1;
-                        } else {
-                            $size1 = '';
-                            $uploadFile1 = '';
-                        }
-                        $store = new User();
-                        $store->type = 1;
-                        $store->is_active = 1;
-                        $store->status = 'accept';
-                        $store->first_name = $request->first_name;
-                        $store->last_name = $request->last_name;
-                        $store->phone = $request->phone;
-                        $store->email = $request->email;
-                        $store->password = Hash::make($request->password);
-                        $store->store_name = $request->store_name;
-                        $store->position = $request->position;
-                        $store->tax_number = $request->tax_number;
-                        // $store->categories = json_encode($request->category, JSON_NUMERIC_CHECK);
-                        $store->certificate = $uploadFile1;
-                        $store->save();
-
-                        return response()->json([
-                            'success' => true,
-                            'store'=>$store,
-                            'message' => 'Store Added Successfully',
-                        ]);
+                        $certificate = $request->certificate;
+                        $fileName1 = time() . '.' . $certificate->extension();
+                        $certificate->move(public_path('/resources/assets/images/store_certificate/'), $fileName1);
+                        $uploadFile1 = '/resources/assets/images/store_certificate/' . $fileName1;
                     } else {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'password # confirm password',
-                        ],200);
+                        $size1 = '';
+                        $uploadFile1 = '';
                     }
+                    $store = new User();
+                    $store->type = 1;
+                    $store->is_active = 1;
+                    $store->status = 'accept';
+                    $store->first_name = $request->first_name;
+                    $store->last_name = $request->last_name;
+                    $store->phone = $request->phone;
+                    $store->email = $request->email;
+                    $store->password = Hash::make($request->password);
+                    $store->store_name = $request->store_name;
+                    $store->position = $request->position;
+                    $store->tax_number = $request->tax_number;
+                    // $store->categories = json_encode($request->category, JSON_NUMERIC_CHECK);
+                    $store->certificate = $uploadFile1;
+                    $store->save();
+
+                    return response()->json([
+                        'success' => true,
+                        'store' => $store,
+                        'message' => 'Store Added Successfully',
+                    ]);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'password # confirm password',
+                    ], 200);
                 }
+            }
         }
     }
 
