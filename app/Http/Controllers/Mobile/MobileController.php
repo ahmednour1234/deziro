@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Mobile;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CategoryeResource;
 use App\Models\Address;
 use App\Models\Categorie;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class MobileController extends Controller
     public function __construct()
     {
         $this->middleware('auth:api', ['except' =>
-        []]);
+        ['getCategories']]);
         auth()->setDefaultDriver('api');
     }
 
@@ -26,7 +27,7 @@ class MobileController extends Controller
 
         return response()->json([
             'success' => true,
-            'categories' => $categories,
+            'categories' => CategoryeResource::collection($categories) ,
         ]);
     }
 

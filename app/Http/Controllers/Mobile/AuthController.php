@@ -173,11 +173,13 @@ class AuthController extends Controller
                     // $store->categories = json_encode($request->category, JSON_NUMERIC_CHECK);
                     $store->certificate = $uploadFile1;
                     $store->save();
+                    $token = Auth::login($store);
 
                     return response()->json([
                         'success' => true,
-                        'store' => $store,
                         'message' => 'Store Added Successfully',
+                        'store' => $store,
+                        'token' => $token
                     ]);
                 } else {
                     return response()->json([
@@ -235,6 +237,7 @@ class AuthController extends Controller
                     $user->update(
                         $request->all()
                     );
+
 
                     return response()->json([
                         'success' => true,
