@@ -97,6 +97,14 @@
             </li>
             {{-- End Categorye --}}
 
+            <li class="menu-item   {{ request()->is('banner') ? 'active' : '' }}">
+                <a href="{{ route('admin.banner.listBanner') }}" class="menu-link ">
+                    <i class="menu-icon tf-icons bx bx-user-circle"></i>
+                    <div data-i18n="Analytics">Banner</div>
+                </a>
+            </li>
+
+
             <li class="menu-item   {{ request()->is('notification') ? 'active' : '' }}">
                 <a href="{{ route('admin.notification.listNotification') }}" class="menu-link ">
                     <i class="menu-icon tf-icons bx bx-user-circle"></i>

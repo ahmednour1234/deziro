@@ -3,6 +3,8 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\App\AuthController;
+use App\Http\Controllers\BannerController;
+use App\Http\Controllers\BannerImageController;
 use App\Http\Controllers\BidProductController;
 use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\IndividualController;
@@ -116,7 +118,14 @@ Route::post('addNewNotification', [NotificationController::class, 'addNewNotific
 //End Notification
 
 
+Route::get('banner', [BannerController::class, 'listBanner'])->name('admin.banner.listBanner');
 
+
+
+Route::get('/bannerImage/{id}', [BannerImageController::class, 'fileCreate'])->name('admin.bannerImage.fileCreate');
+Route::post('/bannerImage/store/{id}', [BannerImageController::class, 'fileStore'])->name('admin.bannerImage.fileStore');
+Route::post('/bannerImage/delete', [BannerImageController::class, 'fileDestroy'])->name('admin.bannerImage.fileDestroy');
+Route::get('/bannerImage/delete/{id}', [BannerImageController::class, 'fileDelete'])->name('admin.bannerImage.fileDelete');
 
 
 

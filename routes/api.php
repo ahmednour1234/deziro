@@ -42,6 +42,9 @@ Route::post('/updateAddress', [MobileController::class, 'updateAddress']);
 Route::post('/deleteAddress', [MobileController::class, 'deleteAddress']);
 
 
+Route::get('banner', [MobileController::class, 'banner']);
+
+
 
 
 // Route::get('/getCategory', 'App\Http\Controllers\App\MobileController@getCategory');

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Mobile;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BannerResource;
 use App\Http\Resources\CategoryeResource;
 use App\Models\Address;
+use App\Models\Banner;
 use App\Models\Categorie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +19,7 @@ class MobileController extends Controller
     public function __construct()
     {
         $this->middleware('auth:api', ['except' =>
-        ['getCategories']]);
+        ['getCategories','banner']]);
         auth()->setDefaultDriver('api');
     }
 
@@ -125,5 +127,19 @@ class MobileController extends Controller
                'message' => 'Address Deleted Succefully'
             ]);
     }
+
+
+
+    public function banner() {
+
+        $banner = Banner::get();
+        return response()->json([
+            'data' => BannerResource::collection($banner)
+        ]);
+
+    }
+
+
+
 
 }

@@ -47,7 +47,7 @@ class CategorieController extends Controller
             $category->name = $request->name;
 
 
-        $categorie = Categorie::latest()->take(1)->first();
+            $categorie = Categorie::latest()->take(1)->first();
             if ($request->hasFile('image')) {
 
                 $img = $request->image;
@@ -61,7 +61,6 @@ class CategorieController extends Controller
 
             $category->save();
 
-            dd($category);
 
             return response()->json([
                 'status' => 200,

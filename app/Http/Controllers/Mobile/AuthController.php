@@ -107,6 +107,8 @@ class AuthController extends Controller
                     $user->email = $request->email;
                     $user->password = Hash::make($request->password);
                     $user->phone = $request->phone;
+                    $user->countryCode = $request->countryCode;
+                    $user->countryISOCode = $request->countryISOCode;
                     $user->fcm_token = $request->fcm_token;
                     $user->save();
                     $token = Auth::login($user);
@@ -165,6 +167,8 @@ class AuthController extends Controller
                     $store->first_name = $request->first_name;
                     $store->last_name = $request->last_name;
                     $store->phone = $request->phone;
+                    $store->countryCode = $request->countryCode;
+                    $store->countryISOCode = $request->countryISOCode;
                     $store->email = $request->email;
                     $store->password = Hash::make($request->password);
                     $store->store_name = $request->store_name;
@@ -213,6 +217,7 @@ class AuthController extends Controller
 
     public function updateProfile(Request $request)
     {
+
         $user = Auth::user();
         if ($user->type == 2) {
             $validator = Validator::make(
@@ -222,6 +227,8 @@ class AuthController extends Controller
                     'last_name' => 'required|min:2|string',
                     'email' => 'required|email|unique:users,id,' . $user->id,
                     'phone' => 'required|min:8|max:8|unique:users,id,' . $user->id,
+                    'countryISOCode'=>'required',
+                    'countryCode'=>'required',
                 ]
             );
 
@@ -234,9 +241,14 @@ class AuthController extends Controller
                 $id = Auth::user()->id;
                 $user = User::find($id);
                 if ($user) {
-                    $user->update(
-                        $request->all()
-                    );
+                    $user->first_name = $request->first_name;
+                    $user->last_name = $request->last_name;
+                    $user->email = $request->email;
+                    $user->phone = $request->phone;
+                    $user->countryCode = $request->countryCode;
+                    $user->countryISOCode = $request->countryISOCode;
+                    $user->fcm_token = $request->fcm_token;
+                    $user->save();
 
 
                     return response()->json([
@@ -253,6 +265,8 @@ class AuthController extends Controller
                 'last_name' => 'required|min:2|string',
                 'email' => 'required|email|unique:users,id,' . $user->id,
                 'phone' => 'required|unique:users,id,' . $user->id,
+                'countryISOCode'=>'required',
+                'countryCode'=>'required',
             ]);
 
             if ($validator->fails()) {
@@ -264,9 +278,18 @@ class AuthController extends Controller
                 $id = Auth::user()->id;
                 $user = User::find($id);
                 if ($user) {
-                    $user->update(
-                        $request->all()
-                    );
+
+                    $user->first_name = $request->first_name;
+                    $user->last_name = $request->last_name;
+                    $user->phone = $request->phone;
+                    $user->countryCode = $request->countryCode;
+                    $user->countryISOCode = $request->countryISOCode;
+                    $user->email = $request->email;
+                    $user->store_name = $request->store_name;
+
+                    // $user->categories = json_encode($request->category, JSON_NUMERIC_CHECK);
+
+                    $user->save();
 
                     return response()->json([
                         'success' => true,
