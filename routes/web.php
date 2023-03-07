@@ -5,7 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\BannerImageController;
-use App\Http\Controllers\CategorieController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\StoreController;
 use Illuminate\Support\Facades\Route;
@@ -83,12 +83,12 @@ Route::post('/updateAdmin/{id}', [AdminController::class, 'updateAdmin'])->name(
 
 
 //Category
-Route::get('category', [CategorieController::class, 'listCategory'])->name('admin.category.listCategory');
-Route::post('addNewCategory', [CategorieController::class, 'addNewCategory'])->name('admin.category.addNewCategory');
-Route::get('editCategory/{id}', [CategorieController::class, 'editCategory'])->name('admin.category.editCategory');
-Route::post('updateCategory/{id}', [CategorieController::class, 'updateCategory'])->name('admin.category.updateCategory');
-Route::post('category_active/{id}', [CategorieController::class, 'is_active'])->name('admin.category.is_active');
-Route::post('category_inactive/{id}', [CategorieController::class, 'is_inactive'])->name('admin.category.is_inactive');
+Route::get('category', [CategoryController::class, 'listCategory'])->name('admin.category.listCategory');
+Route::post('addNewCategory', [CategoryController::class, 'addNewCategory'])->name('admin.category.addNewCategory');
+Route::get('editCategory/{id}', [CategoryController::class, 'editCategory'])->name('admin.category.editCategory');
+Route::post('updateCategory/{id}', [CategoryController::class, 'updateCategory'])->name('admin.category.updateCategory');
+Route::post('category_active/{id}', [CategoryController::class, 'is_active'])->name('admin.category.is_active');
+Route::post('category_inactive/{id}', [CategoryController::class, 'is_inactive'])->name('admin.category.is_inactive');
 //End
 
 
