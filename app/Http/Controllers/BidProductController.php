@@ -6,7 +6,6 @@ use App\Models\Bid;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImages;
-use App\Models\Category;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -62,20 +61,19 @@ class BidProductController extends Controller
             // })
             ->paginate($perPage);
         $listBidProduct->appends(request()->query());
-        return view('admin.product.bid_product.listBidProduct', compact('listBidProduct','sortColumn', 'sortDirection'));
-
+        return view('admin.product.bid_product.listBidProduct', compact('listBidProduct', 'sortColumn', 'sortDirection'));
     }
 
     public function BidProductDetail($id)
     {
-        $bidProduct = Bid::where('product_id',$id)->get()->last();
+        $bidProduct = Bid::where('product_id', $id)->get()->last();
         $countBids = Bid::where('product_id', $id)->count();
         $productDetail = Product::findOrFail($id);
         $imageProduct = ProductImages::where('product_id', $id)->get();
-        return view('admin.product.bid_product.bidProductDetail', compact('productDetail', 'imageProduct','countBids','bidProduct'));
+        return view('admin.product.bid_product.bidProductDetail', compact('productDetail', 'imageProduct', 'countBids', 'bidProduct'));
     }
 
-    public function viewBidProduct(Request $request,$id)
+    public function viewBidProduct(Request $request, $id)
     {
 
         $perPage = $request->limit ?: default_limit();
