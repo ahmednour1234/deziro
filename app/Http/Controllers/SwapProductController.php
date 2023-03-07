@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImages;
-use App\Models\SubCategorie;
+use App\Models\Category;
 use App\Models\Swap;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
@@ -25,7 +25,7 @@ class SwapProductController extends Controller
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
-        $listSwapProduct = Product::with('user','subcategorie')->where('type', 'swap')
+        $listSwapProduct = Product::with('user','category')->where('type', 'swap')
         ->where('status', 'active')
         ->orderBy($sortColumn, $sortDirection)
         ->whereHas('user', function ($query) {
@@ -33,7 +33,7 @@ class SwapProductController extends Controller
         })
         ->whereHas('user', function ($query) {
             $query->where('type', 1);
-        })->whereHas('subcategorie', function ($query) {
+        })->whereHas('category', function ($query) {
             $query->where('is_active', 1);
         })
             ->where(function ($query) use ($request) {
@@ -42,7 +42,7 @@ class SwapProductController extends Controller
                     ->orWhere('user_id', 'like', '%' . $request->search . '%')
                     ->orWhere('type', 'like', '%' . $request->search . '%')
                     ->orWhereHas(
-                        'subcategorie',
+                        'category',
                         function ($query) use ($request) {
                             $query->where('name', 'like', '%' . $request->search . '%');
                         }
@@ -120,7 +120,7 @@ class SwapProductController extends Controller
 
     //     $validator = Validator::make($request->all(), [
     //         'category' => 'required',
-    //         'subcategory' => 'required',
+    //         'category' => 'required',
     //         // 'store' => 'required',
     //         'name' => 'required',
     //         'condition' => 'required',
@@ -140,7 +140,7 @@ class SwapProductController extends Controller
     //             // $product->status = 'active';
     //             $product->user_id = $request->store;
     //             $product->category_id = $request->category;
-    //             $product->subcategory_id = $request->subcategory;
+    //             $product->category_id = $request->category;
     //             $product->name = $request->name;
     //             $product->condition = $request->condition;
     //             $product->description = $request->description;

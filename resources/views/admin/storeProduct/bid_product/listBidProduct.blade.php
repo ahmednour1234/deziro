@@ -129,9 +129,9 @@
                                 @endif
                             </a></th>
                         <th><a class="text-dark"
-                                href="{{ route('admin.storeProduct.listBidProduct', ['sort' => 'subcategory_id', 'direction' => $sortColumn == 'subcategory_id' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                                href="{{ route('admin.storeProduct.listBidProduct', ['sort' => 'category_id', 'direction' => $sortColumn == 'category_id' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
                                 Sub
-                                @if ($sortColumn == 'subcategory_id')
+                                @if ($sortColumn == 'category_id')
                                     @if ($sortDirection == 'asc')
                                         <i class="fas fa-arrow-up"></i>
                                     @else
@@ -198,7 +198,7 @@
                             <td><a href="/sotreDetail/{{ $bidProduct->user_id }}" class="btn btn-dark btn-sm">
                                     {{ $bidProduct->user_id }}
                                 </a></td>
-                            <td>{{ $bidProduct->subcategorie->name }} </td>
+                            <td>{{ $bidProduct->category->name }} </td>
                             <td>{{ $bidProduct->condition }}</td>
                             <td>{{ $bidProduct->bid_starting_price }}</td>
                             <td>
@@ -308,9 +308,9 @@
                             const store = $('#store').val();
                             store == '' ? $('#error_store').html(response.errors.store) : $(
                                 '#error_store').html('')
-                            const subCategory = $('#subCategory').val();
-                            subCategory == '' ? $('#error_subCategory').html(response.errors
-                                .subCategory) : $('#error_subCategory').html('')
+                            const category = $('#category').val();
+                            category == '' ? $('#error_subCategory').html(response.errors
+                                .category) : $('#error_subCategory').html('')
                             const name = $('#name').val();
                             name == '' ? $('#error_name').html(response.errors.name) : $(
                                 '#error_name').html('')
@@ -395,7 +395,7 @@
                             $('#edit_bid_store').val(response.bidProduct.user_id)
                                 .trigger('change');
 
-                            $('#edit_bid_subcategory').val(response.bidProduct.subcategory_id)
+                            $('#edit_bid_subcategory').val(response.bidProduct.category_id)
                                 .trigger('change');
 
                             $('#edit_bid_name').val(response.bidProduct.name)
@@ -434,9 +434,9 @@
                             const store = $('#edit_bid_store').val();
                             store == '' ? $('#error_edit_bid_store').html(response.errors
                                 .store) : $('#error_edit_bid_store').html('')
-                            const subcategory = $('#edit_bid_subcategory').val();
-                            subcategory == '' ? $('#error_edit_bid_subcategory').html(response
-                                    .errors.subCategory) : $('#error_edit_bid_subcategory')
+                            const category = $('#edit_bid_subcategory').val();
+                            category == '' ? $('#error_edit_bid_subcategory').html(response
+                                    .errors.category) : $('#error_edit_bid_subcategory')
                                 .html('')
                             const name = $('#edit_bid_name').val();
                             name == '' ? $('#error_edit_bid_name').html(response.errors.name) :
@@ -542,7 +542,7 @@
             // //     url: '/getSubCategorys',
             // //     data:'category_id='+category_id+'&_token={{ csrf_token() }}',
             // //     success: function (response){
-            // //         $('#subcategory').html(response)
+            // //         $('#category').html(response)
             // //     }
             // //    })
             // // })

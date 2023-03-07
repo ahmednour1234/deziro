@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImages;
-use App\Models\SubCategorie;
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -25,7 +25,7 @@ class SellingProductController extends Controller
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
-        $listSellingProduct = Product::with('user', 'subcategorie')
+        $listSellingProduct = Product::with('user', 'category')
         ->orderBy($sortColumn, $sortDirection)
             ->where('type', 'sell')
             ->where('status', 'active')
@@ -34,7 +34,7 @@ class SellingProductController extends Controller
             })
             ->whereHas('user', function ($query) {
                 $query->where('is_active', 1);
-            })->whereHas('subcategorie', function ($query) {
+            })->whereHas('category', function ($query) {
                 $query->where('is_active', 1);
             })
             ->where(function ($query) use ($request) {
@@ -43,7 +43,7 @@ class SellingProductController extends Controller
                     ->orWhere('user_id', 'like', '%' . $request->search . '%')
                     ->orWhere('type', 'like', '%' . $request->search . '%')
                     ->orWhereHas(
-                        'subcategorie',
+                        'category',
                         function ($query) use ($request) {
                             $query->where('name', 'like', '%' . $request->search . '%');
                         }
@@ -79,11 +79,11 @@ class SellingProductController extends Controller
 
     //     $validator = Validator::make($request->all(), [
     //         'category' => 'required',
-    //         'subCategory' => 'required',
+    //         'category' => 'required',
     //         'store' => 'required',
     //         'name' => 'required',
     //         'condition' => 'required',
-    //         'available_quantity' => 'required',
+    //         'quantity' => 'required',
     //         'price' => 'required',
     //         'description' => 'required'
     //     ]);
@@ -99,10 +99,10 @@ class SellingProductController extends Controller
     //         $product->status = 'active';
     //         $product->user_id = $request->store;
     //         $product->category_id = $request->category;
-    //         $product->subcategory_id = $request->subCategory;
+    //         $product->category_id = $request->category;
     //         $product->name = $request->name;
     //         $product->condition = $request->condition;
-    //         $product->available_quantity = $request->available_quantity;
+    //         $product->quantity = $request->quantity;
     //         $product->price = $request->price;
     //         $product->description = $request->description;
 
@@ -141,11 +141,11 @@ class SellingProductController extends Controller
 
     //     $validator = Validator::make($request->all(), [
     //         'category' => 'required',
-    //         'subcategory' => 'required',
+    //         'category' => 'required',
     //         // 'store' => 'required',
     //         'name' => 'required',
     //         'condition' => 'required',
-    //         'available_quantity' => 'required',
+    //         'quantity' => 'required',
     //         'price' => 'required',
     //         'description' => 'required',
     //     ]);
@@ -162,10 +162,10 @@ class SellingProductController extends Controller
     //             $product->status = 'active';
     //             $product->user_id = $request->store;
     //             $product->category_id = $request->category;
-    //             $product->subcategory_id = $request->subcategory;
+    //             $product->category_id = $request->category;
     //             $product->name = $request->name;
     //             $product->condition = $request->condition;
-    //             $product->available_quantity = $request->available_quantity;
+    //             $product->quantity = $request->quantity;
     //             $product->price = $request->price;
     //             $product->description = $request->description;
 

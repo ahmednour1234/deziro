@@ -42,13 +42,13 @@
 
 
                         <div class="col-6 mb-0">
-                            <label for="subcategory" class="form-label">SubCategory Name <span
+                            <label for="category" class="form-label">SubCategory Name <span
                                     class="text-error"></span></label>
-                            <select class="form-select editSubSelect subcategory" id="edit_selling_subcategory" aria-label="Default select example" name="subcategory" required>
+                            <select class="form-select editSubSelect category" id="edit_selling_subcategory" aria-label="Default select example" name="category" required>
                                 <option value=""> Select Sub ... </option>
 
-                                @foreach ($listSubCategory as $subCategory)
-                                    <option value="{{ $subCategory->id }}"> {{ $subCategory->name }}</option>
+                                @foreach ($listSubCategory as $category)
+                                    <option value="{{ $category->id }}"> {{ $category->name }}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger" id="error_edit_selling_subcategory"></span>
@@ -81,10 +81,10 @@
 
 
                         <div class="col-6 mb-0">
-                            <label for="available_quantity" class="form-label">Product Quantity <span
+                            <label for="quantity" class="form-label">Product Quantity <span
                                     class="text-error"></span></label>
-                            <input type="text" id="edit_selling_available_quantity" name="available_quantity"class="form-control available_quantity">
-                            <span class="text-danger" id="error_edit_selling_available_quantity"></span>
+                            <input type="text" id="edit_selling_quantity" name="quantity"class="form-control quantity">
+                            <span class="text-danger" id="error_edit_selling_quantity"></span>
                         </div>
 
 

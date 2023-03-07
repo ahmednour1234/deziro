@@ -124,9 +124,9 @@
                                 @endif
                             </a></th>
                         <th><a class="text-dark"
-                                href="{{ route('admin.storeProduct.listSellingProduct', ['sort' => 'subcategory_id', 'direction' => $sortColumn == 'subcategory_id' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                                href="{{ route('admin.storeProduct.listSellingProduct', ['sort' => 'category_id', 'direction' => $sortColumn == 'category_id' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
                                 Sub
-                                @if ($sortColumn == 'subcategory_id')
+                                @if ($sortColumn == 'category_id')
                                     @if ($sortDirection == 'asc')
                                         <i class="fas fa-arrow-up"></i>
                                     @else
@@ -181,7 +181,7 @@
                             <td><a href="/sotreDetail/{{ $sellingProduct->user_id }}" class="btn btn-dark btn-sm">
                                     {{ $sellingProduct->user_id }}
                                 </a></td>
-                            <td>{{ $sellingProduct->subcategorie->name }} </td>
+                            <td>{{ $sellingProduct->category->name }} </td>
                             <td>{{ $sellingProduct->condition }}</td>
                             <td>{{ $sellingProduct->price }}</td>
                             <td> <a href="/productImages/{{ $sellingProduct->id }}" class="btn btn-warning btn-sm">Add
@@ -274,10 +274,10 @@
             //         //     data: 'category.type'
             //         // },
             //         {
-            //             data: 'subcategorie.name'
+            //             data: 'category.name'
             //         },
             //         {
-            //             data: 'available_quantity'
+            //             data: 'quantity'
             //         },
             //         // {
             //         //     data: 'condition'
@@ -329,10 +329,10 @@
                 e.preventDefault();
                 var data = {
                     'store': $('.store').val(),
-                    'subCategory': $('.subCategory').val(),
+                    'category': $('.category').val(),
                     'name': $('.name').val(),
                     'condition': $('.condition').val(),
-                    'available_quantity': $('.available_quantity').val(),
+                    'quantity': $('.quantity').val(),
                     'price': $('.price').val(),
                     'description': $('.description').val(),
                 }
@@ -351,19 +351,19 @@
                             const store = $('#store').val();
                             store == '' ? $('#error_store').html(response.errors.store) : $(
                                 '#error_store').html('')
-                            const subCategory = $('#subCategory').val();
-                            subCategory == '' ? $('#error_subCategory').html(response.errors
-                                .subCategory) : $('#error_subCategory').html('')
+                            const category = $('#category').val();
+                            category == '' ? $('#error_subCategory').html(response.errors
+                                .category) : $('#error_subCategory').html('')
                             const name = $('#name').val();
                             name == '' ? $('#error_name').html(response.errors.name) : $(
                                 '#error_name').html('')
                             const condition = $('#condition').val();
                             condition == '' ? $('#error_condition').html(response.errors
                                 .condition) : $('#error_condition').html('')
-                            const available_quantity = $('#available_quantity').val();
-                            available_quantity == '' ? $('#error_available_quantity').html(
-                                response.errors.available_quantity) : $(
-                                '#error_available_quantity').html('')
+                            const quantity = $('#quantity').val();
+                            quantity == '' ? $('#error_quantity').html(
+                                response.errors.quantity) : $(
+                                '#error_quantity').html('')
                             const price = $('#price').val();
                             price == '' ? $('#error_price').html(response.errors.price) : $(
                                 '#error_price').html('')
@@ -413,12 +413,12 @@
                                 .trigger('change');
 
                                 $('#edit_selling_subcategory').val(response.sellingProduct
-                                .subcategory_id)
+                                .category_id)
                                 .trigger('change');
                             $('#edit_selling_name').val(response.sellingProduct.name)
                             $('#edit_selling_condition').val(response.sellingProduct.condition)
-                            $('#edit_selling_available_quantity').val(response.sellingProduct
-                                .available_quantity)
+                            $('#edit_selling_quantity').val(response.sellingProduct
+                                .quantity)
                             $('#edit_selling_price').val(response.sellingProduct.price)
                             $('#edit_selling_description').val(response.sellingProduct
                                 .description)
@@ -437,10 +437,10 @@
                 var data = {
                     'store': $('#edit_selling_individual_id').val(),
                     'category': $('#edit_selling_category').val(),
-                    'subcategory': $('#edit_selling_subcategory').val(),
+                    'category': $('#edit_selling_subcategory').val(),
                     'name': $('#edit_selling_name').val(),
                     'condition': $('#edit_selling_condition').val(),
-                    'available_quantity': $('#edit_selling_available_quantity').val(),
+                    'quantity': $('#edit_selling_quantity').val(),
                     'price': $('#edit_selling_price').val(),
                     'description': $('#edit_selling_description').val(),
                 }
@@ -461,9 +461,9 @@
                             category == '' ? $('#error_edit_selling_category').html(response
                                     .errors.category) : $('#error_edit_selling_category')
                                 .html('')
-                            const subcategory = $('#edit_selling_subcategory').val();
-                            subcategory == '' ? $('#error_edit_selling_subcategory').html(
-                                response.errors.subcategory) : $(
+                            const category = $('#edit_selling_subcategory').val();
+                            category == '' ? $('#error_edit_selling_subcategory').html(
+                                response.errors.category) : $(
                                 '#error_edit_selling_subcategory').html('')
                             const name = $('#edit_selling_name').val();
                             name == '' ? $('#error_edit_selling_name').html(response
@@ -550,7 +550,7 @@
             //     url: '/getSubCategorys',
             //     data:'category_id='+category_id+'&_token={{ csrf_token() }}',
             //     success: function (response){
-            //         $('#subcategory').html(response)
+            //         $('#category').html(response)
             //     }
             //    })
             // })

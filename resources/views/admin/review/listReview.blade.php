@@ -75,7 +75,7 @@
                                     <td>{{ $swapProduct->name }}</td>
                                     <td>{{ $swapProduct->user->first_name.' '.$swapProduct->user->last_name }} </td>
                                     <td>{{ $swapProduct->category->type }}</td>
-                                    <td>{{ $swapProduct->subcategorie->name }}</td>
+                                    <td>{{ $swapProduct->category->name }}</td>
                                     <td>{{ $swapProduct->condition }}</td>
                                     <td><a href="/productImages/{{$swapProduct->id}}" class="btn btn-info btn-sm">Add Images</a></td>
                                     <td><a href="/viewSwapProduct/{{ $swapProduct->id }}" class="btn btn-success btn-sm">View Swap</a></td>

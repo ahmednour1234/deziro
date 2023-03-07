@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Mobile\AuthController;
 use App\Http\Controllers\Mobile\MobileController;
+use App\Http\Controllers\Mobile\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,7 +34,7 @@ Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
 Route::post('/changePassword', [AuthController::class, 'changePassword']);
 
 
-Route::get('/categorie', [MobileController::class, 'getCategories']);
+Route::get('/Category', [MobileController::class, 'getCategories']);
 
 Route::get('/getAddress', [MobileController::class, 'getAddress']);
 Route::get('/getSingleAddress', [MobileController::class, 'getSingleAddress']);
@@ -45,30 +46,47 @@ Route::post('/deleteAddress', [MobileController::class, 'deleteAddress']);
 Route::get('banner', [MobileController::class, 'banner']);
 
 
+Route::group(['prefix' => 'products'], function ($router) {
+    Route::get('/', [ProductController::class, 'index']);
+    Route::get('{id}', [ProductController::class, 'getProduct']);
+});
+Route::group(['prefix' => 'customer'], function ($router) {
+    Route::group(['prefix' => 'products'], function ($router) {
+        Route::post('create', [ProductController::class, 'create']);
+        Route::post('update/{id}', [ProductController::class, 'update']);
+        Route::get('/', [ProductController::class, 'myProducts']);
+        Route::get('{id}', [ProductController::class, 'myProduct']);
+        Route::post('request_swap', [ProductController::class, 'request_swap']);
+    });
+});
 
+Route::get('filterable-attributes/{category_id}', 'App\Http\Controllers\Mobile\AttributeController@GetFilterableAttributes');
+Route::group(['prefix' => 'attribute-options'], function ($router) {
+    Route::post('add', 'App\Http\Controllers\Mobile\AttributeOptionController@add');
+    Route::post('delete/{id}', 'App\Http\Controllers\Mobile\AttributeOptionController@delete');
+});
 
-// Route::get('/getCategory', 'App\Http\Controllers\App\MobileController@getCategory');
-// Route::get('/getSellingProduct', 'App\Http\Controllers\App\MobileController@getSellingProduct');
-// Route::get('/getBidProduct', 'App\Http\Controllers\App\MobileController@getBidProduct');
-// Route::get('/getSwapProduct', 'App\Http\Controllers\App\MobileController@getSwapProduct');
-// Route::get('/getTrendingProduct', 'App\Http\Controllers\App\MobileController@getTrendingProduct');
-// Route::get('/getTopStore', 'App\Http\Controllers\App\MobileController@getTopStore');
-// Route::get('/getProductBySubcategory', 'App\Http\Controllers\App\MobileController@getProductBySubcategory');
-// Route::get('/getLookingSwapProduct', 'App\Http\Controllers\App\MobileController@getLookingSwapProduct');
-// Route::get('/getPopularProduct', 'App\Http\Controllers\App\MobileController@getPopularProduct');
-// Route::get('/getAllProduct', 'App\Http\Controllers\App\MobileController@getAllProduct');
-// Route::post('/login', 'App\Http\Controllers\App\AuthController@login');
-// Route::get('/profile', 'App\Http\Controllers\App\AuthController@profile');
-// Route::post('/register', 'App\Http\Controllers\App\AuthController@register');
-// Route::post('/logout', 'App\Http\Controllers\App\AuthController@logout');
-// Route::post('/refresh', 'App\Http\Controllers\App\AuthController@refresh');
+// Route::get('/getCategory', 'App\Http\Controllers\Mobile\MobileController@getCategory');
+// Route::get('/getSellingProduct', 'App\Http\Controllers\Mobile\MobileController@getSellingProduct');
+// Route::get('/getBidProduct', 'App\Http\Controllers\Mobile\MobileController@getBidProduct');
+// Route::get('/getSwapProduct', 'App\Http\Controllers\Mobile\MobileController@getSwapProduct');
+// Route::get('/getTrendingProduct', 'App\Http\Controllers\Mobile\MobileController@getTrendingProduct');
+// Route::get('/getTopStore', 'App\Http\Controllers\Mobile\MobileController@getTopStore');
+// Route::get('/getProductBySubcategory', 'App\Http\Controllers\Mobile\MobileController@getProductBySubcategory');
+// Route::get('/getLookingSwapProduct', 'App\Http\Controllers\Mobile\MobileController@getLookingSwapProduct');
+// Route::get('/getPopularProduct', 'App\Http\Controllers\Mobile\MobileController@getPopularProduct');
+// Route::get('/getAllProduct', 'App\Http\Controllers\Mobile\MobileController@getAllProduct');
+// Route::post('/login', 'App\Http\Controllers\Mobile\AuthController@login');
+// Route::get('/profile', 'App\Http\Controllers\Mobile\AuthController@profile');
+// Route::post('/register', 'App\Http\Controllers\Mobile\AuthController@register');
+// Route::post('/logout', 'App\Http\Controllers\Mobile\AuthController@logout');
+// Route::post('/refresh', 'App\Http\Controllers\Mobile\AuthController@refresh');
 
-// Route::post('/request_otp', 'App\Http\Controllers\App\AuthController@requestOtp');
+// Route::post('/request_otp', 'App\Http\Controllers\Mobile\AuthController@requestOtp');
 
-// Route::post('/verify_otp', 'App\Http\Controllers\App\AuthController@verifyOtp');
-// Route::post('/changepassword', 'App\Http\Controllers\App\AuthController@changepassword');
+// Route::post('/verify_otp', 'App\Http\Controllers\Mobile\AuthController@verifyOtp');
+// Route::post('/changepassword', 'App\Http\Controllers\Mobile\AuthController@changepassword');
 
-// Route::post('/uploadproduct', 'App\Http\Controllers\App\MobileController@uploadproduct');
+// Route::post('/uploadproduct', 'App\Http\Controllers\Mobile\MobileController@uploadproduct');
 
-// Route::get('/getStore', 'App\Http\Controllers\App\MobileController@getStore');
-
+// Route::get('/getStore', 'App\Http\Controllers\Mobile\MobileController@getStore');

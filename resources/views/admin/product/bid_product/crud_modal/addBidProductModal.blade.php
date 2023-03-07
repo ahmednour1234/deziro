@@ -47,14 +47,14 @@
                         </div>
 
                         <div class="col-6 mb-0">
-                            <label for="subCategory" class="form-label"> Select SubCategory <span
+                            <label for="category" class="form-label"> Select SubCategory <span
                                     class="text-error"></span></label>
-                            <select class="form-select subCategory" id="subCategory" aria-label="Default select example"
-                                name="subCategory" required>
+                            <select class="form-select category" id="category" aria-label="Default select example"
+                                name="category" required>
                                 <option value=""> Select Sub-Category ...</option>
-                                @foreach ($listSubCategorys as $subCategory)
-                                    <option value="{{ $subCategory->id }}">
-                                        {{ $subCategory->name }}</option>
+                                @foreach ($listSubCategorys as $category)
+                                    <option value="{{ $category->id }}">
+                                        {{ $category->name }}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger" id="error_subCategory"></span>

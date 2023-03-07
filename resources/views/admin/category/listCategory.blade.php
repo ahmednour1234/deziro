@@ -68,17 +68,17 @@
                     </tr>
                 </thead>
                 <tbody class="text-center">
-                    @foreach ($listCategorie as $categorie)
+                    @foreach ($listCategorie as $category)
                         <tr>
-                            <td>{{ $categorie->created_at->format('d-m-Y') }}</td>
-                            <td>{{ $categorie->name }}</td>
-                            <td><img src="storage/{{ $categorie->image }}" alt="" width="200" ></td>
+                            <td>{{ $category->created_at->format('d-m-Y') }}</td>
+                            <td>{{ $category->name }}</td>
+                            <td><img src="storage/{{ $category->image }}" alt="" width="200" ></td>
                             <td>
-                                <button class="btn btn-primary btn-sm edit_categorie" value="{{ $categorie->id }}">Edit</button>
-                                @if($categorie->is_active == 1)
-                                <button class="btn btn-success btn-sm inactive" value="{{ $categorie->id }}">Active</button>
+                                <button class="btn btn-primary btn-sm edit_categorie" value="{{ $category->id }}">Edit</button>
+                                @if($category->is_active == 1)
+                                <button class="btn btn-success btn-sm inactive" value="{{ $category->id }}">Active</button>
                                 @else
-                                <button class="btn btn-warning btn-sm active" value="{{ $categorie->id }}">Inactive</button>
+                                <button class="btn btn-warning btn-sm active" value="{{ $category->id }}">Inactive</button>
                                 @endif
                             </td>
                         </tr>

@@ -1,0 +1,956 @@
+<?php
+
+namespace App\Repositories;
+
+use Illuminate\Container\Container;
+use App\Repositories\AttributeRepository;
+use App\Eloquent\Repository;
+use App\Models\ProductAttributeValue;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\DB;
+
+class ProductRepository extends Repository
+{
+    /**
+     * @var array
+     */
+    protected $fieldSearchable = [
+        'name' => 'like',
+        'type' => 'like',
+        'created_at' => 'like',
+        'variants.name' => 'like'
+    ];
+
+    /**
+     * Create a new repository instance.
+     *
+     * @param  \App\Repositories\AttributeRepository  $attributeRepository
+     * @param  \App\Repositories\AttributeOptionRepository  $attributeOptionRepository
+     * @param  \App\Repositories\ProductAttributeValueRepository  $attributeValueRepository
+     * @param  \App\Repositories\ProductImageRepository  $attributeImageRepository
+     * @param  \Illuminate\Container\Container  $container
+     * @return void
+     */
+    public function __construct(
+        protected AttributeRepository $attributeRepository,
+        protected AttributeOptionRepository $attributeOptionRepository,
+        protected ProductAttributeValueRepository $attributeValueRepository,
+        protected ProductImageRepository $attributeImageRepository,
+        Container $container
+    ) {
+        parent::__construct($container);
+    }
+
+    /**
+     * Specify model class name.
+     *
+     * @return string
+     */
+    public function model(): string
+    {
+        return 'App\Models\Product';
+    }
+
+    /**
+     * Get all products.
+     *
+     * @param  string  $categoryId
+     * @return \Illuminate\Support\Collection
+     */
+    public function getAll($type = false)
+    {
+        $params = request()->input();
+        $perPage = isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 9;
+
+        $page = Paginator::resolveCurrentPage('page');
+
+        $repository = $this->with([
+            'images',
+        ])
+            ->scopeQuery(function ($query) use ($params, $type) {
+
+                $qb = $query->distinct()
+                    ->whereNull('parent_id')
+                    ->orderBy('products.created_at',  'desc')
+                    ->where(function ($query) {
+                        if (auth()->user())
+                            return $query->where('user_id', auth()->user()->id);
+                    })
+                    ->select('products.*');
+
+
+                if (!$type)
+                    $qb->where('products.status', 'active');
+                else if (request()->input('status')) {
+                    $qb->where('products.status', request()->input('status'));
+                }
+                if (isset($params['search'])) {
+                    $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
+                }
+
+                if (isset($params['type'])) {
+                    $qb->where('products.type',  urldecode($params['type']));
+                }
+
+                if (isset($params['name'])) {
+                    $qb->where('products.name', 'like', '%' . urldecode($params['name']) . '%');
+                }
+
+                # sort direction
+                $orderDirection = 'asc';
+
+                if (
+                    isset($params['order'])
+                    && in_array($params['order'], ['desc', 'asc'])
+                ) {
+                    $orderDirection = $params['order'];
+                } else {
+                    $sortOptions = $this->getDefaultSortByOption();
+
+                    $orderDirection = !empty($sortOptions) ? $sortOptions[1] : 'asc';
+                }
+
+                if ($priceFilter = request('price')) {
+                    $priceRange = explode(',', $priceFilter);
+
+                    if (count($priceRange) > 0) {
+
+                        $this->variantJoin($qb);
+
+                        $qb
+                            ->leftJoin('catalog_rule_product_prices', 'catalog_rule_product_prices.product_id', '=', 'variants.product_id')
+                            ->leftJoin('product_customer_group_prices', 'product_customer_group_prices.product_id', '=', 'variants.product_id')
+                            ->where(function ($qb) use ($priceRange) {
+                                $qb->where(function ($qb) use ($priceRange) {
+                                    $qb
+                                        ->where('variants.min_price', '>=', $priceRange[0])
+                                        ->where('variants.min_price', '<=', end($priceRange));
+                                });
+                            });
+                    }
+                }
+
+                return $qb->groupBy('products.id');
+            });
+
+        # apply scope query so we can fetch the raw sql and perform a count
+        $repository->applyScope();
+        $countQuery = "select count(*) as aggregate from ({$repository->model->toSql()}) c";
+        $count = collect(DB::select($countQuery, $repository->model->getBindings()))->pluck('aggregate')->first();
+
+        if ($count > 0) {
+            # apply a new scope query to limit results to one page
+            $repository->scopeQuery(function ($query) use ($page, $perPage) {
+                return $query->forPage($page, $perPage);
+            });
+
+            # manually build the paginator
+            $items = $repository->get();
+        } else {
+            $items = [];
+        }
+
+        // $results = new LengthAwarePaginator($items, $count, $perPage, $page, [
+        //     'path'  => request()->url(),
+        //     'query' => request()->query(),
+        // ]);
+
+        return $items;
+    }
+
+    /**
+     * Get all products.
+     *
+     * @param  string  $categoryId
+     * @return \Illuminate\Support\Collection
+     */
+    public function getProducts($type = null)
+    {
+        $params = request()->input();
+        $perPage = isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 10;
+
+        $page = Paginator::resolveCurrentPage('page');
+
+        $repository = $this->with([
+            'images',
+        ])->scopeQuery(function ($query) use ($params, $type) {
+
+            $qb = $query->distinct()
+                ->whereNull('parent_id')
+                ->orderBy('products.created_at',  'desc')
+                ->select('products.*');
+
+            if ($type) {
+                $qb->where('products.type', $type);
+            }
+
+            # sort direction
+            $orderDirection = 'desc';
+
+            if (
+                isset($params['order'])
+                && in_array($params['order'], ['desc', 'asc'])
+            ) {
+                $orderDirection = $params['order'];
+            } else {
+                $sortOptions = $this->getDefaultSortByOption();
+
+                $orderDirection = !empty($sortOptions) ? $sortOptions[1] : 'desc';
+            }
+
+            $qb->orderBy('products.id', $orderDirection);
+
+            return $qb->groupBy('products.id');
+        });
+
+        return [];
+        # apply scope query so we can fetch the raw sql and perform a count
+        $repository->applyScope();
+        $countQuery = "select count(*) as aggregate from ({$repository->model->toSql()}) c";
+        $count = collect(DB::select($countQuery, $repository->model->getBindings()))->pluck('aggregate')->first();
+
+        if ($count > 0) {
+            # apply a new scope query to limit results to one page
+            $repository->scopeQuery(function ($query) use ($page, $perPage) {
+                return $query->forPage($page, $perPage);
+            });
+
+            # manually build the paginator
+            $items = $repository->get();
+        } else {
+            $items = [];
+        }
+
+        return $items;
+    }
+
+    /**
+     * Get default sort by option.
+     *
+     * @return array
+     */
+    private function getDefaultSortByOption()
+    {
+        $config = 'name-desc';
+
+        return explode('-', $config);
+    }
+
+    /**
+     * Create product.
+     *
+     * @param  array  $data
+     * @return \App\Models\Product
+     */
+    public function create(array $data)
+    {
+
+        $data['user_id'] = Auth::user()->id;
+        if (Auth::user()->type == 2) {
+            $data['status'] = 'active';
+        } else {
+            $data['status'] = 'pending';
+        }
+        $product = $this->model->create($data);
+        $attributes = isset($data['attributes']) ? $data['attributes'] : [];
+        foreach ($attributes as $attributeData) {
+
+            $attribute = $this->attributeRepository->findOrFail($attributeData['attribute_id']);
+            if (isset($attributeData['is_new']) && $attributeData['is_new'] && $attribute->type === 'select') {
+                $attributeOption = $this->attributeOptionRepository
+                    ->where('name', $attributeData['value'])
+                    ->where('user_id', $data['user_id'])
+                    ->where('attribute_id', $attribute->id)
+                    ->first();
+                if (!$attributeOption) {
+                    $attributeOption = $this->attributeOptionRepository->create([
+                        'name' => $attributeData['value'],
+                        'attribute_id' => $attribute->id,
+                        'user_id' => $data['user_id'],
+                    ]);
+                }
+
+                $data[$attribute->code] = $attributeOption->id;
+            } else {
+                $data[$attribute->code] = $attributeData['value'];
+            }
+
+            if (
+                $attribute->type === 'boolean'
+            ) {
+                $data[$attribute->code] = isset($data[$attribute->code]) && $data[$attribute->code] ? 1 : 0;
+            }
+
+            if (
+                $attribute->type == 'multiselect'
+                || $attribute->type == 'checkbox'
+            ) {
+                $data[$attribute->code] = isset($data[$attribute->code]) ? implode(',', $data[$attribute->code]) : null;
+            }
+
+            if (!isset($data[$attribute->code])) {
+                continue;
+            }
+
+            if (
+                $attribute->type === 'price'
+                && isset($data[$attribute->code])
+                && $data[$attribute->code] === ''
+            ) {
+                $data[$attribute->code] = null;
+            }
+
+            if (
+                $attribute->type === 'date'
+                && $data[$attribute->code] === ''
+            ) {
+                $data[$attribute->code] = null;
+            }
+
+            if (
+                $attribute->type === 'image'
+                || $attribute->type === 'file'
+            ) {
+                $data[$attribute->code] = gettype($data[$attribute->code]) === 'object'
+                    ? request()->file($attribute->code)->store('product/' . $product->id)
+                    : null;
+            }
+
+            $productAttributeValue = $product->attribute_values
+                ->where('attribute_id', $attribute->id)
+                ->first();
+
+            $columnName = ProductAttributeValue::$attributeTypeFields[$attribute->type];
+
+            if (!$productAttributeValue) {
+                $this->attributeValueRepository->create([
+                    'product_id'   => $product->id,
+                    'attribute_id' => $attribute->id,
+                    'user_id'      => Auth::user()->id,
+                    $columnName    => $data[$attribute->code],
+                ]);
+            } else {
+                $productAttributeValue->update([$columnName => $data[$attribute->code]]);
+            }
+        }
+
+        if (isset($data['variants'])) {
+            foreach ($data['variants'] as $variantData) {
+                $variantId = isset($variantData['id']) ? $variantData['id'] : 'variant_';
+
+                if (isset($variantData['super_attributes'])) {
+
+                    foreach ($variantData['super_attributes'] as $super_attribute) {
+
+                        $attribute = $this->attributeRepository->findOrFail($super_attribute['attribute_id']);
+
+                        $product->super_attributes()->syncWithoutDetaching([$attribute->id]);
+
+                        $product->attributes()->syncWithoutDetaching([$attribute->id]);
+                    }
+                }
+
+                // if (isset($variantData['super_attributes'])) {
+                //     $variantData['attributes'] = $data['attributes'];
+                // }
+
+                $this->createVariant($product, $variantData);
+            }
+        }
+
+        if (isset($data['attributes'])) {
+
+            foreach ($data['attributes'] as $position => $attribute) {
+
+                $attribute = $this->attributeRepository->findOrFail($attribute['attribute_id']);
+
+                $product->attributes()->syncWithoutDetaching($attribute->id);
+            }
+        }
+
+        $this->attributeImageRepository->uploadImages($data, $product);
+
+        return $product;
+    }
+
+    /**
+     * Create variant.
+     *
+     * @param  \App\Models\Product   $product
+     * @param  array                    $data
+     * @return \App\Models\Product
+     */
+    public function createVariant($product, $data = [])
+    {
+
+        $data['user_id'] = Auth::user()->id;
+        $variant = $this->model->create(
+            array_merge([
+                'parent_id'             => $product->id,
+                'user_id'               => $data['user_id'],
+                'type'                  => $product->type,
+                'address_id'            => $product->address_id,
+                'category_id'       => $product->category_id,
+                'product_type'          => 'simple',
+                'condition'             =>  $product->condition,
+            ], $data)
+        );
+
+        $attributes = array_merge($data['super_attributes'], []);
+        foreach ($attributes as $attributeData) {
+
+            $attribute = $this->attributeRepository->findOrFail($attributeData['attribute_id']);
+            if (isset($attributeData['is_new']) && $attributeData['is_new'] && $attribute->type === 'select') {
+                $attributeOption = $this->attributeOptionRepository
+                    ->where('name', $attributeData['value'])
+                    ->where('user_id', $data['user_id'])
+                    ->where('attribute_id', $attribute->id)
+                    ->first();
+                if (!$attributeOption) {
+                    $attributeOption = $this->attributeOptionRepository->create([
+                        'name' => $attributeData['value'],
+                        'attribute_id' => $attribute->id,
+                        'user_id' => $data['user_id'],
+                    ]);
+                }
+                $data[$attribute->code] = $attributeOption->id;
+            } else {
+                $data[$attribute->code] = $attributeData['value'];
+            }
+
+            if (
+                $attribute->type === 'boolean'
+            ) {
+                $data[$attribute->code] = isset($data[$attribute->code]) && $data[$attribute->code] ? 1 : 0;
+            }
+
+            if (
+                $attribute->type == 'multiselect'
+                || $attribute->type == 'checkbox'
+            ) {
+                $data[$attribute->code] = isset($data[$attribute->code]) ? implode(',', $data[$attribute->code]) : null;
+            }
+
+            if (!isset($data[$attribute->code])) {
+                continue;
+            }
+
+            if (
+                $attribute->type === 'price'
+                && isset($data[$attribute->code])
+                && $data[$attribute->code] === ''
+            ) {
+                $data[$attribute->code] = null;
+            }
+
+            if (
+                $attribute->type === 'date'
+                && $data[$attribute->code] === ''
+            ) {
+                $data[$attribute->code] = null;
+            }
+
+            if (
+                $attribute->type === 'image'
+                || $attribute->type === 'file'
+            ) {
+                $data[$attribute->code] = gettype($data[$attribute->code]) === 'object'
+                    ? request()->file($attribute->code)->store('product/' . $variant->id)
+                    : null;
+            }
+
+            $productAttributeValue = $variant->attribute_values
+                ->where('attribute_id', $attribute->id)
+                ->first();
+
+            $columnName = ProductAttributeValue::$attributeTypeFields[$attribute->type];
+
+            if (!$productAttributeValue) {
+                $this->attributeValueRepository->create([
+                    'product_id'   => $variant->id,
+                    'attribute_id' => $attribute->id,
+                    'user_id'      => Auth::user()->id,
+                    $columnName    => $data[$attribute->code],
+                ]);
+            } else {
+                $productAttributeValue->update([$columnName => $data[$attribute->code]]);
+            }
+        }
+
+        return $variant;
+    }
+
+    /**
+     * Update product.
+     *
+     * @param  array  $data
+     * @param  int  $id
+     * @return \App\Models\Product
+     */
+    public function update(array $data, $id)
+    {
+        $product = $this->findOrFail($id);
+        $data['user_id'] = Auth::user()->id;
+        $product->update($data);
+
+        $attributes = isset($data['attributes']) ? $data['attributes'] : [];
+        foreach ($attributes as $attributeData) {
+
+            $attribute = $this->attributeRepository->findOrFail($attributeData['attribute_id']);
+            if (isset($attributeData['is_new']) && $attributeData['is_new'] && $attribute->type === 'select') {
+                $attributeOption = $this->attributeOptionRepository
+                    ->where('name', $attributeData['value'])
+                    ->where('user_id', $data['user_id'])
+                    ->where('attribute_id', $attribute->id)
+                    ->first();
+                if (!$attributeOption) {
+                    $attributeOption = $this->attributeOptionRepository->create([
+                        'name' => $attributeData['value'],
+                        'attribute_id' => $attribute->id,
+                        'user_id' => $data['user_id'],
+                    ]);
+                }
+                $data[$attribute->code] = $attributeOption->id;
+            } else {
+                $data[$attribute->code] = $attributeData['value'];
+            }
+
+            if (
+                $attribute->type === 'boolean'
+            ) {
+                $data[$attribute->code] = isset($data[$attribute->code]) && $data[$attribute->code] ? 1 : 0;
+            }
+
+            if (
+                $attribute->type == 'multiselect'
+                || $attribute->type == 'checkbox'
+            ) {
+                $data[$attribute->code] = isset($data[$attribute->code]) ? implode(',', $data[$attribute->code]) : null;
+            }
+
+            if (!isset($data[$attribute->code])) {
+                continue;
+            }
+
+            if (
+                $attribute->type === 'price'
+                && isset($data[$attribute->code])
+                && $data[$attribute->code] === ''
+            ) {
+                $data[$attribute->code] = null;
+            }
+
+            if (
+                $attribute->type === 'date'
+                && $data[$attribute->code] === ''
+            ) {
+                $data[$attribute->code] = null;
+            }
+
+            if (
+                $attribute->type === 'image'
+                || $attribute->type === 'file'
+            ) {
+                $data[$attribute->code] = gettype($data[$attribute->code]) === 'object'
+                    ? request()->file($attribute->code)->store('product/' . $product->id)
+                    : null;
+            }
+
+            $productAttributeValue = $product->attribute_values
+                ->where('attribute_id', $attribute->id)
+                ->first();
+
+            $columnName = ProductAttributeValue::$attributeTypeFields[$attribute->type];
+
+            if (!$productAttributeValue) {
+                $this->attributeValueRepository->create([
+                    'product_id'   => $product->id,
+                    'attribute_id' => $attribute->id,
+                    'user_id'      => Auth::user()->id,
+                    $columnName    => $data[$attribute->code],
+                ]);
+            } else {
+                $productAttributeValue->update([$columnName => $data[$attribute->code]]);
+            }
+        }
+
+        $old_variants = $product->variants()->pluck('id');
+
+        if (isset($data['variants'])) {
+            foreach ($data['variants'] as $variantData) {
+                if (isset($variantData['super_attributes'])) {
+
+                    foreach ($variantData['super_attributes'] as $super_attribute) {
+
+                        $attribute = $this->attributeRepository->findOrFail($super_attribute['attribute_id']);
+
+                        $product->super_attributes()->syncWithoutDetaching([$attribute->id]);
+
+                        $product->attributes()->syncWithoutDetaching([$attribute->id]);
+                    }
+                }
+
+                // if (isset($variantData['super_attributes'])) {
+                //     $variantData['attributes'] = $data['attributes'];
+                // }
+
+                if (isset($variantData['id'])) {
+                    $variantId = $variantData['id'];
+                    if (is_numeric($index = $old_variants->search($variantId))) {
+                        $old_variants->forget($index);
+                    }
+                    $this->updateVariant($product, $variantData);
+                } else {
+                    $this->createVariant($product, $variantData);
+                }
+            }
+            foreach ($old_variants as $variantId) {
+                $this->delete($variantId);
+            }
+        }
+
+        if (isset($data['attributes'])) {
+
+            foreach ($data['attributes'] as $position => $attribute) {
+
+                $attribute = $this->attributeRepository->findOrFail($attribute['attribute_id']);
+
+                $product->attributes()->syncWithoutDetaching($attribute->id);
+            }
+        }
+
+        $this->attributeImageRepository->uploadImages($data, $product);
+
+        return $product;
+    }
+
+    /**
+     * Create variant.
+     *
+     * @param  \Webkul\Models\Product   $product
+     * @param  array                    $data
+     * @return \Webkul\Models\Product
+     */
+    public function updateVariant($product, $data = [])
+    {
+        $data['user_id'] = Auth::user()->id;
+        $variant = $this->findOrFail($data['id']);
+        $variant->update(
+            array_merge([
+                'parent_id'             => $product->id,
+                'user_id'               => $data['user_id'],
+                'type'                  => $product->type,
+                'address_id'            => $product->address_id,
+                'category_id'       => $product->category_id,
+                'product_type'          => 'simple',
+                'condition'             =>  $product->condition,
+            ], $data)
+        );
+
+        $attributes = array_merge($data['super_attributes'], []);
+        foreach ($attributes as $attributeData) {
+
+            $attribute = $this->attributeRepository->findOrFail($attributeData['attribute_id']);
+            if (isset($attributeData['is_new']) && $attributeData['is_new'] && $attribute->type === 'select') {
+                $attributeOption = $this->attributeOptionRepository
+                    ->where('name', $attributeData['value'])
+                    ->where('user_id', $data['user_id'])
+                    ->where('attribute_id', $attribute->id)
+                    ->first();
+                if (!$attributeOption) {
+                    $attributeOption = $this->attributeOptionRepository->create([
+                        'name' => $attributeData['value'],
+                        'attribute_id' => $attribute->id,
+                        'user_id' => $data['user_id'],
+                    ]);
+                }
+                $data[$attribute->code] = $attributeOption->id;
+            } else {
+                $data[$attribute->code] = $attributeData['value'];
+            }
+
+            if (
+                $attribute->type === 'boolean'
+            ) {
+                $data[$attribute->code] = isset($data[$attribute->code]) && $data[$attribute->code] ? 1 : 0;
+            }
+
+            if (
+                $attribute->type == 'multiselect'
+                || $attribute->type == 'checkbox'
+            ) {
+                $data[$attribute->code] = isset($data[$attribute->code]) ? implode(',', $data[$attribute->code]) : null;
+            }
+
+            if (!isset($data[$attribute->code])) {
+                continue;
+            }
+
+            if (
+                $attribute->type === 'price'
+                && isset($data[$attribute->code])
+                && $data[$attribute->code] === ''
+            ) {
+                $data[$attribute->code] = null;
+            }
+
+            if (
+                $attribute->type === 'date'
+                && $data[$attribute->code] === ''
+            ) {
+                $data[$attribute->code] = null;
+            }
+
+            if (
+                $attribute->type === 'image'
+                || $attribute->type === 'file'
+            ) {
+                $data[$attribute->code] = gettype($data[$attribute->code]) === 'object'
+                    ? request()->file($attribute->code)->store('product/' . $variant->id)
+                    : null;
+            }
+
+            $productAttributeValue = $variant->attribute_values
+                ->where('attribute_id', $attribute->id)
+                ->first();
+
+            $columnName = ProductAttributeValue::$attributeTypeFields[$attribute->type];
+
+            if (!$productAttributeValue) {
+                $this->attributeValueRepository->create([
+                    'product_id'   => $variant->id,
+                    'attribute_id' => $attribute->id,
+                    'user_id'      => Auth::user()->id,
+                    $columnName    => $data[$attribute->code],
+                ]);
+            } else {
+                $productAttributeValue->update([$columnName => $data[$attribute->code]]);
+            }
+        }
+
+        return $variant;
+    }
+
+    public function getAllPopularProduct($type = null)
+    {
+        $params = request()->input();
+        $perPage = isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 20;
+
+
+        $page = Paginator::resolveCurrentPage('page');
+
+        $repository = $this->with([
+            'images',
+        ])->scopeQuery(function ($query) use ($params, $type) {
+
+
+            $qb = $query
+                ->distinct()
+                ->select('products.*')
+                ->orderBy('products.created_at',  'desc')
+
+                ->where(function ($query) {
+                    $query->where('products.countdown', '>=', Carbon::now())
+                        ->orWhere('products.countdown', '=', NULL);
+                })
+                ->whereNull('parent_id');
+
+            if (is_null(request()->input('status'))) {
+                $qb->where('products.status', 'active');
+            }
+
+            if (isset($params['search'])) {
+                $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
+            }
+
+            if (isset($params['price'])) {
+                if ($priceFilter = request('price')) {
+                    $priceRange = explode(',', $priceFilter);
+
+                    if (count($priceRange) > 1) {
+                        $qb
+                            ->where('products.price', '>=', $priceRange[0])
+                            ->where('products.price', '<=', end($priceRange));
+                    } else {
+                        $qb
+                            ->where('products.price', '>=', $priceRange);
+                    }
+                }
+            }
+
+            if (isset($params['owner'])) {
+                if (urldecode($params['owner']) == 'store') {
+                    $qb->whereHas('user', function ($query) {
+                        $query->where('users.type', 2);
+                    });
+                } else if (urldecode($params['owner']) == 'individual') {
+                    $qb->whereHas('user', function ($query) {
+                        $query->where('users.type',  1);
+                    });
+                }
+            }
+
+            if (isset($params['order'])) {
+                if (urldecode($params['order']) == 'newest_first') {
+                    $qb->orderBy('products.created_at',  'desc');
+                } else if (urldecode($params['order']) == 'low_to_high') {
+                    $qb->orderBy('products.price', 'asc');
+                } else if (urldecode($params['order']) == 'high_to_low') {
+                    $qb->orderBy('products.price',  'desc');
+                }
+            }
+
+            if (isset($params['category'])) {
+                if ($categoryFilter = request('category')) {
+                    $category = explode(',', $categoryFilter);
+                    $qb->join('categories', 'categories.id', 'products.category_id')
+                        ->join('categories', 'categories.id', 'categories.category_id')
+                        ->whereIn('categories.id', $category);
+                }
+            }
+            return $qb->groupBy('products.id');
+        });
+
+        # apply scope query so we can fetch the raw sql and perform a count
+        $repository->applyScope();
+        $countQuery = "select count(*) as aggregate from ({$repository->model->toSql()}) c";
+        $count = collect(DB::select($countQuery, $repository->model->getBindings()))->pluck('aggregate')->first();
+
+        if ($count > 0) {
+            # apply a new scope query to limit results to one page
+            $repository->scopeQuery(function ($query) use ($page, $perPage) {
+                return $query->forPage($page, $perPage);
+            });
+
+            # manually build the paginator
+            $items = $repository->get();
+        } else {
+            $items = [];
+        }
+
+        return $items;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public function getFilterHome($type = null)
+    {
+
+
+        $params = request()->input();
+        $perPage = isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 20;
+
+
+        $page = Paginator::resolveCurrentPage('page');
+
+        $repository = $this->with([
+            'images',
+        ])->scopeQuery(function ($query) use ($params, $type) {
+
+
+            $qb = $query
+                ->distinct()
+                ->select('products.*')
+                ->orderBy('products.created_at',  'desc')
+                ->where(function ($query) {
+                    $query->where('products.countdown', '>=', Carbon::now())
+                        ->orWhere('products.countdown', '=', NULL);
+                })
+                ->whereNull('parent_id');
+
+
+
+            if (is_null(request()->input('status'))) {
+                $qb->where('products.status', 'active');
+            }
+
+            if (isset($params['search'])) {
+                $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
+            }
+            if (isset($params['price'])) {
+                if ($priceFilter = request('price')) {
+                    $priceRange = explode(',', $priceFilter);
+
+                    if (count($priceRange) > 1) {
+                        $qb
+                            ->where('products.price', '>=', $priceRange[0])
+                            ->where('products.price', '<=', end($priceRange));
+                    } else {
+                        $qb
+                            ->where('products.price', '>=', $priceRange);
+                    }
+                }
+            }
+
+            if (isset($params['owner'])) {
+                if (urldecode($params['owner']) == 'store') {
+                    $qb->whereHas('user', function ($query) {
+                        $query->where('users.type', 2);
+                    });
+                } else if (urldecode($params['owner']) == 'individual') {
+                    $qb->whereHas('user', function ($query) {
+                        $query->where('users.type',  1);
+                    });
+                }
+            }
+
+
+            if (isset($params['order'])) {
+                if (urldecode($params['order']) == 'newest_first') {
+                    $qb->orderBy('products.created_at',  'desc');
+                } else if (urldecode($params['order']) == 'low_to_high') {
+                    $qb->orderBy('products.price', 'asc');
+                } else if (urldecode($params['order']) == 'high_to_low') {
+                    $qb->orderBy('products.price',  'desc');
+                }
+            }
+
+            if (isset($params['category'])) {
+                if ($categoryFilter = request('category')) {
+                    $category = explode(',', $categoryFilter);
+                    $qb->join('categories', 'categories.id', 'products.category_id')
+                        ->join('categories', 'categories.id', 'categories.category_id')
+                        ->whereIn('categories.id', $category);
+                }
+            }
+
+            return $qb->groupBy('products.id');
+        });
+
+        # apply scope query so we can fetch the raw sql and perform a count
+        $repository->applyScope();
+        $countQuery = "select count(*) as aggregate from ({$repository->model->toSql()}) c";
+        $count = collect(DB::select($countQuery, $repository->model->getBindings()))->pluck('aggregate')->first();
+
+        if ($count > 0) {
+            # apply a new scope query to limit results to one page
+            $repository->scopeQuery(function ($query) use ($page, $perPage) {
+                return $query->forPage($page, $perPage);
+            });
+
+            # manually build the paginator
+            $items = $repository->get();
+        } else {
+            $items = [];
+        }
+
+        return $items;
+    }
+}

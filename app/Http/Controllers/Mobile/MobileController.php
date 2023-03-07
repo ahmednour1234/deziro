@@ -7,7 +7,7 @@ use App\Http\Resources\BannerResource;
 use App\Http\Resources\CategoryeResource;
 use App\Models\Address;
 use App\Models\Banner;
-use App\Models\Categorie;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -25,7 +25,7 @@ class MobileController extends Controller
 
     public function getCategories()
     {
-        $categories = Categorie::where('is_active', 1)->get();
+        $categories = Category::where('is_active', 1)->get();
 
         return response()->json([
             'success' => true,

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Address;
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\SubCategorie;
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -83,12 +83,12 @@ class IndividualController extends Controller
 
         $individualDetail = User::findOrFail($id);
         $listCategorys = Category::all();
-        $listSubCategorys = SubCategorie::all();
+        $listSubCategorys = Category::all();
         $listStore = User::where('type', 2)->get();
 
         if ($individualDetail) {
             if ($request->ajax()) {
-                return datatables()->of(Product::with('user', 'category', 'subcategorie')->where('user_id', $id))->toJson();
+                return datatables()->of(Product::with('user', 'category', 'category')->where('user_id', $id))->toJson();
             }
             return view('admin.individual.individualProduct', compact('individualDetail', 'listCategorys', 'listSubCategorys', 'listStore'));
         }

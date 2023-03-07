@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\SubCategorie;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class SubCategorieController extends Controller
+class CategoryController extends Controller
 {
     public function __construct()
     {
@@ -21,7 +21,7 @@ class SubCategorieController extends Controller
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
-        $listSubCategory = SubCategorie::with('category')
+        $listSubCategory = Category::with('category')
         ->whereHas('category', function ($query) {
             $query->where('is_active', 1);
         })
@@ -38,7 +38,7 @@ class SubCategorieController extends Controller
         // if($request->ajax()){
         //     return datatables()->of(Category::all())->toJson();
         // }
-        return view('admin.subCategory.listSubCategory',compact('listCategorys','listSubCategory','sortColumn', 'sortDirection'));
+        return view('admin.category.listSubCategory',compact('listCategorys','listSubCategory','sortColumn', 'sortDirection'));
 
 
     }
@@ -51,7 +51,7 @@ class SubCategorieController extends Controller
 
         $validator = Validator::make($request->all(), [
             'category_type' => 'required',
-            'subCategory_name' => 'required',
+            'category_name' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -61,13 +61,13 @@ class SubCategorieController extends Controller
             ]);
 
         } else {
-            $subCategory = new SubCategorie();
-            $subCategory->category_id = $request->category_type;
-            $subCategory->name = $request->subCategory_name;
-            $subCategory->is_active = '1';
+            $category = new Category();
+            $category->category_id = $request->category_type;
+            $category->name = $request->category_name;
+            $category->is_active = '1';
 
 
-            $subCategory->save();
+            $category->save();
 
             return response()->json([
                 'status' => 200,
@@ -79,11 +79,11 @@ class SubCategorieController extends Controller
 
     public function editSubCategory($id)
     {
-        $subCategory = SubCategorie::findOrFail($id);
-        if ($subCategory) {
+        $category = Category::findOrFail($id);
+        if ($category) {
             return response()->json([
                 'status' => 200,
-                'subCategory' => $subCategory,
+                'category' => $category,
             ]);
         } else {
             return response()->json([
@@ -100,7 +100,7 @@ class SubCategorieController extends Controller
 
         $validator = Validator::make($request->all(), [
             'category_type' => 'required',
-            'subCategory_name' => 'required',
+            'category_name' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -110,13 +110,13 @@ class SubCategorieController extends Controller
             ]);
 
         } else {
-            $subCategory = SubCategorie::findOrFail($id);
-            if ($subCategory) {
-                $subCategory->category_id = $request->category_type;
-                $subCategory->name = $request->subCategory_name;
+            $category = Category::findOrFail($id);
+            if ($category) {
+                $category->category_id = $request->category_type;
+                $category->name = $request->category_name;
 
 
-                $subCategory->save();
+                $category->save();
 
                 return response()->json([
                     'status' => 200,
@@ -134,9 +134,9 @@ class SubCategorieController extends Controller
 
     public function deleteSubcategory($id)
     {
-        $subCategory = SubCategorie::findOrFail($id);
+        $category = Category::findOrFail($id);
 
-        $subCategory->delete();
+        $category->delete();
         return response()->json([
             'status' => 200,
             'message' => 'SubCategory Deleted Succesfully'
@@ -145,33 +145,33 @@ class SubCategorieController extends Controller
 
     public function is_active(Request $request,$id){
 
-        $subCategory = SubCategorie::findOrFail($id);
-        if ($subCategory) {
-            $subCategory->is_active = 0;
+        $category = Category::findOrFail($id);
+        if ($category) {
+            $category->is_active = 0;
         }
 
-        $subCategory->save();
+        $category->save();
 
         return response()->json([
             'status' => 200,
-            'message' => 'subCategory Inactivate Successfully',
+            'message' => 'category Inactivate Successfully',
         ]);
 
     }
 
     public function is_inactive(Request $request,$id){
 
-        $subCategory = SubCategorie::findOrFail($id);
+        $category = Category::findOrFail($id);
 
-        if ($subCategory) {
-            $subCategory->is_active = 1;
+        if ($category) {
+            $category->is_active = 1;
         }
 
-        $subCategory->save();
+        $category->save();
 
         return response()->json([
             'status' => 200,
-            'message' => 'subCategory Activate Successfully',
+            'message' => 'category Activate Successfully',
         ]);
 
     }

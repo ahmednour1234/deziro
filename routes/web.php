@@ -2,31 +2,16 @@
 
 
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\App\AuthController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\BannerImageController;
-use App\Http\Controllers\BidProductController;
 use App\Http\Controllers\CategorieController;
-use App\Http\Controllers\IndividualController;
-use App\Http\Controllers\InfoController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ProductImagesController;
-use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\SellingProductController;
-use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StoreController;
-use App\Http\Controllers\SwapProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\IconCategoryController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\StoreProductController;
+use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\WholeSaleController;
-use App\Http\Controllers\x;
-use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,46 +26,43 @@ use Illuminate\Support\Facades\Auth;
 
 
 
-Route::get('/', function() {
-    return redirect('login');
+Route::group(['middleware' => ['guest']], function () {
+
+    /**
+     * Login Routes
+     */
+    Route::get('login',  [AuthController::class, 'index'])->name('login');
+    Route::post('login',  [AuthController::class, 'login'])->name('login.perform');
 });
 
-Route::get('/login',[HomeController::class,'login'])->name('login');
 
-Route::post('/home',[HomeController::class,'userLogin']);
+Route::get('logout', [AuthController::class, 'logout']);
 
-Route::get('logout', [HomeController::class,'logout']);
-
-
-// Route::group(['middleware' => ['auth']], function () {
-
-//
-// });
 
 // Home
-Route::get('/home',[HomeController::class,'listHome'])->name('admin.home.listHome');
+Route::get('/', [HomeController::class, 'listHome'])->name('admin.home.listHome');
 
 
 
 // // Store
 // // Route::get('/store',[StoreController::class,'listStore'])->name('admin.store.listStore');
 
-Route::get('/requestStore',[StoreController::class,'listRequestStore'])->name('admin.store.listRequestStore');
-Route::get('/rejectedStore',[StoreController::class,'listRejectedStore'])->name('admin.store.listRejectedStore');
-Route::get('/store',[StoreController::class,'listStore'])->name('admin.store.listStore');
-Route::get('/createStore',[StoreController::class,'createStore'])->name('admin.store.createStore');
-Route::post('/addNewStore',[StoreController::class,'addNewStore'])->name('admin.store.addNewStore');
+Route::get('/requestStore', [StoreController::class, 'listRequestStore'])->name('admin.store.listRequestStore');
+Route::get('/rejectedStore', [StoreController::class, 'listRejectedStore'])->name('admin.store.listRejectedStore');
+Route::get('/store', [StoreController::class, 'listStore'])->name('admin.store.listStore');
+Route::get('/createStore', [StoreController::class, 'createStore'])->name('admin.store.createStore');
+Route::post('/addNewStore', [StoreController::class, 'addNewStore'])->name('admin.store.addNewStore');
 Route::get('/editStore/{id}', [StoreController::class, 'editStore'])->name('admin.store.editStore');
-Route::post('updateStore/{id}',[StoreController::class,'updateStore'])->name('admin.store.updateStore');
+Route::post('updateStore/{id}', [StoreController::class, 'updateStore'])->name('admin.store.updateStore');
 
 
 //More Details
-Route::get('/userDetail/{id}',[UserController::class,'listUserDetail'])->name('admin.user.listUserDetail');
-Route::get('/user',[UserController::class,'listUser'])->name('admin.user.listUser');
+Route::get('/userDetail/{id}', [UserController::class, 'listUserDetail'])->name('admin.user.listUserDetail');
+Route::get('/user', [UserController::class, 'listUser'])->name('admin.user.listUser');
 Route::post('active/{id}', [UserController::class, 'is_active'])->name('admin.store.is_active');
 Route::post('inactive/{id}', [UserController::class, 'is_inactive'])->name('admin.store.is_inactive');
-Route::post('approve/{id}',[UserController::class,'approve'])->name('admin.user.approve');
-Route::post('reject/{id}',[UserController::class,'reject'])->name('admin.user.reject');
+Route::post('approve/{id}', [UserController::class, 'approve'])->name('admin.user.approve');
+Route::post('reject/{id}', [UserController::class, 'reject'])->name('admin.user.reject');
 //End
 
 
@@ -92,19 +74,19 @@ Route::post('reject/{id}',[UserController::class,'reject'])->name('admin.user.re
 
 
 //Admins
-Route::get('/adminn',[AdminController::class,'listAdmin'])->name('admin.admin.listAdmin');
-Route::post('/addNewAdmin',[AdminController::class,'addNewAdmin'])->name('admin.admin.addNewAdmin');
+Route::get('/adminn', [AdminController::class, 'listAdmin'])->name('admin.admin.listAdmin');
+Route::post('/addNewAdmin', [AdminController::class, 'addNewAdmin'])->name('admin.admin.addNewAdmin');
 Route::get('editAdmin/{id}', [AdminController::class, 'editAdmin'])->name('admin.admin.editAdmin');
-Route::post('/updateAdmin/{id}',[AdminController::class,'updateAdmin'])->name('admin.admin.updateAdmin');
+Route::post('/updateAdmin/{id}', [AdminController::class, 'updateAdmin'])->name('admin.admin.updateAdmin');
 //end Admin
 
 
 
 //Category
 Route::get('category', [CategorieController::class, 'listCategory'])->name('admin.category.listCategory');
-Route::post('addNewCategory',[CategorieController::class,'addNewCategory'])->name('admin.category.addNewCategory');
+Route::post('addNewCategory', [CategorieController::class, 'addNewCategory'])->name('admin.category.addNewCategory');
 Route::get('editCategory/{id}', [CategorieController::class, 'editCategory'])->name('admin.category.editCategory');
-Route::post('updateCategory/{id}',[CategorieController::class,'updateCategory'])->name('admin.category.updateCategory');
+Route::post('updateCategory/{id}', [CategorieController::class, 'updateCategory'])->name('admin.category.updateCategory');
 Route::post('category_active/{id}', [CategorieController::class, 'is_active'])->name('admin.category.is_active');
 Route::post('category_inactive/{id}', [CategorieController::class, 'is_inactive'])->name('admin.category.is_inactive');
 //End
@@ -129,6 +111,35 @@ Route::get('/bannerImage/delete/{id}', [BannerImageController::class, 'fileDelet
 
 
 
+/**
+ * Attributes routes.
+ */
+Route::get('/attributes', [AttributeController::class, 'index'])->defaults('_config', [
+    'view' => 'admin.attributes.index',
+])->name('admin.attributes.index');
+
+Route::get('/attributes/create', [AttributeController::class, 'create'])->defaults('_config', [
+    'view' => 'admin.attributes.create',
+])->name('admin.attributes.create');
+
+Route::post('/attributes/create', [AttributeController::class, 'store'])->defaults('_config', [
+    'redirect' => 'admin.attributes.index',
+])->name('admin.attributes.store');
+
+Route::get('/attributes/edit/{id}', [AttributeController::class, 'edit'])->defaults('_config', [
+    'view' => 'admin.attributes.edit',
+])->name('admin.attributes.edit');
+
+Route::post('/attributes/edit/{id}', [AttributeController::class, 'update'])->defaults('_config', [
+    'redirect' => 'admin.attributes.index',
+])->name('admin.attributes.update');
+
+Route::post('/attributes/delete/{id}', [AttributeController::class, 'destroy'])->name('admin.attributes.delete');
+
+// Route::post('/attributes/massdelete', [AttributeController::class, 'massDestroy'])->name('admin.attributes.massdelete');
+
+
+
 // Route::get('/deleteCategory/{id}',[CategoryController::class,'deleteCategory'])->name('admin.category.deleteCategory');
 // Route::post('category_active/{id}', [CategoryController::class, 'is_active'])->name('admin.category.is_active');
 // Route::post('category_inactive/{id}', [CategoryController::class, 'is_inactive'])->name('admin.category.is_inactive');
@@ -145,13 +156,13 @@ Route::get('/bannerImage/delete/{id}', [BannerImageController::class, 'fileDelet
 
 
 // //SubCategory
-// Route::get('subCategory', [SubCategorieController::class, 'listSubCategory'])->name('admin.subCategory.listSubCategory');
-// Route::post('addNewSubCategory',[SubCategorieController::class,'addNewSubCategory'])->name('admin.subCategory.addNewSubCategory');
-// Route::get('editSubCategory/{id}', [SubCategorieController::class, 'editSubCategory'])->name('admin.subCategory.editSubCategory');
-// Route::post('updateSubCategory/{id}',[SubCategorieController::class,'updateSubCategory'])->name('admin.category.updateSubCategory');
-// Route::get('/deleteSubcategory/{id}',[SubCategorieController::class,'deleteSubcategory'])->name('admin.subCategory.deleteSubcategory');
-// Route::post('subCategory_active/{id}', [SubCategorieController::class, 'is_active'])->name('admin.subCategory.is_active');
-// Route::post('subCategory_inactive/{id}', [SubCategorieController::class, 'is_inactive'])->name('admin.subCategory.is_inactive');
+// Route::get('category', [CategoryController::class, 'listSubCategory'])->name('admin.category.listSubCategory');
+// Route::post('addNewSubCategory',[CategoryController::class,'addNewSubCategory'])->name('admin.category.addNewSubCategory');
+// Route::get('editSubCategory/{id}', [CategoryController::class, 'editSubCategory'])->name('admin.category.editSubCategory');
+// Route::post('updateSubCategory/{id}',[CategoryController::class,'updateSubCategory'])->name('admin.category.updateSubCategory');
+// Route::get('/deleteSubcategory/{id}',[CategoryController::class,'deleteSubcategory'])->name('admin.category.deleteSubcategory');
+// Route::post('category_active/{id}', [CategoryController::class, 'is_active'])->name('admin.category.is_active');
+// Route::post('category_inactive/{id}', [CategoryController::class, 'is_inactive'])->name('admin.category.is_inactive');
 
 
 // //Products

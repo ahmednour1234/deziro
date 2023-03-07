@@ -12,6 +12,6 @@ class Address extends Model
     protected $fillable = ['id', 'user_id', 'address_details','location','is_default'];
 
     public function user_address(){
-        return $this->belongsTo(Categorie::class, 'parent_id');
+        return $this->belongsTo(Category::class, 'parent_id');
     }
 }

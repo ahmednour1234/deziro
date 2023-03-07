@@ -131,9 +131,9 @@
                             @endif
                         </a></th>
                         <th><a class="text-dark"
-                            href="{{ route('admin.product.listRequestProduct', ['sort' => 'subcategory_id', 'direction' => $sortColumn == 'subcategory_id' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                            href="{{ route('admin.product.listRequestProduct', ['sort' => 'category_id', 'direction' => $sortColumn == 'category_id' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
                             Sub
-                             @if ($sortColumn == 'subcategory_id')
+                             @if ($sortColumn == 'category_id')
                                 @if ($sortDirection == 'asc')
                                     <i class="fas fa-arrow-up"></i>
                                 @else
@@ -177,7 +177,7 @@
                                     {{ $requestProduct->user_id }}
                                 </a></td>
                             <td>{{ $requestProduct->type }} </td>
-                            <td>{{ $requestProduct->subcategorie->name }} </td>
+                            <td>{{ $requestProduct->category->name }} </td>
                             <td>{{ $requestProduct->condition }}</td>
                             {{-- <td>{{ $requestProduct->price }}</td> --}}
                             <td>{{ $requestProduct->money_collection }}</td>

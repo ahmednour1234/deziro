@@ -19,7 +19,7 @@ class ProductController extends Controller
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
-        $listRequestProduct = Product::with('user', 'category', 'subcategorie')
+        $listRequestProduct = Product::with('user', 'category', 'category')
             ->where('status', 'pending')
             ->orderBy($sortColumn, $sortDirection)
             ->whereHas('user', function ($query) {
@@ -31,7 +31,7 @@ class ProductController extends Controller
                     ->orWhere('user_id', 'like', '%' . $request->search . '%')
                     ->orWhere('type', 'like', '%' . $request->search . '%')
                     ->orWhereHas(
-                        'subcategorie',
+                        'category',
                         function ($query) use ($request) {
                                 $query->where('name', 'like', '%' . $request->search . '%');
                             }
@@ -59,7 +59,7 @@ class ProductController extends Controller
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
-        $listRejectedProduct = Product::with('user','category','subcategorie')->where('status', 'rejected')
+        $listRejectedProduct = Product::with('user','category','category')->where('status', 'rejected')
         ->orderBy($sortColumn, $sortDirection)
         ->whereHas('user', function ($query) {
             $query->where('type', 1);
@@ -70,7 +70,7 @@ class ProductController extends Controller
                     ->orWhere('user_id', 'like', '%' . $request->search . '%')
                     ->orWhere('type', 'like', '%' . $request->search . '%')
                     ->orWhereHas(
-                        'subcategorie',
+                        'category',
                         function ($query) use ($request) {
                                 $query->where('name', 'like', '%' . $request->search . '%');
                             }

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Address;
-use App\Models\Categorie;
+use App\Models\Category;
 use App\Models\store;
 use App\Models\Category;
-use App\Models\SubCategorie;
+use App\Models\Category;
 use App\Models\User;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -101,7 +101,7 @@ class StoreController extends Controller
 
     public function createStore()
     {
-        // $listCategorys = Categorie::all();
+        // $listCategorys = Category::all();
         return view('admin.store.crud_modal.addStoreModal');
     }
 
@@ -173,7 +173,7 @@ class StoreController extends Controller
 
     public function editStore($id)
     {
-        // $listCategorys = Categorie::all();
+        // $listCategorys = Category::all();
         $store = User::findOrFail($id);
         return view('admin.store.crud_modal.editStoreModal', compact('store'));
     }
@@ -252,5 +252,5 @@ class StoreController extends Controller
     }
 
 
-  
+
 }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Categorie;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,7 +18,7 @@ class CategorieController extends Controller
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
 
-        $listCategorie = Categorie::orderBy('created_at', 'desc')
+        $listCategorie = Category::orderBy('created_at', 'desc')
             ->where(function ($query) use ($search) {
                 return $query->where('name', 'like', '%' . $search . '%')
                     ->orWhere('created_at', 'like', '%' . $search . '%');
@@ -42,16 +42,16 @@ class CategorieController extends Controller
                 'errors' => $validator->messages(),
             ]);
         } else {
-            $category = new Categorie();
+            $category = new Category();
 
             $category->name = $request->name;
 
 
-            $categorie = Categorie::latest()->take(1)->first();
+            $category = Category::latest()->take(1)->first();
             if ($request->hasFile('image')) {
 
                 $img = $request->image;
-                $uploadFile1 = $img->store('category_images/' . $categorie->id);
+                $uploadFile1 = $img->store('category_images/' . $category->id);
             } else {
                 $size1 = '';
                 $uploadFile1 = '';

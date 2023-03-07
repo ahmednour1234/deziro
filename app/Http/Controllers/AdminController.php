@@ -74,8 +74,7 @@ class AdminController extends Controller
                     'admin' => $admin,
                     'message' => 'Admin Added Successfully',
                 ]);
-            }
-            else{
+            } else {
                 return response()->json([
                     'status' => 404,
                     'message' => 'password # confirm password',
@@ -138,9 +137,7 @@ class AdminController extends Controller
                         'admin' => $admin,
                         'message' => 'Admin Added Successfully',
                     ]);
-                }
-
-                else{
+                } else {
                     return response()->json([
                         'status' => 404,
                         'message' => 'password # confirm password',
@@ -166,11 +163,4 @@ class AdminController extends Controller
             'message' => 'Admin Deleted Succesfully'
         ]);
     }
-
-
-
-
-
-
-
 }

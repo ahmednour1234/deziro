@@ -6,7 +6,7 @@ use App\Models\Bid;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImages;
-use App\Models\SubCategorie;
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -25,7 +25,7 @@ class BidProductController extends Controller
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
-        $listBidProduct = Product::with('user', 'subcategorie')
+        $listBidProduct = Product::with('user', 'category')
             ->where('type', 'bid')
             ->where('status', 'active')
             ->orderBy($sortColumn, $sortDirection)
@@ -35,7 +35,7 @@ class BidProductController extends Controller
             ->whereHas('user', function ($query) {
                 $query->where('is_active', 1);
             })
-            ->whereHas('subcategorie', function ($query) {
+            ->whereHas('category', function ($query) {
                 $query->where('is_active', 1);
             })
             ->where(function ($query) use ($request) {
@@ -44,7 +44,7 @@ class BidProductController extends Controller
                     ->orWhere('user_id', 'like', '%' . $request->search . '%')
                     ->orWhere('type', 'like', '%' . $request->search . '%')
                     ->orWhereHas(
-                        'subcategorie',
+                        'category',
                         function ($query) use ($request) {
                             $query->where('name', 'like', '%' . $request->search . '%');
                         }
@@ -90,7 +90,7 @@ class BidProductController extends Controller
             // ->whereHas('user', function ($query) {
             //     $query->where('is_active', 1);
             // })
-            // ->whereHas('subcategorie', function ($query) {
+            // ->whereHas('category', function ($query) {
             //     $query->where('is_active', 1);
             // })
             ->where(function ($query) use ($request) {
@@ -129,7 +129,7 @@ class BidProductController extends Controller
 
         $validator = Validator::make($request->all(), [
             'category' => 'required',
-            'subCategory' => 'required',
+            'category' => 'required',
             'store' => 'required',
             'name' => 'required',
             'condition' => 'required',
@@ -151,7 +151,7 @@ class BidProductController extends Controller
             $product->status = 'active';
             $product->user_id = $request->store;
             $product->category_id = $request->category;
-            $product->subcategory_id = $request->subCategory;
+            $product->category_id = $request->category;
             $product->name = $request->name;
             $product->condition = $request->condition;
             $product->day = $request->day;
@@ -193,7 +193,7 @@ class BidProductController extends Controller
 
         $validator = Validator::make($request->all(), [
             'category' => 'required',
-            'subCategory' => 'required',
+            'category' => 'required',
             // 'store' => 'required',
             'name' => 'required',
             'condition' => 'required',
@@ -216,7 +216,7 @@ class BidProductController extends Controller
                 // $product->status = 'active';
                 $product->user_id = $request->individual_id;
                 $product->category_id = $request->category;
-                $product->subcategory_id = $request->subCategory;
+                $product->category_id = $request->category;
                 $product->name = $request->name;
                 $product->condition = $request->condition;
                 $product->day = $request->day;

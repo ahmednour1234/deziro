@@ -51,13 +51,13 @@
                         </div>
 
                         <div class="col-6 mb-0">
-                            <label for="subcategory" class="form-label">SubCategory Name <span
+                            <label for="category" class="form-label">SubCategory Name <span
                                     class="text-error"></span></label>
-                            <select class="form-select subcategory" id="edit_swap_subcategory" aria-label="Default select example" name="subcategory" required>
+                            <select class="form-select category" id="edit_swap_subcategory" aria-label="Default select example" name="category" required>
                                 <option value=""> Select Sub-Category ...</option>
 
-                                @foreach ($listSubCategorys as $subCategory)
-                                    <option value="{{ $subCategory->id }}"> {{ $subCategory->name }}</option>
+                                @foreach ($listSubCategorys as $category)
+                                    <option value="{{ $category->id }}"> {{ $category->name }}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger" id="error_edit_swap_subcategory"></span>
@@ -100,7 +100,7 @@
 
                     </div>
                 </div>
-                
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary"
                         data-bs-dismiss="modal">Close</button>

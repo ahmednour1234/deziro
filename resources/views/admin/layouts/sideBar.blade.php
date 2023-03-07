@@ -88,7 +88,7 @@
 
 
 
-            {{-- Categorie --}}
+            {{-- Category --}}
             <li class="menu-item   {{ request()->is('category') ? 'active' : '' }}">
                 <a href="{{ route('admin.category.listCategory') }}" class="menu-link ">
                     <i class="menu-icon tf-icons bx bx-user-circle"></i>
@@ -114,7 +114,7 @@
 
 
 
-            {{-- <li class="menu-item {{ request()->is('subCategory')  ? 'active' : '' }} ">
+            {{-- <li class="menu-item {{ request()->is('category')  ? 'active' : '' }} ">
                     <a href="{{ route('admin.category.listSubCategory') }}" class="menu-link">
                         <div data-i18n="Without navbar">List Sub Categories </div>
                     </a>
@@ -155,8 +155,8 @@
 
 
             <!-- Sub Category -->
-            <li class="menu-item   {{ request()->is('subCategory') ? 'active' : '' }}">
-                <a href="{{ route('admin.subCategory.listSubCategory') }}" class="menu-link ">
+            <li class="menu-item   {{ request()->is('category') ? 'active' : '' }}">
+                <a href="{{ route('admin.category.listSubCategory') }}" class="menu-link ">
                     <i class="menu-icon tf-icons bx bx-user-circle"></i>
                     <div data-i18n="Analytics">Sub Category</div>
                 </a>

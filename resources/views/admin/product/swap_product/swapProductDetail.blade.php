@@ -345,10 +345,10 @@
                         {{-- <input type="text" id="store_id" value="{{ $productDetail->id }}"> --}}
                         <div class="row">
                             <div class="col-sm-6">
-                                <p class="mb-0">Sub Categorie </p>
+                                <p class="mb-0">Sub Category </p>
                             </div>
                             <div class="col-sm-6">
-                                <p class="text-muted mb-0">{{ $productDetail->subcategorie->name }}</p>
+                                <p class="text-muted mb-0">{{ $productDetail->category->name }}</p>
                             </div>
                         </div>
                         <hr>

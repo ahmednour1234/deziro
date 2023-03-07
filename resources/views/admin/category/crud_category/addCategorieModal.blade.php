@@ -29,6 +29,17 @@
                             <span class="text-danger" id="error_name"></span>
                         </div>
 
+                        <div class="col-12 mb-0">
+                            <label for="attributes" class="form-label">Filterable Attributes <span
+                                    class="text-error"></span></label>
+                            <select class="form-control select2" id="attributes" name="attributes" multiple>
+                                {{-- @foreach ($attributes as $attribute)
+                                    <option value="{{ $attribute->id }}">{{ $attribute->name }}</option>
+                                @endforeach --}}
+                            </select>
+                            <span class="text-danger" id="edit_error_attribute"></span>
+                        </div>
+
                         <div class="col-6 mb-0">
                             <label for="image" class="form-label"> Add Image <span class="text-error"></span></label>
 

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\SubCategorie;
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -21,11 +21,11 @@ class StoreProductController extends Controller
         $sortDirection = $request->input('direction', 'desc');
 
         $listStore = User::where('type', 2)->get();
-        $listSubCategory = SubCategorie::all();
+        $listSubCategory = Category::all();
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
-        $listSellingProduct = Product::with('user', 'subcategorie')
+        $listSellingProduct = Product::with('user', 'category')
             ->where('type', 'sell')
             ->where('status', 'active')
             ->orderBy($sortColumn, $sortDirection)
@@ -34,7 +34,7 @@ class StoreProductController extends Controller
             })
             ->whereHas('user', function ($query) {
                 $query->where('is_active', 1);
-            })->whereHas('subcategorie', function ($query) {
+            })->whereHas('category', function ($query) {
                 $query->where('is_active', 1);
             })
             ->where(function ($query) use ($request) {
@@ -43,7 +43,7 @@ class StoreProductController extends Controller
                     ->orWhere('user_id', 'like', '%' . $request->search . '%')
                     ->orWhere('type', 'like', '%' . $request->search . '%')
                     ->orWhereHas(
-                        'subcategorie',
+                        'category',
                         function ($query) use ($request) {
                             $query->where('name', 'like', '%' . $request->search . '%');
                         }
@@ -70,11 +70,11 @@ class StoreProductController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'subCategory' => 'required',
+            'category' => 'required',
             'store' => 'required',
             'name' => 'required',
             'condition' => 'required',
-            'available_quantity' => 'required',
+            'quantity' => 'required',
             'price' => 'required',
             'description' => 'required'
         ]);
@@ -89,10 +89,10 @@ class StoreProductController extends Controller
             $product->type = 'sell';
             $product->status = 'active';
             $product->user_id = $request->store;
-            $product->subcategory_id = $request->subCategory;
+            $product->category_id = $request->category;
             $product->name = $request->name;
             $product->condition = $request->condition;
-            $product->available_quantity = $request->available_quantity;
+            $product->quantity = $request->quantity;
             $product->price = $request->price;
             $product->description = $request->description;
 
@@ -131,11 +131,11 @@ class StoreProductController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'subcategory' => 'required',
+            'category' => 'required',
             'store' => 'required',
             'name' => 'required',
             'condition' => 'required',
-            'available_quantity' => 'required',
+            'quantity' => 'required',
             'price' => 'required',
             'description' => 'required',
         ]);
@@ -151,10 +151,10 @@ class StoreProductController extends Controller
                 $product->type = 'sell';
                 $product->status = 'active';
                 $product->user_id = $request->store;
-                $product->subcategory_id = $request->subcategory;
+                $product->category_id = $request->category;
                 $product->name = $request->name;
                 $product->condition = $request->condition;
-                $product->available_quantity = $request->available_quantity;
+                $product->quantity = $request->quantity;
                 $product->price = $request->price;
                 $product->description = $request->description;
 
@@ -198,11 +198,11 @@ class StoreProductController extends Controller
 
 
         $listStore = User::where('type', 2)->get();
-        $listSubCategory = SubCategorie::all();
+        $listSubCategory = Category::all();
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
-        $listBidProduct = Product::with('user', 'subcategorie')
+        $listBidProduct = Product::with('user', 'category')
         ->orderBy($sortColumn, $sortDirection)
             ->where('type', 'bid')
             ->where('status', 'active')
@@ -212,7 +212,7 @@ class StoreProductController extends Controller
             ->whereHas('user', function ($query) {
                 $query->where('is_active', 1);
             })
-            ->whereHas('subcategorie', function ($query) {
+            ->whereHas('category', function ($query) {
                 $query->where('is_active', 1);
             })
             ->where(function ($query) use ($request) {
@@ -221,7 +221,7 @@ class StoreProductController extends Controller
                     ->orWhere('user_id', 'like', '%' . $request->search . '%')
                     ->orWhere('type', 'like', '%' . $request->search . '%')
                     ->orWhereHas(
-                        'subcategorie',
+                        'category',
                         function ($query) use ($request) {
                             $query->where('name', 'like', '%' . $request->search . '%');
                         }
@@ -247,7 +247,7 @@ class StoreProductController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'subCategory' => 'required',
+            'category' => 'required',
             'store' => 'required',
             'name' => 'required',
             'condition' => 'required',
@@ -268,7 +268,7 @@ class StoreProductController extends Controller
             $product->type = 'bid';
             $product->status = 'active';
             $product->user_id = $request->store;
-            $product->subcategory_id = $request->subCategory;
+            $product->category_id = $request->category;
             $product->name = $request->name;
             $product->condition = $request->condition;
             $product->day = $request->day;
@@ -310,7 +310,7 @@ class StoreProductController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'subCategory' => 'required',
+            'category' => 'required',
             'store' => 'required',
             'name' => 'required',
             'condition' => 'required',
@@ -332,7 +332,7 @@ class StoreProductController extends Controller
                 // $product->type = 'bid';
                 // $product->status = 'active';
                 $product->user_id = $request->individual_id;
-                $product->subcategory_id = $request->subCategory;
+                $product->category_id = $request->category;
                 $product->name = $request->name;
                 $product->condition = $request->condition;
                 $product->day = $request->day;

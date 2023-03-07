@@ -117,9 +117,9 @@
                             @endif
                         </a></th>
                         <th><a class="text-dark"
-                            href="{{ route('admin.product.listSwapProduct', ['sort' => 'subcategory_id', 'direction' => $sortColumn == 'subcategory_id' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                            href="{{ route('admin.product.listSwapProduct', ['sort' => 'category_id', 'direction' => $sortColumn == 'category_id' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
                             Sub
-                             @if ($sortColumn == 'subcategory_id')
+                             @if ($sortColumn == 'category_id')
                                 @if ($sortDirection == 'asc')
                                     <i class="fas fa-arrow-up"></i>
                                 @else
@@ -151,7 +151,7 @@
                             <td><a href="individualDetail/{{ $swapProduct->user_id }}" class="btn btn-dark btn-sm">
                                     {{ $swapProduct->user_id }}
                                 </a></td>
-                            <td>{{ $swapProduct->subcategorie->name }} </td>
+                            <td>{{ $swapProduct->category->name }} </td>
                             <td>{{ $swapProduct->condition }}</td>
                             <td>
                                 @if ($swapProduct->type == 'sell')
@@ -216,7 +216,7 @@
             //             data: 'category.type'
             //         },
             //         {
-            //             data: 'subcategorie.name'
+            //             data: 'category.name'
             //         },
             //         {
             //             data: 'condition'
@@ -299,7 +299,7 @@
                                 console.log(response.swapProduct.user_id);
                             }
                             $('#edit_swap_category').val(response.swapProduct.category_id)
-                            $('#edit_swap_subcategory').val(response.swapProduct.subcategory_id)
+                            $('#edit_swap_subcategory').val(response.swapProduct.category_id)
                             $('#edit_swap_name').val(response.swapProduct.name)
                             $('#edit_swap_condition').val(response.swapProduct.condition)
                             $('#edit_swap_description').val(response.swapProduct.description)
@@ -317,7 +317,7 @@
                 var data = {
                     'store': $('#edit_swap_individual_id').val(),
                     'category': $('#edit_swap_category').val(),
-                    'subcategory': $('#edit_swap_subcategory').val(),
+                    'category': $('#edit_swap_subcategory').val(),
                     'name': $('#edit_swap_name').val(),
                     'condition': $('#edit_swap_condition').val(),
                     'description': $('#edit_swap_description').val(),
@@ -340,9 +340,9 @@
                             category == '' ? $('#error_edit_swap_category').html(response
                                     .errors.category) : $('#error_edit_swap_category')
                                 .html('')
-                            const subcategory = $('#edit_swap_subcategory').val();
-                            subcategory == '' ? $('#error_edit_swap_subcategory').html(
-                                response.errors.subcategory) : $(
+                            const category = $('#edit_swap_subcategory').val();
+                            category == '' ? $('#error_edit_swap_subcategory').html(
+                                response.errors.category) : $(
                                 '#error_edit_swap_subcategory').html('')
                             const name = $('#edit_swap_name').val();
                             name == '' ? $('#error_edit_swap_name').html(response

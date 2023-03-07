@@ -14,24 +14,28 @@ class User extends  Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
-    // public function product(){
-    //     return $this->hasMany(Product::class,'user_id','id');
-    // }
+    public function scopeStore($query)
+    {
+        return $query->where('type', 2);
+    }
 
-    // public function bid(){
-    //     return $this->hasMany(Bid::class,'user_id','id');
-    // }
+    public function isIndividual()
+    {
+        return $this->type == 1;
+    }
 
-    // public function swap(){
-    //     return $this->hasMany(Swap::class,'user_id','id');
-    // }
+    public function isStore()
+    {
+        return $this->type == 2;
+    }
 
-    // public function address(){
-    //     return $this->hasMany(Address::class,'user_id','id');
-    // }
+    public function product()
+    {
+        return $this->hasMany(Product::class, 'user_id', 'id');
+    }
 
 
-      /**
+    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed
@@ -91,11 +95,8 @@ class User extends  Authenticatable implements JWTSubject
     {
         return $this->hasMany(Address::class, 'user_id', 'id');
     }
-    public function notification(){
+    public function notification()
+    {
         return $this->hasMany(Notification::class, 'user_id', 'id');
     }
-
-
-
-
 }

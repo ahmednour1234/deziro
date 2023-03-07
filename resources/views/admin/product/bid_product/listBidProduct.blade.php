@@ -116,9 +116,9 @@
                             @endif
                         </a></th>
                         <th><a class="text-dark"
-                            href="{{ route('admin.product.listBidProduct', ['sort' => 'subcategory_id', 'direction' => $sortColumn == 'subcategory_id' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                            href="{{ route('admin.product.listBidProduct', ['sort' => 'category_id', 'direction' => $sortColumn == 'category_id' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
                             Sub
-                             @if ($sortColumn == 'subcategory_id')
+                             @if ($sortColumn == 'category_id')
                                 @if ($sortDirection == 'asc')
                                     <i class="fas fa-arrow-up"></i>
                                 @else
@@ -183,7 +183,7 @@
                             <td><a href="individualDetail/{{ $bidProduct->user_id }}" class="btn btn-dark btn-sm">
                                     {{ $bidProduct->user_id }}
                                 </a></td>
-                            <td>{{ $bidProduct->subcategorie->name }} </td>
+                            <td>{{ $bidProduct->category->name }} </td>
                             <td>{{ $bidProduct->condition }}</td>
                             <td>{{ $bidProduct->bid_starting_price }}</td>
                             <td>    <div  data-countdown="{{ $bidProduct->countdown }}"></div></td>
@@ -263,7 +263,7 @@ $('#search').on('keyup',function(){
             //         //     data: 'category.type'
             //         // },
             //         {
-            //             data: 'subcategorie.name'
+            //             data: 'category.name'
             //         },
 
             //         // {
@@ -350,8 +350,8 @@ $('#search').on('keyup',function(){
             //                 store == '' ? $('#error_store').html(response.errors.store) : $('#error_store').html('')
             //                 const category = $('#category').val();
             //                 category == '' ? $('#error_category').html(response.errors.category) : $('#error_category').html('')
-            //                 const subCategory = $('#subCategory').val();
-            //                 subCategory == '' ? $('#error_subCategory').html(response.errors.subCategory) : $('#error_subCategory').html('')
+            //                 const category = $('#category').val();
+            //                 category == '' ? $('#error_subCategory').html(response.errors.category) : $('#error_subCategory').html('')
             //                 const name = $('#name').val();
             //                 name == '' ? $('#error_name').html(response.errors.name) : $('#error_name').html('')
             //                 const condition = $('#condition').val();
@@ -438,7 +438,7 @@ $('#search').on('keyup',function(){
             //                     console.log(response.bidProduct.user_id);
             //                 }
             //                 $('#edit_bid_category').val(response.bidProduct.category_id)
-            //                 $('#edit_bid_subcategory').val(response.bidProduct.subcategory_id)
+            //                 $('#edit_bid_subcategory').val(response.bidProduct.category_id)
             //                 $('#edit_bid_name').val(response.bidProduct.name)
             //                 $('#edit_bid_condition').val(response.bidProduct.condition)
             //                 $('#edit_day').val(response.bidProduct.day)
@@ -482,8 +482,8 @@ $('#search').on('keyup',function(){
             //                 store == '' ? $('#error_edit_bid_store').html(response.errors.store) : $('#error_edit_bid_store').html('')
             //                 const category = $('#edit_bid_category').val();
             //                 category == '' ? $('#error_edit_bid_category').html(response.errors.category) : $('#error_edit_bid_category').html('')
-            //                 const subcategory = $('#edit_bid_subcategory').val();
-            //                 subcategory == '' ? $('#error_edit_bid_subcategory').html(response.errors.subCategory) : $('#error_edit_bid_subcategory').html('')
+            //                 const category = $('#edit_bid_subcategory').val();
+            //                 category == '' ? $('#error_edit_bid_subcategory').html(response.errors.category) : $('#error_edit_bid_subcategory').html('')
             //                 const name = $('#edit_bid_name').val();
             //                 name == '' ? $('#error_edit_bid_name').html(response.errors.name) : $('#error_edit_bid_name').html('')
             //                 const product_type = $('#edit_product_bid_type').val();
@@ -581,7 +581,7 @@ $('#search').on('keyup',function(){
             // //     url: '/getSubCategorys',
             // //     data:'category_id='+category_id+'&_token={{ csrf_token() }}',
             // //     success: function (response){
-            // //         $('#subcategory').html(response)
+            // //         $('#category').html(response)
             // //     }
             // //    })
             // // })

@@ -17,7 +17,7 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    public const HOME = '/redirect';
+    public const HOME = '/';
 
     /**
      * Define your route model bindings, pattern filters, and other route configuration.
@@ -25,7 +25,7 @@ class RouteServiceProvider extends ServiceProvider
      * @return void
      */
     protected $namespace = 'App\Http\Controller';
-    
+
     public function boot()
     {
         $this->configureRateLimiting();
