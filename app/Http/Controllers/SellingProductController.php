@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImages;
-use App\Models\Category;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -26,7 +25,7 @@ class SellingProductController extends Controller
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
         $listSellingProduct = Product::with('user', 'category')
-        ->orderBy($sortColumn, $sortDirection)
+            ->orderBy($sortColumn, $sortDirection)
             ->where('type', 'sell')
             ->where('status', 'active')
             ->whereHas('user', function ($query) {
@@ -61,9 +60,7 @@ class SellingProductController extends Controller
             // })
             ->paginate($perPage);
         $listSellingProduct->appends(request()->query());
-        return view('admin.product.selling_product.listSellingProduct', compact('listSellingProduct','sortColumn', 'sortDirection'));
-
-
+        return view('admin.product.selling_product.listSellingProduct', compact('listSellingProduct', 'sortColumn', 'sortDirection'));
     }
 
     public function SellingProductDetail($id)

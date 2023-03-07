@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Address;
 use App\Models\Category;
 use App\Models\store;
-use App\Models\Category;
-use App\Models\Category;
 use App\Models\User;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -32,11 +30,11 @@ class StoreController extends Controller
             ->orderBy($sortColumn, $sortDirection)
             ->where(function ($query) use ($request) {
                 return $query->where('store_name', 'like', '%' . $request->search . '%')
-                ->orWhere('first_name', 'like', '%' . $request->search . '%')
-                ->orWhere('last_name', 'like', '%' . $request->search . '%')
-                ->orWhereRaw("concat(first_name, ' ', last_name) like '%" . $request->search . "%' ")
-                ->orWhere('phone', 'like', '%' . $request->search . '%')
-                ->orWhere('email', 'like', '%' . $request->search . '%')
+                    ->orWhere('first_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('last_name', 'like', '%' . $request->search . '%')
+                    ->orWhereRaw("concat(first_name, ' ', last_name) like '%" . $request->search . "%' ")
+                    ->orWhere('phone', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%')
                     ->orWhere('id', 'like', '%' . $request->search . '%')
                     ->orWhere('created_at', 'like', '%' . $request->search . '%');
             })->paginate($perPage);
@@ -54,11 +52,11 @@ class StoreController extends Controller
             ->orderBy($sortColumn, $sortDirection)
             ->where(function ($query) use ($request) {
                 return $query->where('store_name', 'like', '%' . $request->search . '%')
-                ->orWhere('first_name', 'like', '%' . $request->search . '%')
-                ->orWhere('last_name', 'like', '%' . $request->search . '%')
-                ->orWhereRaw("concat(first_name, ' ', last_name) like '%" . $request->search . "%' ")
-                ->orWhere('phone', 'like', '%' . $request->search . '%')
-                ->orWhere('email', 'like', '%' . $request->search . '%')
+                    ->orWhere('first_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('last_name', 'like', '%' . $request->search . '%')
+                    ->orWhereRaw("concat(first_name, ' ', last_name) like '%" . $request->search . "%' ")
+                    ->orWhere('phone', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%')
                     ->orWhere('id', 'like', '%' . $request->search . '%')
                     ->orWhere('created_at', 'like', '%' . $request->search . '%');
             })->paginate($perPage);
@@ -75,15 +73,15 @@ class StoreController extends Controller
         $perPage = $request->limit ?: default_limit();
         // $search = $request->search ?: null;
         // $listCategorys = Category::all();
-        $listStore = User::where('type', 1)->where('status','accept')
+        $listStore = User::where('type', 1)->where('status', 'accept')
             ->orderBy($sortColumn, $sortDirection)
             ->where(function ($query) use ($request) {
                 return $query->where('store_name', 'like', '%' . $request->search . '%')
-                ->orWhere('first_name', 'like', '%' . $request->search . '%')
-                ->orWhere('last_name', 'like', '%' . $request->search . '%')
-                ->orWhereRaw("concat(first_name, ' ', last_name) like '%" . $request->search . "%' ")
-                ->orWhere('email', 'like', '%' . $request->search . '%')
-                ->orWhere('phone', 'like', '%' . $request->search . '%')
+                    ->orWhere('first_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('last_name', 'like', '%' . $request->search . '%')
+                    ->orWhereRaw("concat(first_name, ' ', last_name) like '%" . $request->search . "%' ")
+                    ->orWhere('email', 'like', '%' . $request->search . '%')
+                    ->orWhere('phone', 'like', '%' . $request->search . '%')
                     ->orWhere('id', 'like', '%' . $request->search . '%')
                     ->orWhere('created_at', 'like', '%' . $request->search . '%');
             })
@@ -250,7 +248,4 @@ class StoreController extends Controller
             }
         }
     }
-
-
-
 }
