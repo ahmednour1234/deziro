@@ -137,9 +137,8 @@ class AuthController extends Controller
                 'email' => 'required|unique:users',
                 'password' => 'required|min:6',
                 'confirm_password' => 'required|min:6',
-                'position' => 'required',
-                'tax_number' => 'required',
-                'certificate' => 'required|mimes:png,jpg,jpeg,pdf|max:2048',
+                'categories' => 'required',
+                'certificate' => 'mimes:png,jpg,jpeg,pdf|max:2048',
                 'fcm_token' => 'required|min:3',
             ]);
 
@@ -174,6 +173,7 @@ class AuthController extends Controller
                     $store->store_name = $request->store_name;
                     $store->position = $request->position;
                     $store->tax_number = $request->tax_number;
+                    $store->categories = implode(',',  $request->categories);
                     // $store->categories = json_encode($request->category, JSON_NUMERIC_CHECK);
                     $store->certificate = $uploadFile1;
                     $store->save();
@@ -265,6 +265,7 @@ class AuthController extends Controller
                 'last_name' => 'required|min:2|string',
                 'email' => 'required|email|unique:users,id,' . $user->id,
                 'phone' => 'required|unique:users,id,' . $user->id,
+                'categories' => 'required',
                 'countryISOCode'=>'required',
                 'countryCode'=>'required',
             ]);
@@ -286,6 +287,8 @@ class AuthController extends Controller
                     $user->countryISOCode = $request->countryISOCode;
                     $user->email = $request->email;
                     $user->store_name = $request->store_name;
+                    $user->categories = implode(',',  $request->categories);
+
 
                     // $user->categories = json_encode($request->category, JSON_NUMERIC_CHECK);
 

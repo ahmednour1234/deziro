@@ -47,11 +47,11 @@ class CategoryController extends Controller
             $category->name = $request->name;
 
 
-            $category = Category::latest()->take(1)->first();
+            // $category = Category::latest()->take(1)->first();
             if ($request->hasFile('image')) {
 
                 $img = $request->image;
-                $uploadFile1 = $img->store('category_images/' . $category->id);
+                $uploadFile1 = $img->store('category_images') ;
             } else {
                 $size1 = '';
                 $uploadFile1 = '';

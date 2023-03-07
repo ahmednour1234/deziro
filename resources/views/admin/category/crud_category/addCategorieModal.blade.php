@@ -2,17 +2,14 @@
     <div class="modal-dialog" role="document">
 
         <form id="AddCategoryForm" method="POST" enctype="multipart/form-data">
-        @csrf
-        <div class="modal-content">
+            @csrf
+            <div class="modal-content">
 
 
-
-
-
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel1">Add Category</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel1">Add Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 
                 <div class="modal-body">
                     <input type="hidden" id="id" name="id">
@@ -24,21 +21,22 @@
                         <div class="col-12 mb-0">
                             <label for="name" class="form-label">Category Name <span
                                     class="text-error"></span></label>
-                            <input type="text" id="name" name="name"
-                                class="form-control name">
+                            <input type="text" id="name" name="name" class="form-control name">
                             <span class="text-danger" id="error_name"></span>
                         </div>
 
+                        
+                        {{--
                         <div class="col-12 mb-0">
                             <label for="attributes" class="form-label">Filterable Attributes <span
                                     class="text-error"></span></label>
                             <select class="form-control select2" id="attributes" name="attributes" multiple>
-                                {{-- @foreach ($attributes as $attribute)
+                                @foreach ($attributes as $attribute)
                                     <option value="{{ $attribute->id }}">{{ $attribute->name }}</option>
-                                @endforeach --}}
+                                @endforeach
                             </select>
                             <span class="text-danger" id="edit_error_attribute"></span>
-                        </div>
+                        </div> --}}
 
                         <div class="col-6 mb-0">
                             <label for="image" class="form-label"> Add Image <span class="text-error"></span></label>
@@ -55,13 +53,13 @@
                     </div>
                 </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary add_category" id="saveBtn">Save</button>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary add_category" id="saveBtn">Save</button>
+                </div>
 
-        </div>
-    </form>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -71,14 +69,10 @@
 
 
 <script>
+    document.getElementById('showImg').style.display = 'none'
 
-document.getElementById('showImg').style.display = 'none'
-
-function displayAddImage(event) {
-    document.getElementById('showImg').style.display = 'block'
-    document.getElementById('showImg').src = URL.createObjectURL(event.target.files[0]);
-}
-
-
-
+    function displayAddImage(event) {
+        document.getElementById('showImg').style.display = 'block'
+        document.getElementById('showImg').src = URL.createObjectURL(event.target.files[0]);
+    }
 </script>

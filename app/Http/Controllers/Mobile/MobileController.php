@@ -8,6 +8,7 @@ use App\Http\Resources\CategoryeResource;
 use App\Models\Address;
 use App\Models\Banner;
 use App\Models\Category;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -25,13 +26,46 @@ class MobileController extends Controller
 
     public function getCategories()
     {
-        $categories = Category::where('is_active', 1)->get();
+        if(auth()->user()){
+        if (auth()->user()->type == 1) {
 
-        return response()->json([
-            'success' => true,
-            'categories' => CategoryeResource::collection($categories) ,
-        ]);
+            $categorie = User::where('id', auth()->user()->id)->first();
+            $idsArray = explode(',', $categorie->categories);
+            // dd($idsArray);
+            $categories = Category::where('is_active', 1)->whereIn('id', $idsArray)->get();
+
+            return response()->json([
+                'success' => true,
+                'categories' => CategoryeResource::collection($categories)
+            ]);
+        }
+        else{
+            $categories = Category::where('is_active', 1)->get();
+
+            return response()->json([
+                'success' => true,
+                'categories' => CategoryeResource::collection($categories),
+            ]);
+        }
+        } else {
+            $categories = Category::where('is_active', 1)->get();
+
+            return response()->json([
+                'success' => true,
+                'categories' => CategoryeResource::collection($categories),
+            ]);
+        }
     }
+
+    // public function getCategories()
+    // {
+    //     $categories = Category::where('is_active', 1)->get();
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'categories' => CategoryeResource::collection($categories) ,
+    //     ]);
+    // }
 
     public function getAddress(Request $request)
     {

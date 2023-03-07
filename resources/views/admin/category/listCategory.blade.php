@@ -1,8 +1,7 @@
 @extends('admin.layouts.app')
 
 @section('content')
-
-@include('admin.category.crud_category.addCategorieModal')
+    @include('admin.category.crud_category.addCategorieModal')
 
     <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light"> <a href="{{ route('admin.home.listHome') }}"> Home
                 /</a></span> Categories</h4>
@@ -72,13 +71,16 @@
                         <tr>
                             <td>{{ $category->created_at->format('d-m-Y') }}</td>
                             <td>{{ $category->name }}</td>
-                            <td><img src="storage/{{ $category->image }}" alt="" width="200" ></td>
+                            <td><img src="storage/{{ $category->image }}" alt="" width="200"></td>
                             <td>
-                                <button class="btn btn-primary btn-sm edit_categorie" value="{{ $category->id }}">Edit</button>
-                                @if($category->is_active == 1)
-                                <button class="btn btn-success btn-sm inactive" value="{{ $category->id }}">Active</button>
+                                <button class="btn btn-primary btn-sm edit_categorie"
+                                    value="{{ $category->id }}">Edit</button>
+                                @if ($category->is_active == 1)
+                                    <button class="btn btn-success btn-sm inactive"
+                                        value="{{ $category->id }}">Active</button>
                                 @else
-                                <button class="btn btn-warning btn-sm active" value="{{ $category->id }}">Inactive</button>
+                                    <button class="btn btn-warning btn-sm active"
+                                        value="{{ $category->id }}">Inactive</button>
                                 @endif
                             </td>
                         </tr>
