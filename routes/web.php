@@ -31,8 +31,8 @@ Route::group(['middleware' => ['guest']], function () {
     /**
      * Login Routes
      */
-    Route::get('login',  [AuthController::class, 'index'])->name('login');
-    Route::post('login',  [AuthController::class, 'login'])->name('login.perform');
+    Route::get('login',  [AuthController::class, 'index'])->name('auth.login');
+    Route::post('login',  [AuthController::class, 'login'])->name('auth.login.perform');
 });
 
 

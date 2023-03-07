@@ -11,7 +11,7 @@
 
 
 
-                        <form action="{{ route('login.perform') }}" method="POST">
+                        <form action="{{ route('auth.login.perform') }}" method="POST">
                             @csrf
                             <h3 class="mb-5 text-center">Sign in</h3>
 
