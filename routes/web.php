@@ -156,7 +156,7 @@ Route::post('/attributes/delete/{id}', [AttributeController::class, 'destroy'])-
 
 
 // //SubCategory
-// Route::get('category', [CategoryController::class, 'listSubCategory'])->name('admin.category.listSubCategory');
+// Route::get('category', [CategoryController::class, 'listCategory'])->name('admin.category.listCategory');
 // Route::post('addNewSubCategory',[CategoryController::class,'addNewSubCategory'])->name('admin.category.addNewSubCategory');
 // Route::get('editSubCategory/{id}', [CategoryController::class, 'editSubCategory'])->name('admin.category.editSubCategory');
 // Route::post('updateSubCategory/{id}',[CategoryController::class,'updateSubCategory'])->name('admin.category.updateSubCategory');

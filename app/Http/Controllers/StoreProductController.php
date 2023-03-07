@@ -21,7 +21,7 @@ class StoreProductController extends Controller
         $sortDirection = $request->input('direction', 'desc');
 
         $listStore = User::where('type', 2)->get();
-        $listSubCategory = Category::all();
+        $listCategory = Category::all();
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
@@ -61,7 +61,7 @@ class StoreProductController extends Controller
             // })
             ->paginate($perPage);
         $listSellingProduct->appends(request()->query());
-        return view('admin.storeProduct.selling_product.listSellingProduct', compact('listSellingProduct','listStore','listSubCategory','sortColumn', 'sortDirection'));
+        return view('admin.storeProduct.selling_product.listSellingProduct', compact('listSellingProduct','listStore','listCategory','sortColumn', 'sortDirection'));
 
     }
 
@@ -198,7 +198,7 @@ class StoreProductController extends Controller
 
 
         $listStore = User::where('type', 2)->get();
-        $listSubCategory = Category::all();
+        $listCategory = Category::all();
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
@@ -239,7 +239,7 @@ class StoreProductController extends Controller
             // })
             ->paginate($perPage);
         $listBidProduct->appends(request()->query());
-        return view('admin.storeProduct.bid_product.listBidProduct', compact('listBidProduct','listStore','listSubCategory','sortColumn', 'sortDirection'));
+        return view('admin.storeProduct.bid_product.listBidProduct', compact('listBidProduct','listStore','listCategory','sortColumn', 'sortDirection'));
     }
 
 

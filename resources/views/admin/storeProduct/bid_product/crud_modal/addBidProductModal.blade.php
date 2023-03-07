@@ -36,7 +36,7 @@
                             <select class="form-select addSubSelect category" id="category" aria-label="Default select example"
                                 name="category" required>
                                 <option value=""> Select Sub-Category ...</option>
-                                @foreach ($listSubCategory as $category)
+                                @foreach ($listCategory as $category)
                                     <option value="{{ $category->id }}">
                                         {{ $category->name }}</option>
                                 @endforeach

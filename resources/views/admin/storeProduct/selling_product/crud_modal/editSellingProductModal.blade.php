@@ -47,7 +47,7 @@
                             <select class="form-select editSubSelect category" id="edit_selling_subcategory" aria-label="Default select example" name="category" required>
                                 <option value=""> Select Sub ... </option>
 
-                                @foreach ($listSubCategory as $category)
+                                @foreach ($listCategory as $category)
                                     <option value="{{ $category->id }}"> {{ $category->name }}</option>
                                 @endforeach
                             </select>

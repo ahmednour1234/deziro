@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImages;
-use App\Models\Category;
 use App\Models\Swap;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
@@ -18,24 +17,25 @@ class SwapProductController extends Controller
         $this->middleware('auth');
     }
 
-    public function listSwapProduct(Request $request) {
+    public function listSwapProduct(Request $request)
+    {
 
         $sortColumn = $request->input('sort', 'created_at');
         $sortDirection = $request->input('direction', 'desc');
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
-        $listSwapProduct = Product::with('user','category')->where('type', 'swap')
-        ->where('status', 'active')
-        ->orderBy($sortColumn, $sortDirection)
-        ->whereHas('user', function ($query) {
-            $query->where('is_active', 1);
-        })
-        ->whereHas('user', function ($query) {
-            $query->where('type', 1);
-        })->whereHas('category', function ($query) {
-            $query->where('is_active', 1);
-        })
+        $listSwapProduct = Product::with('user', 'category')->where('type', 'swap')
+            ->where('status', 'active')
+            ->orderBy($sortColumn, $sortDirection)
+            ->whereHas('user', function ($query) {
+                $query->where('is_active', 1);
+            })
+            ->whereHas('user', function ($query) {
+                $query->where('type', 1);
+            })->whereHas('category', function ($query) {
+                $query->where('is_active', 1);
+            })
             ->where(function ($query) use ($request) {
                 return $query->where('id', 'like', '%' . $request->search . '%')
                     ->orWhere('name', 'like', '%' . $request->search . '%')
@@ -60,23 +60,24 @@ class SwapProductController extends Controller
             // })
             ->paginate($perPage);
         $listSwapProduct->appends(request()->query());
-        return view('admin.product.swap_product.listSwapProduct',compact('listSwapProduct','sortColumn', 'sortDirection'));
-
+        return view('admin.product.swap_product.listSwapProduct', compact('listSwapProduct', 'sortColumn', 'sortDirection'));
     }
 
 
-    public function swapProductDetail($id){
+    public function swapProductDetail($id)
+    {
         $productDetail = Product::findOrFail($id);
         $imageProduct = ProductImages::where('product_id', $id)->get();
-        return view('admin.product.swap_product.swapProductDetail',compact('productDetail','imageProduct'));
+        return view('admin.product.swap_product.swapProductDetail', compact('productDetail', 'imageProduct'));
     }
 
 
 
-    public function viewSwapProduct(Request $request,$id) {
+    public function viewSwapProduct(Request $request, $id)
+    {
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
-        $viewSwapProduct = Swap::where('product_id' , $id)
+        $viewSwapProduct = Swap::where('product_id', $id)
             ->where(function ($query) use ($request) {
                 return $query->where('id', 'like', '%' . $request->search . '%')
                     ->orWhere('product_id', 'like', '%' . $request->search . '%')
@@ -93,9 +94,7 @@ class SwapProductController extends Controller
             // })
             ->paginate($perPage);
         $viewSwapProduct->appends(request()->query());
-        return view('admin.product.swap_product.viewSwapProduct',compact('viewSwapProduct'));
-
-
+        return view('admin.product.swap_product.viewSwapProduct', compact('viewSwapProduct'));
     }
 
     // public function editSwapProduct($id) {
