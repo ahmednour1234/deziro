@@ -162,7 +162,7 @@ class AuthController extends Controller
                     $store = new User();
                     $store->type = 1;
                     $store->is_active = 1;
-                    $store->status = 'accept';
+                    $store->status = 'pending';
                     $store->first_name = $request->first_name;
                     $store->last_name = $request->last_name;
                     $store->phone = $request->phone;
