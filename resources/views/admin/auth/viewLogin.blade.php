@@ -11,6 +11,15 @@
 
 
 
+                        @if (Session::has('success'))
+                            <div class="alert alert-success">{{ Session::get('success') }}</div>
+                        @endif
+                        @if (Session::has('fail'))
+                            <div class="alert alert-danger">{{ Session::get('fail') }}</div>
+                        @endif
+
+
+
                         <form action="{{ route('auth.login.perform') }}" method="POST">
                             @csrf
                             <h3 class="mb-5 text-center">Sign in</h3>

@@ -4,6 +4,7 @@
         @csrf
         <div class="modal-content">
             <form action="">
+                @csrf
                 <div class="modal-header">
                     <h3 class="modal-title" id="inactive_title"></h3>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
