@@ -69,4 +69,144 @@ class CategoryController extends Controller
             ]);
         }
     }
+
+    public function is_active(Request $request, $id)
+    {
+
+        $category = Category::findOrFail($id);
+
+        if ($category) {
+            $category->is_active = 0;
+        }
+
+        $category->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Category Inactivate Successfully',
+        ]);
+    }
+
+    public function is_inactive(Request $request, $id)
+    {
+
+        $category = Category::findOrFail($id);
+
+        if ($category) {
+            $category->is_active = 1;
+        }
+
+        $category->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Category Activate Successfully',
+        ]);
+    }
+
+
+    public function editCategory(Request $request,$id){
+
+        $category = Category::find($id);
+
+        if($category){
+
+            return response()->json([
+                'category' => $category
+            ]);
+
+        }
+
+    }
+
+
+//     public function updateCategory(Request $request,$id){
+
+
+//         $category = Category::find($id);
+
+//         if($category){
+
+//         $validator = Validator::make($request->all(), [
+//             'name' => 'required',
+
+
+//         ]);
+
+//         if ($validator->fails()) {
+//             return response()->json([
+//                 'status' => 400,
+//                 'errors' => $validator->messages(),
+//             ]);
+//         } else {
+
+// dd($category);
+//             $category->name = $request->name;
+
+//             if ($request->hasFile('image')) {
+
+//                 $img = $request->image;
+//                 $uploadFile1 = $img->store('category_images') ;
+//             } else {
+//                 $size1 = '';
+//                 $uploadFile1 = '';
+//             }
+
+//             $category->image = $uploadFile1;
+
+//             $category->save();
+
+
+//             return response()->json([
+//                 'status' => 200,
+//                 'category' => $category,
+//                 'message' => 'Category Updated Successfully',
+//             ]);
+//         }
+//     }
+
+//     }
+
+
+    public function updateCategory(Request $request, $id)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 400,
+                'errors' => $validator->messages(),
+            ]);
+        } else {
+            $category = Category::find($id);
+            dd($request->image);
+
+            if ($category) {
+                if ($request->hasFile('image')) {
+
+                    $img = $request->image;
+                    $uploadFile1 = $img->store('category_images') ;
+                } else {
+                    $size1 = '';
+                    $uploadFile1 = '';
+                }
+
+                    $category->image = $uploadFile1;
+                    $category->name = $request->name;
+                    $category->save();
+
+                    return response()->json([
+                        'status' => 200,
+                        'category' => $category,
+                        'message' => 'category Added Successfully',
+                    ]);
+                }
+
+
+        }
+    }
 }
