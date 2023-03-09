@@ -36,6 +36,8 @@ Route::post('/changePassword', [AuthController::class, 'changePassword']);
 
 Route::get('/Category', [MobileController::class, 'getCategories']);
 
+Route::get('/allCategory', [MobileController::class, 'getAllCategories']);
+
 Route::get('/getAddress', [MobileController::class, 'getAddress']);
 Route::get('/getSingleAddress', [MobileController::class, 'getSingleAddress']);
 Route::post('/addAddress', [MobileController::class, 'addAddress']);
