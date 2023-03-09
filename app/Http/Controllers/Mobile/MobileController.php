@@ -20,7 +20,7 @@ class MobileController extends Controller
     public function __construct()
     {
         $this->middleware('auth:api', ['except' =>
-        ['getCategories','banner']]);
+        ['getCategories','banner','getAllCategories']]);
         auth()->setDefaultDriver('api');
     }
 
@@ -57,15 +57,15 @@ class MobileController extends Controller
         }
     }
 
-    // public function getCategories()
-    // {
-    //     $categories = Category::where('is_active', 1)->get();
+    public function getAllCategories()
+    {
+        $categories = Category::where('is_active', 1)->get();
 
-    //     return response()->json([
-    //         'success' => true,
-    //         'categories' => CategoryeResource::collection($categories) ,
-    //     ]);
-    // }
+        return response()->json([
+            'success' => true,
+            'categories' => CategoryeResource::collection($categories) ,
+        ]);
+    }
 
     public function getAddress(Request $request)
     {
