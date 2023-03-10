@@ -97,6 +97,14 @@
             </li>
             {{-- End Categorye --}}
 
+            <li class="menu-item  {{ request()->is('requesttochangecategories') ? 'active' : '' }} ">
+                <a href="{{ route('admin.category.listrequesttochangecategories') }}" class="menu-link ">
+                    <i class="menu-icon tf-icons bx bx-user-circle"></i>
+                    <div data-i18n="Analytics">List Request to change categories</div>
+                </a>
+            </li>
+
+
             <li class="menu-item   {{ request()->is('banner') ? 'active' : '' }}">
                 <a href="{{ route('admin.banner.listBanner') }}" class="menu-link ">
                     <i class="menu-icon tf-icons bx bx-user-circle"></i>

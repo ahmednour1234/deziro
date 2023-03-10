@@ -89,6 +89,10 @@ Route::get('editCategory/{id}', [CategoryController::class, 'editCategory'])->na
 Route::post('updateCategory/{id}', [CategoryController::class, 'updateCategory'])->name('admin.category.updateCategory');
 Route::post('category_active/{id}', [CategoryController::class, 'is_active'])->name('admin.category.is_active');
 Route::post('category_inactive/{id}', [CategoryController::class, 'is_inactive'])->name('admin.category.is_inactive');
+
+Route::get('requesttochangecategories', [CategoryController::class, 'listrequesttochangecategories'])->name('admin.category.listrequesttochangecategories');
+Route::post('rejectRequest/{id}', [CategoryController::class, 'rejectRequest'])->name('admin.category.rejectRequest');
+Route::post('approveRequest/{id}', [CategoryController::class, 'approveRequest'])->name('admin.category.approveRequest');
 //End
 
 

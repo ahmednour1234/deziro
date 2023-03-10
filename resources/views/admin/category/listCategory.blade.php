@@ -155,7 +155,7 @@
                     type: 'GET',
                     url: 'editCategory/' + category_id,
                     success: function(response) {
-                        console.log(response.category.image);
+                        console.log(response.category);
                         if (response.status == 404) {
                             $('#success_message').html("")
                             $('#success_message').addClass('alert alert-danger')
@@ -172,30 +172,32 @@
 
             $(document).on('click', '.update_category', function(e) {
                 e.preventDefault();
-                var admin_id = $('#edit_id').val();
+                var category_id = $('#edit_id').val();
                 let formData = new FormData($('#UpdateCategoryForm')[0]);
                 $.ajax({
                     type: "POST",
-                    url: "/updateCategory/" + admin_id,
+                    url: "updateCategory/" + category_id,
                     data: formData,
+                    processData: false,
+                    contentType: false,
                     dataType: 'json',
                     success: function(response) {
                         console.log(response)
-                        // if (response.status == 400) {
-                        //     response.errors.name != undefined ? $(
-                        //             '#error_edit_name').html(response.errors.name) :
-                        //         $('#error_edit_name').html('')
+                        if (response.status == 400) {
+                            response.errors.name != undefined ? $(
+                                    '#error_edit_name').html(response.errors.name) :
+                                $('#error_edit_name').html('')
 
-                        //  } else {
-                        //     $('#success_message').text(response.message)
-                        //     $('#success_message').addClass('alert alert-success')
-                        //     $('#editCategorieModal').modal('hide')
+                         } else {
+                            $('#success_message').text(response.message)
+                            $('#success_message').addClass('alert alert-success')
+                            $('#editCategorieModal').modal('hide')
 
-                        //     setTimeout(function() {
-                        //         window.location.reload();
-                        //     }, 1000);
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 1000);
 
-                        // }
+                        }
                     }
                 })
             })

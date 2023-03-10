@@ -8,6 +8,7 @@ use App\Http\Resources\CategoryeResource;
 use App\Models\Address;
 use App\Models\Banner;
 use App\Models\Category;
+use App\Models\RequestCategorie;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -66,6 +67,54 @@ class MobileController extends Controller
             'categories' => CategoryeResource::collection($categories) ,
         ]);
     }
+
+    public function updateStoreCategories(Request $request)
+    {
+
+        $store = User::where('id', auth()->user()->id)->first();
+
+
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'categories' => 'required'
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->messages(),
+            ], 200);
+        } else {
+
+            if ($store) {
+// dd($request->categories);
+                $found = RequestCategorie::where('user_id', auth()->user()->id)->first();
+                if ($found == true) {
+                    $found->new_categories = implode(',',  $request->categories);
+                    $found->save();
+
+                    return response()->json([
+                        "success" => true,
+                        'message' => 'Request Sended successfully'
+                    ]);
+                } else {
+                    $request_categories = new RequestCategorie();
+                    $request_categories->user_id = auth()->user()->id;
+                    $request_categories->new_categories = implode(',',  $request->categories);
+                    $request_categories->save();
+
+                    return response()->json([
+                        "success" => true,
+                        'message' => 'Request Sended successfully'
+                    ]);
+                }
+            }
+        }
+    }
+
+
 
     public function getAddress(Request $request)
     {
