@@ -57,6 +57,30 @@
                         <span class="text-danger" id="error_confirm_password"></span>
                     </div>
 
+                    @php
+                    $categories = explode(",", $store->categories);
+
+
+               @endphp
+                    <div class="col-12 mb-0">
+                        <label for="category_type" class="form-label">Category Name <span
+                                class="text-error"></span></label>
+                        <select class="form-control editselect2  category_type" id="categorys_type" name="category_type[]" multiple="multiple"
+                            multiple required >
+
+                            <!--<option value=""> Select Category ...</option>-->
+
+                            @foreach ($listCategorys as $category)
+                            @foreach ($categories as $key => $categorie)
+                                <option value="{{ $category->id }}" {{$category->id == $categorie ?  "selected"  : ""}}>{{ $category->name }}</option>
+                                {{-- {{ in_array($option->id, explode(',', $record->field_name)) ? 'selected' : '' }} --}}
+                            @endforeach
+                            @endforeach
+                        </select>
+                        <span class="text-danger" id="error_category_type"></span>
+                    </div>
+
+
 
                     <div class="col-6 mb-0">
                         <label for="store_name" class="form-label"> Store Name <span class="text-error"></span></label>
@@ -108,7 +132,7 @@
 
 @section('scripts')
     <script>
-    
+
 
 function displayAddImage(event) {
     document.getElementById('showImg').style.display = 'block'

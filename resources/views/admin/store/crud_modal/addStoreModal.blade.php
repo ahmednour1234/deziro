@@ -55,6 +55,21 @@
                         <span class="text-danger" id="error_confirm_password"></span>
                     </div>
 
+                    <div class="col-12 mb-0">
+                        <label for="category_type" class="form-label">Category Name <span
+                                class="text-error"></span></label>
+                        <select class="form-control addselect2  category_type" id="categorys_type" name="category_type[]"
+                            multiple required value=''>
+                            <!--<option value=""> Select Category ...</option>-->
+                            @foreach ($listCategorys as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+
+                        </select>
+                        <span class="text-danger" id="error_category_type"></span>
+                    </div>
+
+
 
                     <div class="col-6 mb-0">
                         <label for="store_name" class="form-label"> Store Name <span class="text-error"></span></label>

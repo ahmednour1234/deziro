@@ -35,7 +35,7 @@ Route::post('/changePassword', [AuthController::class, 'changePassword']);
 
 
 Route::get('/Category', [MobileController::class, 'getCategories']);
-
+Route::post('/updateStoreCategories', [MobileController::class, 'updateStoreCategories']);
 Route::get('/allCategory', [MobileController::class, 'getAllCategories']);
 
 Route::get('/getAddress', [MobileController::class, 'getAddress']);

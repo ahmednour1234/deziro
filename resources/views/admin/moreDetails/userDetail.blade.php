@@ -87,15 +87,15 @@
 
 
 
-                                    <div class="row">
-                                        <div class="col-sm-3">
-                                            <p class="mb-0">Email</p>
-                                        </div>
-                                        <div class="col-sm-9">
-                                            <p class="text-muted mb-0">{{ $userDetail->email }}</p>
-                                        </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Email</p>
                                     </div>
-                                    <hr>
+                                    <div class="col-sm-9">
+                                        <p class="text-muted mb-0">{{ $userDetail->email }}</p>
+                                    </div>
+                                </div>
+                                <hr>
 
 
                                 <div class="row">
@@ -109,28 +109,70 @@
                                 <hr>
 
                                 @if ($userDetail->position != null)
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Position</p>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Position</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="text-muted mb-0">{{ $userDetail->position }}</p>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ $userDetail->position }}</p>
-                                    </div>
-                                </div>
-                                <hr>
+                                    <hr>
+@endif
+                                    @if ($userDetail->tax_number != null)
+                                        <div class="row">
+                                            <div class="col-sm-3">
+                                                <p class="mb-0">Tax Number</p>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <p class="text-muted mb-0">{{ $userDetail->tax_number }}</p>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                    @endif
 
-                                @if ($userDetail->tax_number != null)
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Tax Number</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ $userDetail->tax_number }}</p>
-                                    </div>
-                                </div>
+                                    @php
+                                    // $categories = json_decode($userDetail->categories)
+                                    $categories = explode(',', $userDetail->categories)
+                                @endphp
 
-                            @endif
-                            @endif
+                                @if($categories !='')
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Categories</p>
+                                        </div>
+                                        <div class="col-sm-9">
+
+                                            @foreach ($categories as $category )
+                                            @foreach ($listCategorys as $categorys )
+                                                @if($category == $categorys->id)
+                                            <button class="btn btn-success btn-sm">{{ $categorys->name  }}</button>
+                                            @endif
+                                            @endforeach
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    @endif
+
+                                    @foreach ($listAddress as $key => $storeAddress)
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Address {{ $key + 1 }}</p>
+                                        </div>
+
+                                        <div class="col-sm-8">
+
+                                            <p class="text-muted mb-0">
+                                                {{ $storeAddress->city . ' , ' . $storeAddress->address . ' , ' }} <a
+                                                    href="http://maps.google.com/?q={{ $storeAddress->lat }},{{ $storeAddress->lng }}"
+                                                    target="_blank"> Go To Map</a></p>
+
+                                        </div>
+                                    </div>
+                                    <hr>
+                                @endforeach
+
                             </div>
                         </div>
 
@@ -197,7 +239,7 @@
                         $('#success_message').text(response.message)
                         $('#approveWholeSaleModal').modal('hide')
 
-                        location.href='/requestStore'
+                        location.href = '/requestStore'
 
                     }
                 })
@@ -229,7 +271,7 @@
                         $('#success_message').text(response.message)
                         $('#rejectWholeSaleModal').modal('hide')
                         $('#rejectWholeSaleModal').find('input').val('')
-                        location.href='/requestStore'
+                        location.href = '/requestStore'
                     }
                 })
             })

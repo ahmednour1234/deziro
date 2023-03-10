@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\RequestCategorie;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -183,7 +185,7 @@ class CategoryController extends Controller
             ]);
         } else {
             $category = Category::find($id);
-            dd($request->image);
+
 
             if ($category) {
                 if ($request->hasFile('image')) {
@@ -194,6 +196,7 @@ class CategoryController extends Controller
                     $size1 = '';
                     $uploadFile1 = '';
                 }
+
 
                     $category->image = $uploadFile1;
                     $category->name = $request->name;
@@ -208,5 +211,63 @@ class CategoryController extends Controller
 
 
         }
+    }
+
+
+
+    public function listrequesttochangecategories(Request $request){
+        $sortColumn = $request->input('sort', 'created_at');
+        $sortDirection = $request->input('direction', 'desc');
+
+        $perPage = $request->limit ?: default_limit();
+        $search = $request->search ?: null;
+
+        $listCategorys = Category::all();
+
+        // $listNewCategory = RequestCategorie::
+
+        $listRequestCategorie = RequestCategorie::orderBy($sortColumn, $sortDirection)
+            ->where(function ($query) use ($search) {
+                return $query->where('created_at', 'like', '%' . $search . '%')
+                 ->orWhereHas('user', function ($query) use($search) {
+                        $query->where('store_name', 'like', '%' . $search . '%');
+                    });
+            })->paginate($perPage);
+        $listRequestCategorie->appends(request()->query());
+        // if($request->ajax()){
+        //     return datatables()->of(Category::all())->toJson();
+        // }
+        return view('admin.category.listrequesttochangecategories', compact('listRequestCategorie','listCategorys', 'sortColumn', 'sortDirection'));
+    }
+
+    public function rejectRequest(Request $request,$id) {
+
+        $reject = RequestCategorie::find($id);
+
+        $reject->delete();
+
+        return response()->json([
+            'message' => 'Request Rejected '
+        ]);
+
+    }
+
+    public function approveRequest(Request $request,$id) {
+
+        $requestCategorie = RequestCategorie::where('id',$id)->first();
+
+
+        $user = User::where('id',$requestCategorie->user_id)->first();
+        if($user){
+            $user->categories = $requestCategorie->new_categories;
+            $user->save();
+            $requestCategorie->delete();
+
+            return response()->json([
+                'message' => 'Request Approved '
+            ]);
+
+        }
+
     }
 }
