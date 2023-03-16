@@ -206,7 +206,6 @@ class ProductRepository extends Repository
             return $qb->groupBy('products.id');
         });
 
-        return [];
         # apply scope query so we can fetch the raw sql and perform a count
         $repository->applyScope();
         $countQuery = "select count(*) as aggregate from ({$repository->model->toSql()}) c";
@@ -392,10 +391,8 @@ class ProductRepository extends Repository
                 'parent_id'             => $product->id,
                 'user_id'               => $data['user_id'],
                 'type'                  => $product->type,
-                'address_id'            => $product->address_id,
-                'category_id'       => $product->category_id,
+                'category_id'           => $product->category_id,
                 'product_type'          => 'simple',
-                'condition'             =>  $product->condition,
             ], $data)
         );
 
@@ -643,10 +640,8 @@ class ProductRepository extends Repository
                 'parent_id'             => $product->id,
                 'user_id'               => $data['user_id'],
                 'type'                  => $product->type,
-                'address_id'            => $product->address_id,
-                'category_id'       => $product->category_id,
+                'category_id'           => $product->category_id,
                 'product_type'          => 'simple',
-                'condition'             =>  $product->condition,
             ], $data)
         );
 

@@ -54,7 +54,6 @@ class ProductUpdateForm extends FormRequest
             'name'               => ['required', 'string'],
             'type'               => ['required', 'in:sell,bid,swap'],
             'product_type'       => ['required', 'in:simple,configurable'],
-            'condition'          => ['required', 'in:New,Used,Defective,Like New'],
             'images.*'           => ['nullable', 'mimes:bmp,jpeg,jpg,png,webp'],
             'price'              => ['required', new Decimal],
             'special_price'      => ['nullable', new Decimal, 'exclude_if:price,0', 'lt:price'],

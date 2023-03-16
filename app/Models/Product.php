@@ -26,14 +26,11 @@ class Product extends Model
         'type',
         'product_type',
         'parent_id',
-        'address_id',
         'quantity',
-        'condition',
         'price',
         'special_price',
         'description',
         'category_id',
-        'phone',
         'status',
     ];
 
@@ -43,14 +40,11 @@ class Product extends Model
         'type',
         'product_type',
         'parent_id',
-        'address_id',
         'quantity',
-        'condition',
         'price',
         'special_price',
         'description',
         'category_id',
-        'phone',
         'status',
     ];
 

@@ -37,10 +37,7 @@ class Product extends JsonResource
             'parent_id' => $this->parent_id,
             'category_id' => $this->category_id,
             'category_name' => $this->category?->name,
-            'seller_rating' => "4.7",
-            'address_id' => $this->address_id,
             'quantity' => $this->totalQuantity(),
-            'condition' => $this->condition,
             'price' => $this->getMinimalPrice(),
             'formated_price' => currency($this->getMinimalPrice()),
             'lbp_price' => convertPrice($this->getMinimalPrice(), 'LBP', $exchange_rate),
@@ -49,7 +46,6 @@ class Product extends JsonResource
             // 'formated_special_price' => currency($this->getMinimalPrice()),
             'description' => $this->description,
             'status' => $this->status,
-            'views' => $this->views,
             $this->mergeWhen($this->product_type == 'simple', [
                 'variants' => null,
             ]),
