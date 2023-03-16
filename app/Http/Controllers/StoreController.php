@@ -99,8 +99,8 @@ class StoreController extends Controller
 
     public function createStore()
     {
-        // $listCategorys = Category::all();
-        return view('admin.store.crud_modal.addStoreModal');
+        $listCategorys = Category::all();
+        return view('admin.store.crud_modal.addStoreModal',compact('listCategorys'));
     }
 
 
@@ -116,9 +116,7 @@ class StoreController extends Controller
             'password' => 'required|min:6',
             'confirm_password' => 'required|min:6',
             'store_name' => 'required',
-            'position' => 'required',
-            'tax_number' => 'required',
-            'certificate' => 'required',
+            'category_type' => 'required'
 
         ]);
 
@@ -151,6 +149,7 @@ class StoreController extends Controller
                 $store->store_name = $request->store_name;
                 $store->position = $request->position;
                 $store->tax_number = $request->tax_number;
+                $store->categories = implode(',',  $request->category_type);
                 // $store->categories = json_encode($request->category, JSON_NUMERIC_CHECK);
                 $store->certificate = $uploadFile1;
                 $store->save();
@@ -171,9 +170,9 @@ class StoreController extends Controller
 
     public function editStore($id)
     {
-        // $listCategorys = Category::all();
+        $listCategorys = Category::all();
         $store = User::findOrFail($id);
-        return view('admin.store.crud_modal.editStoreModal', compact('store'));
+        return view('admin.store.crud_modal.editStoreModal', compact('store','listCategorys'));
     }
 
 
@@ -189,8 +188,7 @@ class StoreController extends Controller
             'password' => 'required|min:6',
             'confirm_password' => 'required|min:6',
             'store_name' => 'required',
-            'position' => 'required',
-            'tax_number' => 'required',
+            'category_type' => 'required'
             // 'certificate' => 'required',
 
         ]);
@@ -226,6 +224,7 @@ class StoreController extends Controller
                     $store->store_name = $request->store_name;
                     $store->position = $request->position;
                     $store->tax_number = $request->tax_number;
+                    $store->categories = implode(',',  $request->category_type);
                     // $store->categories = json_encode($request->category, JSON_NUMERIC_CHECK);
                     $store->certificate = $uploadFile1;
                     $store->save();

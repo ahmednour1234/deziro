@@ -47,7 +47,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message'    => trans('Your activation seeks admin approval'),
+                'message'    => trans('your account is not activated yet'),
                 'errors' => [],
             ], 200);
         } else if ($user->status == 'reject') {
@@ -162,7 +162,7 @@ class AuthController extends Controller
                     $store = new User();
                     $store->type = 1;
                     $store->is_active = 1;
-                    $store->status = 'accept';
+                    $store->status = 'pending';
                     $store->first_name = $request->first_name;
                     $store->last_name = $request->last_name;
                     $store->phone = $request->phone;
@@ -181,7 +181,7 @@ class AuthController extends Controller
 
                     return response()->json([
                         'success' => true,
-                        'message' => 'Store Added Successfully',
+                        'message' => 'your account is sumbitted to the admin, and waiting for approval',
                         'store' => $store,
                         'token' => $token
                     ]);

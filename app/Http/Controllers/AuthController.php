@@ -41,23 +41,23 @@ class AuthController extends Controller
 
         if (!Auth::validate($credentials)) {
             session()->flash('fail', trans('These credentials do not match our records.'));
-            return redirect()->to('auth.login');
+            return redirect()->to('login');
         }
         $user = Auth::getProvider()->retrieveByCredentials($credentials);
 
         // if ($user->status == 0) {
         //     session()->flash('fail', trans('Your account has been disabled.'));
-        //     return redirect()->to('auth.login');
+        //     return redirect()->to('login');
         // }
 
         if ($user->is_ban == 1) {
             session()->flash('fail', trans('Your account has been banned.'));
-            return redirect()->to('auth.login');
+            return redirect()->to('login');
         }
 
         if ($user->is_active == 0) {
             session()->flash('fail', trans('Your account has been deactivated.'));
-            return redirect()->to('auth.login');
+            return redirect()->to('login');
         }
 
         Auth::login($user);
@@ -78,7 +78,7 @@ class AuthController extends Controller
 
         Auth::logout();
 
-        return redirect('auth.login');
+        return redirect('/login');
     }
 
     /**

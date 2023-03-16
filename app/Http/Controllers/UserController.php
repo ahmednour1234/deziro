@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Address;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -38,8 +39,10 @@ class UserController extends Controller
     public function listUserDetail(Request $request, $id)
     {
         $userDetail = User::findOrFail($id);
+        $listAddress = Address::where('user_id', $id)->get();
+        $listCategorys = Category::all();
         if ($userDetail) {
-            return view('admin.moreDetails.userDetail', compact('userDetail'));
+            return view('admin.moreDetails.userDetail', compact('userDetail','listCategorys','listAddress'));
         }
     }
 
