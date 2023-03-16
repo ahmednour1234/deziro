@@ -52,7 +52,6 @@ class ProductUpdateForm extends FormRequest
     {
         $this->rules = array_merge($this->getTypeValidationRules(), [
             'name'               => ['required', 'string'],
-            'address_id'         => ['required'],
             'type'               => ['required', 'in:sell,bid,swap'],
             'product_type'       => ['required', 'in:simple,configurable'],
             'condition'          => ['required', 'in:New,Used,Defective,Like New'],
