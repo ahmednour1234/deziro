@@ -3,6 +3,7 @@
 use App\Http\Controllers\Mobile\AuthController;
 use App\Http\Controllers\Mobile\MobileController;
 use App\Http\Controllers\Mobile\ProductController;
+use App\Http\Controllers\Mobile\HomeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -67,6 +68,11 @@ Route::group(['prefix' => 'attribute-options'], function ($router) {
     Route::post('add', 'App\Http\Controllers\Mobile\AttributeOptionController@add');
     Route::post('delete/{id}', 'App\Http\Controllers\Mobile\AttributeOptionController@delete');
 });
+
+Route::get('/getNewArrivals', [HomeController::class, 'getNewArrivals']);
+Route::get('/getBestSellers', [HomeController::class, 'getBestSellers']);
+Route::get('/getSpecialOffers', [HomeController::class, 'getSpecialOffers']);
+Route::get('/getFeaturedItems', [HomeController::class, 'getFeaturedItems']);
 
 // Route::get('/getCategory', 'App\Http\Controllers\Mobile\MobileController@getCategory');
 // Route::get('/getSellingProduct', 'App\Http\Controllers\Mobile\MobileController@getSellingProduct');
