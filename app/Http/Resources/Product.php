@@ -26,24 +26,25 @@ class Product extends JsonResource
             $boost_ends_in = $days . 'd ' .  $hours . 'h ' .  $minutes . 'm';
         }
 
-        $exchange_rate = $this->user->isStore() &&  $this->user->vendor_exchange_rate > 0 ? $this->user->vendor_exchange_rate : 60000;
+        // $exchange_rate = $this->user->isStore() &&  $this->user->vendor_exchange_rate > 0 ? $this->user->vendor_exchange_rate : 60000;
 
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
             'name' => $this->name,
             'product_type' => $this->product_type,
-            'type' => $this->type,
+            // 'type' => $this->type,
             'parent_id' => $this->parent_id,
             'category_id' => $this->category_id,
-            'category_name' => $this->category?->name,
+            // 'category_name' => $this->category?->name,
             'quantity' => $this->totalQuantity(),
-            'price' => $this->getMinimalPrice(),
-            'formated_price' => currency($this->getMinimalPrice()),
-            'lbp_price' => convertPrice($this->getMinimalPrice(), 'LBP', $exchange_rate),
-            'lbp_formated_price' => currency($this->getMinimalPrice(), 'LBP', $exchange_rate),
-            // 'special_price' => $this->getMinimalPrice(),
-            // 'formated_special_price' => currency($this->getMinimalPrice()),
+            // 'price' => $this->getMinimalPrice(),
+            'price' => $this->getBasePrice(),
+            'formated_price' => currency($this->getBasePrice()),
+            // 'lbp_price' => convertPrice($this->getMinimalPrice(), 'LBP', $exchange_rate),
+            // 'lbp_formated_price' => currency($this->getMinimalPrice(), 'LBP', $exchange_rate),
+            'special_price' => $this->getMinimalPrice(),
+            'formated_special_price' => currency($this->getMinimalPrice()),
             'description' => $this->description,
             'status' => $this->status,
             $this->mergeWhen($this->product_type == 'simple', [

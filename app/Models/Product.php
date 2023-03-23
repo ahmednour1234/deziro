@@ -147,7 +147,8 @@ class Product extends Model
         if ($this->product_type == 'simple') {
             return $this->price;
         } else {
-            return $this->getMaximumPrice();
+            // return $this->getMaximumPrice();
+            return $this->getMinimalPrice();
         }
     }
 
@@ -163,9 +164,9 @@ class Product extends Model
         if ($this->product_type == 'simple') {
             return $this->special_price && $this->special_price != 0 ? $this->special_price : $this->price;
         }
-        if (!is_null($minPrice)) {
-            return $minPrice;
-        }
+        // if (!is_null($minPrice)) {
+        //     return $minPrice;
+        // }
 
         /* method is calling many time so using variable */
         $tablePrefix = DB::getTablePrefix();
@@ -187,7 +188,9 @@ class Product extends Model
             return 0;
         }
 
-        return $minPrice = min($minPrices);
+        return
+            //  $minPrice = 
+            min($minPrices);
     }
 
 

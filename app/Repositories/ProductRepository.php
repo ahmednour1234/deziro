@@ -729,7 +729,7 @@ class ProductRepository extends Repository
         return $variant;
     }
 
-    public function getAllPopularProduct($type = null)
+    public function getNewArrivals($type = null)
     {
         $params = request()->input();
         $perPage = isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 20;
@@ -745,11 +745,192 @@ class ProductRepository extends Repository
             $qb = $query
                 ->distinct()
                 ->select('products.*')
-                ->orderBy('products.created_at',  'desc')
+                // ->orderBy('products.created_at',  'desc')
+                ->whereNull('parent_id');
 
-                ->where(function ($query) {
-                    $query->where('products.countdown', '>=', Carbon::now())
-                        ->orWhere('products.countdown', '=', NULL);
+            if (is_null(request()->input('status'))) {
+                $qb->where('products.status', 'active');
+            }
+
+            if (isset($params['search'])) {
+                $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
+            }
+
+            if (isset($params['price'])) {
+                if ($priceFilter = request('price')) {
+                    $priceRange = explode(',', $priceFilter);
+
+                    if (count($priceRange) > 1) {
+                        $qb
+                            ->where('products.price', '>=', $priceRange[0])
+                            ->where('products.price', '<=', end($priceRange));
+                    } else {
+                        $qb
+                            ->where('products.price', '>=', $priceRange);
+                    }
+                }
+            }
+
+            if (isset($params['order'])) {
+                if (urldecode($params['order']) == 'newest_first') {
+                    $qb->orderBy('products.created_at',  'desc');
+                } else if (urldecode($params['order']) == 'low_to_high') {
+                    $qb->orderBy('products.price', 'asc');
+                } else if (urldecode($params['order']) == 'high_to_low') {
+                    $qb->orderBy('products.price',  'desc');
+                }
+            }
+
+            // if (isset($params['category'])) {
+            //     if ($categoryFilter = request('category')) {
+            //         $category = explode(',', $categoryFilter);
+            //         $qb->join('categories', 'categories.id', 'products.category_id')
+            //             ->join('categories', 'categories.id', 'categories.category_id')
+            //             ->whereIn('categories.id', $category);
+            //     }
+            // }
+            return $qb->groupBy('products.id');
+        });
+
+        # apply scope query so we can fetch the raw sql and perform a count
+        $repository->applyScope();
+        $countQuery = "select count(*) as aggregate from ({$repository->model->toSql()}) c";
+        $count = collect(DB::select($countQuery, $repository->model->getBindings()))->pluck('aggregate')->first();
+
+        if ($count > 0) {
+            # apply a new scope query to limit results to one page
+            $repository->scopeQuery(function ($query) use ($page, $perPage) {
+                return $query->forPage($page, $perPage);
+            });
+
+            # manually build the paginator
+            $items = $repository->get();
+        } else {
+            $items = [];
+        }
+
+        return $items;
+    }
+
+
+    //TODO get product having most sold quantities
+    public function getBestSellers($type = null)
+    {
+        $params = request()->input();
+        $perPage = isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 20;
+
+
+        $page = Paginator::resolveCurrentPage('page');
+
+        $repository = $this->with([
+            'images',
+        ])->scopeQuery(function ($query) use ($params, $type) {
+
+
+            $qb = $query
+                ->distinct()
+                ->select('products.*')
+                // ->orderBy('products.created_at',  'desc')
+                ->whereNull('parent_id');
+
+            if (is_null(request()->input('status'))) {
+                $qb->where('products.status', 'active');
+            }
+
+            if (isset($params['search'])) {
+                $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
+            }
+
+            if (isset($params['price'])) {
+                if ($priceFilter = request('price')) {
+                    $priceRange = explode(',', $priceFilter);
+
+                    if (count($priceRange) > 1) {
+                        $qb
+                            ->where('products.price', '>=', $priceRange[0])
+                            ->where('products.price', '<=', end($priceRange));
+                    } else {
+                        $qb
+                            ->where('products.price', '>=', $priceRange);
+                    }
+                }
+            }
+
+            if (isset($params['order'])) {
+                if (urldecode($params['order']) == 'newest_first') {
+                    $qb->orderBy('products.created_at',  'desc');
+                } else if (urldecode($params['order']) == 'low_to_high') {
+                    $qb->orderBy('products.price', 'asc');
+                } else if (urldecode($params['order']) == 'high_to_low') {
+                    $qb->orderBy('products.price',  'desc');
+                }
+            }
+
+            // if (isset($params['category'])) {
+            //     if ($categoryFilter = request('category')) {
+            //         $category = explode(',', $categoryFilter);
+            //         $qb->join('categories', 'categories.id', 'products.category_id')
+            //             ->join('categories', 'categories.id', 'categories.category_id')
+            //             ->whereIn('categories.id', $category);
+            //     }
+            // }
+            return $qb->groupBy('products.id');
+        });
+
+        # apply scope query so we can fetch the raw sql and perform a count
+        $repository->applyScope();
+        $countQuery = "select count(*) as aggregate from ({$repository->model->toSql()}) c";
+        $count = collect(DB::select($countQuery, $repository->model->getBindings()))->pluck('aggregate')->first();
+
+        if ($count > 0) {
+            # apply a new scope query to limit results to one page
+            $repository->scopeQuery(function ($query) use ($page, $perPage) {
+                return $query->forPage($page, $perPage);
+            });
+
+            # manually build the paginator
+            $items = $repository->get();
+        } else {
+            $items = [];
+        }
+
+        return $items;
+    }
+
+
+    public function getSpecialOffers($type = null)
+    {
+        $params = request()->input();
+        $perPage = isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 20;
+
+        $parents_of_variants_having_special_price =
+            DB::table('products')->select('parent_id')
+            ->where('products.special_price', '!=', '0')
+            ->whereColumn('products.special_price', '<', 'products.price')
+            ->distinct();
+
+        $page = Paginator::resolveCurrentPage('page');
+
+        $repository = $this->with([
+            'images',
+        ])->scopeQuery(function ($query) use ($params, $type, $parents_of_variants_having_special_price) {
+
+
+            $qb = $query
+                ->distinct()
+                ->select('products.*')
+                ->where(function ($query) use ($parents_of_variants_having_special_price) {
+                    // Check if the price of simple product is in range
+                    $query->where('product_type', '=', 'simple')
+                        ->whereNull('parent_id')
+                        ->where('products.special_price', '!=', '0')
+                        ->whereColumn('products.special_price', '<', 'products.price');
+                })
+                ->orWhere(function ($query) use ($parents_of_variants_having_special_price) {
+                    // Check if the variant price of configurable product is in range
+                    $query->where('product_type', '=', 'configurable')
+
+                        ->whereIn('id', $parents_of_variants_having_special_price);
                 })
                 ->whereNull('parent_id');
 
@@ -776,18 +957,6 @@ class ProductRepository extends Repository
                 }
             }
 
-            if (isset($params['owner'])) {
-                if (urldecode($params['owner']) == 'store') {
-                    $qb->whereHas('user', function ($query) {
-                        $query->where('users.type', 2);
-                    });
-                } else if (urldecode($params['owner']) == 'individual') {
-                    $qb->whereHas('user', function ($query) {
-                        $query->where('users.type',  1);
-                    });
-                }
-            }
-
             if (isset($params['order'])) {
                 if (urldecode($params['order']) == 'newest_first') {
                     $qb->orderBy('products.created_at',  'desc');
@@ -798,14 +967,14 @@ class ProductRepository extends Repository
                 }
             }
 
-            if (isset($params['category'])) {
-                if ($categoryFilter = request('category')) {
-                    $category = explode(',', $categoryFilter);
-                    $qb->join('categories', 'categories.id', 'products.category_id')
-                        ->join('categories', 'categories.id', 'categories.category_id')
-                        ->whereIn('categories.id', $category);
-                }
-            }
+            // if (isset($params['category'])) {
+            //     if ($categoryFilter = request('category')) {
+            //         $category = explode(',', $categoryFilter);
+            //         $qb->join('categories', 'categories.id', 'products.category_id')
+            //             ->join('categories', 'categories.id', 'categories.category_id')
+            //             ->whereIn('categories.id', $category);
+            //     }
+            // }
             return $qb->groupBy('products.id');
         });
 
@@ -829,7 +998,90 @@ class ProductRepository extends Repository
         return $items;
     }
 
+    public function getFeaturedItems($type = null)
+    {
+        $params = request()->input();
+        $perPage = isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 20;
 
+
+        $page = Paginator::resolveCurrentPage('page');
+
+        $repository = $this->with([
+            'images',
+        ])->scopeQuery(function ($query) use ($params, $type) {
+
+            $featured_products_ids = DB::table('featured_products')
+                ->select('product_id');
+
+            $qb = $query
+                ->distinct()
+                ->select('products.*')
+                ->whereIn('id', $featured_products_ids)
+                ->whereNull('parent_id');
+
+            if (is_null(request()->input('status'))) {
+                $qb->where('products.status', 'active');
+            }
+
+            if (isset($params['search'])) {
+                $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
+            }
+
+            if (isset($params['price'])) {
+                if ($priceFilter = request('price')) {
+                    $priceRange = explode(',', $priceFilter);
+
+                    if (count($priceRange) > 1) {
+                        $qb
+                            ->where('products.price', '>=', $priceRange[0])
+                            ->where('products.price', '<=', end($priceRange));
+                    } else {
+                        $qb
+                            ->where('products.price', '>=', $priceRange);
+                    }
+                }
+            }
+
+            if (isset($params['order'])) {
+                if (urldecode($params['order']) == 'newest_first') {
+                    $qb->orderBy('products.created_at',  'desc');
+                } else if (urldecode($params['order']) == 'low_to_high') {
+                    $qb->orderBy('products.price', 'asc');
+                } else if (urldecode($params['order']) == 'high_to_low') {
+                    $qb->orderBy('products.price',  'desc');
+                }
+            }
+
+            // if (isset($params['category'])) {
+            //     if ($categoryFilter = request('category')) {
+            //         $category = explode(',', $categoryFilter);
+            //         $qb->join('categories', 'categories.id', 'products.category_id')
+            //             ->join('categories', 'categories.id', 'categories.category_id')
+            //             ->whereIn('categories.id', $category);
+            //     }
+            // }
+            return $qb->groupBy('products.id');
+        });
+
+        # apply scope query so we can fetch the raw sql and perform a count
+        $repository->applyScope();
+        $countQuery = "select count(*) as aggregate from ({$repository->model->toSql()}) c";
+        $count = collect(DB::select($countQuery, $repository->model->getBindings()))->pluck('aggregate')->first();
+
+        if ($count > 0) {
+            # apply a new scope query to limit results to one page
+            $repository->scopeQuery(function ($query) use ($page, $perPage) {
+                return $query->forPage($page, $perPage);
+            });
+
+            # manually build the paginator
+            $items = $repository->get();
+        } else {
+            $items = [];
+        }
+
+        return $items;
+    }
 
 
 
