@@ -2,9 +2,11 @@
 
 namespace app\Http\Controllers\Mobile;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BrandResource;
 use App\Http\Resources\Product;
-use App\Models\User;
+use App\Models\Brand;
 use App\Repositories\ProductRepository;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,7 +31,13 @@ class HomeController extends Controller
             'getNewArrivals',
             'getBestSellers',
             'getSpecialOffers',
-            'getFeaturedItems'
+            'getFeaturedItems',
+            'getBrands',
+            'getProductsByBrandID',
+            'getProductsByStoreID',
+            'getProductsByCategoryID',
+            'globalSearch',
+            'getMostViewedProducts'
         ]]);
         Auth::setDefaultDriver('api');
     }
@@ -65,6 +73,70 @@ class HomeController extends Controller
     {
         $products = $this->productRepository
             ->getFeaturedItems();
+        return response()->json([
+            'data' => Product::collection($products)
+        ]);
+    }
+
+    public function getBrands(Request $request)
+    {
+        $query = Brand::query();
+
+        // Filter by search query
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'LIKE', "%$search%");
+        }
+
+        $perPage = $request->input('limit', 20);
+        $brands = $query->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'brands' => BrandResource::collection($brands)
+        ]);
+    }
+
+    public function getProductsByBrandID()
+    {
+        $products = $this->productRepository
+            ->getProductsByBrandID();
+        return response()->json([
+            'data' => Product::collection($products)
+        ]);
+    }
+
+    public function getProductsByStoreID()
+    {
+        $products = $this->productRepository
+            ->getProductsByStoreID();
+        return response()->json([
+            'data' => Product::collection($products)
+        ]);
+    }
+
+    public function getProductsByCategoryID()
+    {
+        $products = $this->productRepository
+            ->getProductsByCategoryID();
+        return response()->json([
+            'data' => Product::collection($products)
+        ]);
+    }
+
+    public function globalSearch()
+    {
+        $products = $this->productRepository
+            ->globalSearch();
+        return response()->json([
+            'data' => Product::collection($products)
+        ]);
+    }
+
+    public function getMostViewedProducts()
+    {
+        $products = $this->productRepository
+            ->getMostViewedProducts();
         return response()->json([
             'data' => Product::collection($products)
         ]);

@@ -30,6 +30,8 @@ class Product extends JsonResource
 
         return [
             'id' => $this->id,
+            'brand_id' => $this->brand_id,
+            'brand_name' => $this->brand->name,
             'user_id' => $this->user_id,
             'name' => $this->name,
             'product_type' => $this->product_type,
