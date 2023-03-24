@@ -73,6 +73,13 @@ Route::get('/getNewArrivals', [HomeController::class, 'getNewArrivals']);
 Route::get('/getBestSellers', [HomeController::class, 'getBestSellers']);
 Route::get('/getSpecialOffers', [HomeController::class, 'getSpecialOffers']);
 Route::get('/getFeaturedItems', [HomeController::class, 'getFeaturedItems']);
+Route::get('/getBrands', [HomeController::class, 'getBrands']);
+Route::get('/getProductsByBrandID', [HomeController::class, 'getProductsByBrandID']);
+Route::get('/getProductsByStoreID', [HomeController::class, 'getProductsByStoreID']);
+Route::get('/getProductsByCategoryID', [HomeController::class, 'getProductsByCategoryID']);
+Route::get('/globalSearch', [HomeController::class, 'globalSearch']);
+Route::post('/viewItem', [MobileController::class, 'viewItem']);
+Route::get('/getMostViewedProducts', [HomeController::class, 'getMostViewedProducts']);
 
 // Route::get('/getCategory', 'App\Http\Controllers\Mobile\MobileController@getCategory');
 // Route::get('/getSellingProduct', 'App\Http\Controllers\Mobile\MobileController@getSellingProduct');

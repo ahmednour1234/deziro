@@ -22,6 +22,7 @@ class Product extends Model
 
     protected $fillable = [
         'name',
+        'brand_id',
         'user_id',
         'type',
         'product_type',
@@ -36,6 +37,7 @@ class Product extends Model
 
     protected $skipAttributes = [
         'name',
+        'brand_id',
         'user_id',
         'type',
         'product_type',
@@ -81,6 +83,11 @@ class Product extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id', 'id');
     }
 
 
