@@ -95,17 +95,21 @@ class HomeController extends Controller
             });
         }
 
-        if (!$request->input('pagination')) {
+        if ($request->input('pagination') && $request->input('pagination') == 0) {
             $brands = $query->get();
         } else {
             $perPage = $request->input('limit', 20);
             $brands = $query->paginate($perPage);
         }
 
-
         return response()->json([
             'success' => true,
-            'brands' => BrandResource::collection($brands)
+            'brands' => ($request->has('with_image') && $request->input('with_image') == 0) ? $brands->map(function ($brand) {
+                return [
+                    'id' => $brand->id,
+                    'name' => $brand->name
+                ];
+            }) : BrandResource::collection($brands)
         ]);
     }
 
