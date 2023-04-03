@@ -5,6 +5,8 @@ namespace App\Repositories;
 use Illuminate\Container\Container;
 use App\Repositories\AttributeRepository;
 use App\Eloquent\Repository;
+use App\Models\Brand;
+use App\Models\Category;
 use App\Models\ProductAttributeValue;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -253,6 +255,12 @@ class ProductRepository extends Repository
         } else {
             $data['status'] = 'pending';
         }
+        if (!isset($data['brand_id']) && isset($data['brand_name'])) {
+            $category = Category::findOrFail($data['category_id']);
+            $brand = Brand::create(['name' => $data['brand_name']]);
+            $category->brands()->attach($brand->id);
+            $data['brand_id'] = $brand->id;
+        }
         $product = $this->model->create($data);
         $attributes = isset($data['attributes']) ? $data['attributes'] : [];
         foreach ($attributes as $attributeData) {
@@ -339,7 +347,6 @@ class ProductRepository extends Repository
         if (isset($data['variants'])) {
             foreach ($data['variants'] as $variantData) {
                 $variantId = isset($variantData['id']) ? $variantData['id'] : 'variant_';
-
                 if (isset($variantData['super_attributes'])) {
 
                     foreach ($variantData['super_attributes'] as $super_attribute) {
@@ -392,6 +399,7 @@ class ProductRepository extends Repository
                 'user_id'               => $data['user_id'],
                 'type'                  => $product->type,
                 'category_id'           => $product->category_id,
+                'brand_id'              => $product->brand_id,
                 'product_type'          => 'simple',
             ], $data)
         );
@@ -491,6 +499,12 @@ class ProductRepository extends Repository
     {
         $product = $this->findOrFail($id);
         $data['user_id'] = Auth::user()->id;
+        if (!isset($data['brand_id']) && isset($data['brand_name'])) {
+            $category = Category::findOrFail($data['category_id']);
+            $brand = Brand::create(['name' => $data['brand_name']]);
+            $category->brands()->attach($brand->id);
+            $data['brand_id'] = $brand->id;
+        }
         $product->update($data);
 
         $attributes = isset($data['attributes']) ? $data['attributes'] : [];
@@ -590,10 +604,6 @@ class ProductRepository extends Repository
                     }
                 }
 
-                // if (isset($variantData['super_attributes'])) {
-                //     $variantData['attributes'] = $data['attributes'];
-                // }
-
                 if (isset($variantData['id'])) {
                     $variantId = $variantData['id'];
                     if (is_numeric($index = $old_variants->search($variantId))) {
@@ -641,6 +651,7 @@ class ProductRepository extends Repository
                 'user_id'               => $data['user_id'],
                 'type'                  => $product->type,
                 'category_id'           => $product->category_id,
+                'brand_id'              => $product->brand_id,
                 'product_type'          => 'simple',
             ], $data)
         );

@@ -55,7 +55,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message'    => trans('Your Account Has Benn Rejected'),
+                'message'    => trans('Your Account has been Rejected'),
                 // 'reason'=> $user->reason,
                 'errors' => [],
             ], 200);
@@ -64,13 +64,13 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message'    => trans('Your Account Has Benn deactivate'),
+                'message'    => trans('Your Account has been deactivate'),
                 'errors' => [],
             ], 200);
         }
         return response()->json([
             'success' => true,
-            'message' => 'log in succefully',
+            'message' => 'Logged in successfully',
             'user' => $user,
             'token' => $token,
         ]);
@@ -227,8 +227,8 @@ class AuthController extends Controller
                     'last_name' => 'required|min:2|string',
                     'email' => 'required|email|unique:users,id,' . $user->id,
                     'phone' => 'required|min:8|max:8|unique:users,id,' . $user->id,
-                    'countryISOCode'=>'required',
-                    'countryCode'=>'required',
+                    'countryISOCode' => 'required',
+                    'countryCode' => 'required',
                 ]
             );
 
@@ -253,7 +253,7 @@ class AuthController extends Controller
 
                     return response()->json([
                         'success' => true,
-                        'message' => 'User Updated Succefully',
+                        'message' => 'User Updated Successully',
                         'user' => $user
                     ]);
                 }
@@ -266,8 +266,8 @@ class AuthController extends Controller
                 'email' => 'required|email|unique:users,id,' . $user->id,
                 'phone' => 'required|unique:users,id,' . $user->id,
                 'categories' => 'required',
-                'countryISOCode'=>'required',
-                'countryCode'=>'required',
+                'countryISOCode' => 'required',
+                'countryCode' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -296,7 +296,7 @@ class AuthController extends Controller
 
                     return response()->json([
                         'success' => true,
-                        'message' => 'Store Updated Succefully',
+                        'message' => 'Store Updated Successully',
                         'user' => $user
                     ]);
                 }

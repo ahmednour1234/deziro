@@ -10,6 +10,7 @@ use App\Repositories\ProductAttributeValueRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\Rule;
 
 class ProductForm extends FormRequest
 {
@@ -83,6 +84,12 @@ class ProductForm extends FormRequest
         if (request()->type == 'bid') {
             $this->rules = array_merge($this->rules, [
                 'countdown' => ['required', 'date_format:Y-m-d H:i:s', 'after:' . date('Y-m-d H:i:s')],
+            ]);
+        }
+
+        if (!request()->brand_id && request()->brand_name) {
+            $this->rules = array_merge($this->rules, [
+                'brand_name' => ['required', 'string', 'min:2', Rule::unique('brands', 'name')],
             ]);
         }
 

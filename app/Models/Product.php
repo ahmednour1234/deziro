@@ -87,9 +87,8 @@ class Product extends Model
 
     public function brand()
     {
-        return $this->belongsTo(Brand::class, 'brand_id', 'id');
+        return $this->belongsTo(Brand::class);
     }
-
 
     public function productimage()
     {
@@ -196,7 +195,7 @@ class Product extends Model
         }
 
         return
-            //  $minPrice = 
+            //  $minPrice =
             min($minPrices);
     }
 

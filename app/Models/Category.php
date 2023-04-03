@@ -22,6 +22,16 @@ class Category extends Model
     }
 
     /**
+     * The brands that belong to the category.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function brands(): BelongsToMany
+    {
+        return $this->belongsToMany(Brand::class, 'category_brands');
+    }
+
+    /**
      * The filterable attributes that belong to the category.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

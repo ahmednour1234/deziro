@@ -210,7 +210,7 @@ class MobileController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Address Deleted Succefully'
+            'message' => 'Address Deleted Successully'
         ]);
     }
 
