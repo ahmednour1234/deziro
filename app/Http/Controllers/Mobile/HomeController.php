@@ -88,8 +88,20 @@ class HomeController extends Controller
             $query->where('name', 'LIKE', "%$search%");
         }
 
-        $perPage = $request->input('limit', 20);
-        $brands = $query->paginate($perPage);
+        if ($request->has('category_id')) {
+            $category_ids = explode(",", $request->input('category_id'));
+            $query->whereHas('categories', function ($query) use ($category_ids) {
+                $query->whereIn('category_id', $category_ids);
+            });
+        }
+
+        if (!$request->input('pagination')) {
+            $brands = $query->get();
+        } else {
+            $perPage = $request->input('limit', 20);
+            $brands = $query->paginate($perPage);
+        }
+
 
         return response()->json([
             'success' => true,
