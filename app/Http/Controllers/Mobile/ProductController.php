@@ -140,7 +140,7 @@ class ProductController extends Controller
         $product = \App\Models\Product::where('id', $product_id)->where('user_id', auth()->user()->id)->first();
 
         if ($product) {
-            $product->status = 'inactive';
+            // $product->status = 'inactive';
             $product->save();
 
             return response()->json([
