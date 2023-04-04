@@ -75,18 +75,6 @@ class ProductForm extends FormRequest
             }
         }
 
-        if (auth()->user()->type == 1 && in_array(request()->type, ['sell', 'bed'])) {
-            $this->rules = array_merge($this->rules, [
-                'money_collection'   => ['required', 'in:whish-to-whish,whish-money'],
-                'phone'   => ['required', 'string'],
-            ]);
-        }
-        if (request()->type == 'bid') {
-            $this->rules = array_merge($this->rules, [
-                'countdown' => ['required', 'date_format:Y-m-d H:i:s', 'after:' . date('Y-m-d H:i:s')],
-            ]);
-        }
-
         if (!request()->brand_id && request()->brand_name) {
             $this->rules = array_merge($this->rules, [
                 'brand_name' => ['required', 'string', 'min:2', Rule::unique('brands', 'name')],
