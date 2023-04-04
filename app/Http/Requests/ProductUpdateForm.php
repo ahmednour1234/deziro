@@ -58,6 +58,7 @@ class ProductUpdateForm extends FormRequest
             'images.*'           => ['nullable', 'mimes:bmp,jpeg,jpg,png,webp'],
             'price'              => ['required', new Decimal],
             'special_price'      => ['nullable', new Decimal, 'exclude_if:price,0', 'lt:price'],
+            'brand_id'           => ['sometimes', 'integer', 'exists:brands,id'],
         ]);
 
         if (request()->images) {
