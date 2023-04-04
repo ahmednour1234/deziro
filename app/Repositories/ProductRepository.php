@@ -759,6 +759,7 @@ class ProductRepository extends Repository
                 // ->orderBy('products.created_at',  'desc')
                 ->whereNull('parent_id');
 
+
             if (is_null(request()->input('status'))) {
                 $qb->where('products.status', 'active');
             }
@@ -790,6 +791,8 @@ class ProductRepository extends Repository
                 } else if (urldecode($params['order']) == 'high_to_low') {
                     $qb->orderBy('products.price',  'desc');
                 }
+            } else {
+                $qb->orderBy('products.created_at',  'desc');
             }
 
             // if (isset($params['category'])) {
@@ -875,6 +878,8 @@ class ProductRepository extends Repository
                 } else if (urldecode($params['order']) == 'high_to_low') {
                     $qb->orderBy('products.price',  'desc');
                 }
+            } else {
+                $qb->orderBy('products.created_at',  'desc');
             }
 
             // if (isset($params['category'])) {
@@ -976,6 +981,8 @@ class ProductRepository extends Repository
                 } else if (urldecode($params['order']) == 'high_to_low') {
                     $qb->orderBy('products.price',  'desc');
                 }
+            } else {
+                $qb->orderBy('products.created_at',  'desc');
             }
 
             // if (isset($params['category'])) {
@@ -1061,6 +1068,8 @@ class ProductRepository extends Repository
                 } else if (urldecode($params['order']) == 'high_to_low') {
                     $qb->orderBy('products.price',  'desc');
                 }
+            } else {
+                $qb->orderBy('products.created_at',  'desc');
             }
 
             // if (isset($params['category'])) {
@@ -1148,6 +1157,8 @@ class ProductRepository extends Repository
                 } else if (urldecode($params['order']) == 'high_to_low') {
                     $qb->orderBy('products.price',  'desc');
                 }
+            } else {
+                $qb->orderBy('products.created_at',  'desc');
             }
 
             // if (isset($params['category'])) {
@@ -1235,6 +1246,8 @@ class ProductRepository extends Repository
                 } else if (urldecode($params['order']) == 'high_to_low') {
                     $qb->orderBy('products.price',  'desc');
                 }
+            } else {
+                $qb->orderBy('products.created_at',  'desc');
             }
 
             // if (isset($params['category'])) {
@@ -1322,6 +1335,8 @@ class ProductRepository extends Repository
                 } else if (urldecode($params['order']) == 'high_to_low') {
                     $qb->orderBy('products.price',  'desc');
                 }
+            } else {
+                $qb->orderBy('products.created_at',  'desc');
             }
 
             // if (isset($params['category'])) {
@@ -1405,6 +1420,8 @@ class ProductRepository extends Repository
                 } else if (urldecode($params['order']) == 'high_to_low') {
                     $qb->orderBy('products.price',  'desc');
                 }
+            } else {
+                $qb->orderBy('products.created_at',  'desc');
             }
 
             // if (isset($params['category'])) {
@@ -1578,6 +1595,8 @@ class ProductRepository extends Repository
                 } else if (urldecode($params['order']) == 'high_to_low') {
                     $qb->orderBy('products.price',  'desc');
                 }
+            } else {
+                $qb->orderBy('products.created_at',  'desc');
             }
 
             if (isset($params['category'])) {
