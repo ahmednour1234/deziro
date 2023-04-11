@@ -41,8 +41,6 @@ class OrderRepository extends Repository
      */
     public function createOrder(array $data)
     {
-
-
         if (
             isset($data['user'])
             && $data['user']
@@ -58,7 +56,7 @@ class OrderRepository extends Repository
         $order = $this->model->create($data);
         $order->increment_id = $order->id;
         $order->save();
-
+        // dd($data['payment']);
         $order->payment()->create($data['payment']);
 
         $order->addresses()->create($data['address']);

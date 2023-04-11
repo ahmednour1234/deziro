@@ -1,0 +1,298 @@
+<?php
+
+namespace App\Http\Controllers\Mobile;
+
+use App\Http\Controllers\Controller;
+use App\Repositories\OrderItemRepository;
+use App\Repositories\OrderRepository;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\Order as OrderResource;
+use App\Http\Resources\GroupedOrder as GroupedOrderResource;
+use App\Models\Order;
+use App\Models\OrderPayment;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+
+class OrderController extends Controller
+{
+    /**
+     * Contains current guard
+     *
+     * @var array
+     */
+    protected $guard;
+
+    /**
+     * OrderRepository object
+     *
+     * @var \App\Repositories\OrderRepository
+     */
+    protected $orderRepository;
+
+    /**
+     * OrderItemRepository object
+     *
+     * @var \App\Repositories\OrderItemRepository
+     */
+    protected $orderItemRepository;
+
+    /**
+     * Controller instance
+     *
+     * @param \App\Repositories\OrderRepository     $orderRepository
+     * @param \App\Repositories\OrderItemRepository $orderItemRepository
+     */
+    public function __construct(
+        OrderRepository $orderRepository,
+        OrderItemRepository $orderItemRepository,
+    ) {
+        $this->guard = 'api';
+
+        Auth::setDefaultDriver($this->guard);
+
+        $this->orderRepository = $orderRepository;
+
+        $this->orderItemRepository = $orderItemRepository;
+    }
+
+    /**
+     * Get user order.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
+    {
+        // $pending = $this->ordersByStatus(Order::STATUS_PENDING);
+        // $shipped = $this->ordersByStatus(Order::STATUS_SHIPPED);
+        // $delivered = $this->ordersByStatus(Order::STATUS_DELIVERED);
+        // $canceled = $this->ordersByStatus(Order::STATUS_CANCELED);
+
+        // return response()->json([
+        //     'data' => [
+        //         'pending'           => $pending,
+        //         'shipped'           => $shipped,
+        //         'delivered'         => $delivered,
+        //         'canceled'          => $canceled
+        //     ]
+        // ]);
+        $cloned = clone $this->orderRepository;
+        $cloned->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
+        $query = $cloned->scopeQuery(function ($query) {
+            $query = $query->where(function ($query) {
+                return $query->where('user_id', auth()->user()->id)
+                    ->orWhereExists(function ($query) {
+                        $query->select(DB::raw(1))
+                            ->from('order_items')
+                            ->join('products', 'products.id', 'order_items.product_id')
+                            ->whereRaw('order_items.order_id = orders.id')
+                            ->where('products.user_id', auth()->user()->id);
+                    });
+            });
+
+
+            if ($sort = request()->input('sort')) {
+                $query = $query->orderBy($sort, request()->input('order') ?? 'desc');
+            } else {
+                $query = $query->orderBy('id', 'desc');
+            }
+
+            return $query;
+        });
+
+        if (is_null(request()->input('pagination')) || request()->input('pagination')) {
+            $results = $query->paginate(request()->input('limit') ?? 20);
+        } else {
+            $results = $query->get();
+        }
+
+        return OrderResource::collection($results);
+        // return response()->json([
+        //     'data' => $this->orderRepository->where('user_id', '=', auth()->user()->id)->orderBy('created_at', 'desc')->paginate(20)->getCollection()
+        // ]);
+    }
+
+
+    // public function getOrdersByStatus($status)
+    // {
+    //     if ($status == Order::STATUS_PENDING_PAYMENT)
+    //         return response()->json([
+    //             'data' => $this->groupedOrdersByStatus($status)
+    //         ]);
+    //     return response()->json([
+    //         'data' => $this->ordersByStatus($status)
+    //     ]);
+    // }
+
+    // public function groupedOrdersByStatus($status)
+    // {
+    //     $cloned = clone $this->orderRepository;
+    //     $cloned->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
+    //     $query = $cloned->scopeQuery(function ($query) use ($status) {
+    //         $query = $query->whereHas('cart');
+    //         $query = $query->where('user_id', auth()->user()->id)
+    //             ->where('status', $status);
+
+    //         if ($sort = request()->input('sort')) {
+    //             $query = $query->orderBy($sort, request()->input('order') ?? 'desc');
+    //         } else {
+    //             $query = $query->orderBy('id', 'desc');
+    //         }
+
+    //         $query = $query->groupBy('cart_id');
+
+    //         return $query;
+    //     });
+
+    //     if (is_null(request()->input('pagination')) || request()->input('pagination')) {
+    //         $results = $query->paginate(request()->input('limit') ?? 15);
+    //     } else {
+    //         $results = $query->get();
+    //     }
+
+    //     return GroupedOrderResource::collection($results);
+    // }
+
+    // public function ordersByStatus($status)
+    // {
+    //     $cloned = clone $this->orderRepository;
+    //     $cloned->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
+    //     $query = $cloned->scopeQuery(function ($query) use ($status) {
+    //         $query = $query->where(function ($query) {
+    //             return $query->where('user_id', auth()->user()->id)
+    //                 ->orWhereExists(function ($query) {
+    //                     $query->select(DB::raw(1))
+    //                         ->from('order_items')
+    //                         ->join('products', 'products.id', 'order_items.product_id')
+    //                         ->whereRaw('order_items.order_id = orders.id')
+    //                         ->where('products.user_id', auth()->user()->id);
+    //                 });
+    //         })
+    //             ->where('status', $status);
+
+    //         if ($sort = request()->input('sort')) {
+    //             $query = $query->orderBy($sort, request()->input('order') ?? 'desc');
+    //         } else {
+    //             $query = $query->orderBy('id', 'desc');
+    //         }
+
+    //         return $query;
+    //     });
+
+    //     if (is_null(request()->input('pagination')) || request()->input('pagination')) {
+    //         $results = $query->paginate(request()->input('limit') ?? 15);
+    //     } else {
+    //         $results = $query->get();
+    //     }
+
+    //     return OrderResource::collection($results);
+    // }
+
+    public function savePayment($cart_id)
+    {
+        $orders = $this->orderRepository->findByField("cart_id", $cart_id);
+        if (!count($orders))
+            return response()->json([
+                'success' => false,
+                'message'   => 'Cart not found.',
+            ]);
+        foreach ($orders as $order) {
+            if (!$order)
+                return response()->json([
+                    'success' => false,
+                    'message'   => 'Order not found.',
+                ]);
+
+            if ($order->user_id != auth()->user()->id || $order->status != Order::STATUS_PENDING_PAYMENT)
+                return response()->json([
+                    'success' => false,
+                    'message'   => 'You cannot pay this order.',
+                ]);
+            $payment = $order->payment;
+            if (!$payment)
+                return response()->json([
+                    'success' => false,
+                    'message'   => 'Payment method is not specified.',
+                ]);
+
+            // if ($payment->method == OrderPayment::METHOD_WHISH_MONEY) {
+
+            //     if (!request()->hasFile('receipt'))
+            //         return response()->json([
+            //             'success' => false,
+            //             'message'   => 'Receipt is required.',
+            //         ]);
+            // } else if ($payment->method == OrderPayment::METHOD_WHISH_TO_WHISH) {
+
+            //     if (!request()->get('ltn'))
+            //         return response()->json([
+            //             'success' => false,
+            //             'message'   => 'LTN is required.',
+            //         ]);
+            // } else 
+            {
+                return response()->json([
+                    'success' => false,
+                    'message'   => 'Invalid Payment Method.',
+                ]);
+            }
+        }
+
+        foreach ($orders as $order) {
+
+            $payment = $order->payment;
+
+            // if ($payment->method == OrderPayment::METHOD_WHISH_MONEY) {
+
+            //     $payment->receipt = request()->file('receipt')->store('payment/' . $order->id);
+            //     $payment->save();
+            // } else if ($payment->method == OrderPayment::METHOD_WHISH_TO_WHISH) {
+
+            //     $payment->ltn = request()->get('ltn');
+            //     $payment->save();
+            // }
+
+            $order->status = Order::STATUS_PENDING;
+            $order->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message'   => 'Order has been successfully paid.',
+        ]);
+    }
+
+    public function rateOrder($id)
+    {
+        try {
+            request()->validate([
+                'rate' => ['required', 'numeric', 'between:1,5'],
+            ]);
+            $order = $this->orderRepository->find($id);
+            if (!$order)
+                return response()->json([
+                    'success' => false,
+                    'message'   => 'Order not found.',
+                ]);
+
+            if ($order->rate)
+                return response()->json([
+                    'success' => false,
+                    'message'   => 'Order has already been rated.',
+                ]);
+
+
+            $order->rate = request()->get('rate');
+            $order->save();
+
+            return response()->json([
+                'success' => true,
+                'message'   => 'Order has been successfully rated.',
+            ]);
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'success' => false,
+                'message'    => $exception->getMessage(),
+            ]);
+        }
+    }
+}
