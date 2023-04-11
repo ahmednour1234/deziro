@@ -121,7 +121,8 @@ class MobileController extends Controller
 
     public function getAddress(Request $request)
     {
-        $getAddress = Address::where('user_id', auth()->user()->id)->get();
+        $getAddress = Address::where('type', Address::ADDRESS_TYPE_USER)
+            ->where('user_id', auth()->user()->id)->get();
         return response()->json([
             "success" => true,
             'address' => $getAddress,
@@ -169,7 +170,7 @@ class MobileController extends Controller
             $address->address_details = $request->address_details;
             $address->location = $request->location;
             $address->is_default = $request->is_default;
-
+            $address->type = Address::ADDRESS_TYPE_USER;
             $address->save();
 
             return response()->json([

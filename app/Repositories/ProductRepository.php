@@ -6,6 +6,7 @@ use Illuminate\Container\Container;
 use App\Repositories\AttributeRepository;
 use App\Eloquent\Repository;
 use App\Models\Brand;
+use App\Models\Product;
 use App\Models\Category;
 use App\Models\ProductAttributeValue;
 use Carbon\Carbon;
@@ -745,21 +746,33 @@ class ProductRepository extends Repository
         $params = request()->input();
         $perPage = isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 20;
 
-
         $page = Paginator::resolveCurrentPage('page');
 
         $repository = $this->with([
             'images',
         ])->scopeQuery(function ($query) use ($params, $type) {
+            $order = $params['order'] ?: 'newest_first';
 
 
             $qb = $query
                 ->distinct()
                 ->select('products.*')
                 // ->orderBy('products.created_at',  'desc')
-                ->whereNull('parent_id');
-
-
+                ->whereNull('products.parent_id');
+            $qb
+                ->when($order, function ($query) use ($order) {
+                    if ($order == 'newest_first') {
+                        $query = $query->orderBy('products.created_at',  'desc');
+                    } else if ($order == 'low_to_high') {
+                        $query->leftJoin('products as v', function ($join) {
+                            $join->on('products.id', '=', 'v.parent_id')
+                                ->orOn('products.id', '=', 'v.id');
+                        })
+                            ->groupBy('products.id')
+                            ->orderByRaw('MIN(COALESCE(v.price, products.price)) ASC');
+                    }
+                });
+            // dd($qb->toSql());
             if (is_null(request()->input('status'))) {
                 $qb->where('products.status', 'active');
             }
@@ -783,17 +796,36 @@ class ProductRepository extends Repository
                 }
             }
 
-            if (isset($params['order'])) {
-                if (urldecode($params['order']) == 'newest_first') {
-                    $qb->orderBy('products.created_at',  'desc');
-                } else if (urldecode($params['order']) == 'low_to_high') {
-                    $qb->orderBy('products.price', 'asc');
-                } else if (urldecode($params['order']) == 'high_to_low') {
-                    $qb->orderBy('products.price',  'desc');
-                }
-            } else {
-                $qb->orderBy('products.created_at',  'desc');
-            }
+            // if (isset($params['order'])) {
+            //     if (urldecode($params['order']) == 'newest_first') {
+            //         $qb->orderBy('products.created_at',  'desc');
+            //     } else if (urldecode($params['order']) == 'low_to_high') {
+            //         $qb->orderBy('products.price', 'asc');
+            //     } else if (urldecode($params['order']) == 'high_to_low') {
+            //         $qb->orderBy('products.price',  'desc');
+            //     }
+            // } else {
+            //     $qb->orderBy('products.created_at',  'desc');
+            // }
+            // if ($order == 'low_to_high') {
+            //     $query->leftJoin('products as v', function ($join) {
+            //         $join->on('products.id', '=', 'v.parent_id')
+            //             ->orOn('products.id', '=', 'v.id');
+            //     })
+            //         ->groupBy('products.id')
+            //         ->orderByRaw('MIN(COALESCE(v.price, products.price)) ASC');
+            // } else if ($order == 'high_to_low') {
+            //     $query->leftJoin('products as v', function ($join) {
+            //         $join->on('products.id', '=', 'v.parent_id')
+            //             ->orOn('products.id', '=', 'v.id');
+            //     })
+            //         ->groupBy('products.id')
+            //         ->orderByRaw('MIN(COALESCE(v.price, products.price)) DESC');
+            // } else {
+            //     $query->orderBy('products.created_at',  'desc');
+            // }
+
+
 
             // if (isset($params['category'])) {
             //     if ($categoryFilter = request('category')) {
@@ -911,6 +943,15 @@ class ProductRepository extends Repository
         }
 
         return $items;
+    }
+
+    public function getProductsByIds()
+    {
+        $ids = request()->get('ids');
+        $products = Product::select('products.*')
+            ->whereIn('products.id', explode(",", $ids))
+            ->get();
+        return $products;
     }
 
 

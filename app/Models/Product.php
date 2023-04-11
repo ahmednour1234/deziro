@@ -232,6 +232,48 @@ class Product extends Model
         return $this->hasMany(static::class, 'parent_id');
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('products.status', 'active');
+    }
+
+    public function scopeActiveUser($query)
+    {
+        return $query->whereExists(function ($query) {
+            $query->from('users')
+                ->whereRaw('users.id = products.user_id')
+                ->where('users.status', 'accept')
+                ->where('users.is_active', 1);
+        });
+    }
+
+    /**
+     * Attributes to array.
+     *
+     */
+    public function customAttributesToArray()
+    {
+        $attributes = parent::attributesToArray();
+
+        if ($this->product_type == 'configurable') {
+            $this->skipAttributes = array_merge(
+                $this->super_attributes->pluck('code')->toArray(),
+                $this->skipAttributes
+            );
+        } else if ($this->product_type == 'simple' && $this->parent) {
+            $this->skipAttributes = getSingletonInstance(AttributeRepository::class)
+                ->getProductAttributes($this, $this->parent->super_attributes->pluck('code')->toArray())->pluck('code')->toArray();
+        }
+        $attributes = getSingletonInstance(AttributeRepository::class)
+            ->getProductAttributes($this, $this->skipAttributes);
+
+        foreach ($attributes as $attribute) {
+
+            $this->getCustomAttributeValue($attribute);
+        }
+        return ProductAttribute::collection($attributes);
+    }
+
 
 
     /**

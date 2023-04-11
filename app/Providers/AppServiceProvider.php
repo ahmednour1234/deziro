@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Facades\Cart;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Foundation\AliasLoader;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->registerFacades();
     }
 
     /**
@@ -25,5 +27,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Paginator::useBootstrap();
+    }
+
+    /**
+     * Register cart as a singleton.
+     *
+     * @return void
+     */
+    protected function registerFacades(): void
+    {
+        $loader = AliasLoader::getInstance();
+
+        $loader->alias('cart', Cart::class);
+
+        $this->app->singleton('cart', \App\Helpers\Cart::class);
     }
 }

@@ -105,6 +105,15 @@ function currency($amount = 0, $targetCurrencyCode = 'USD',  $exchangeRate = 1.0
     return formatPrice(convertPrice($amount, $targetCurrencyCode, $exchangeRate), $targetCurrencyCode);
 }
 
+function getFeesRate()
+{
+    return getFeesPercent() / 100;
+}
+function getFeesPercent()
+{
+    return 0;
+}
+
 /**
  * Format and convert price with currency symbol.
  *
