@@ -35,7 +35,7 @@ class ProductController extends Controller
      */
     public function __construct(protected ProductRepository $productRepository)
     {
-        $this->middleware('auth:api', ['except' => ['index', 'getProduct']]);
+        $this->middleware('auth:api', ['except' => ['index', 'getProduct', 'getProductsByIds']]);
         Auth::setDefaultDriver('api');
     }
 
@@ -153,5 +153,14 @@ class ProductController extends Controller
                 'message' => 'Product Not Found'
             ]);
         }
+    }
+
+    public function getProductsByIds()
+    {
+        $products = $this->productRepository
+            ->getProductsByIds();
+        return response()->json([
+            'data' => Product::collection($products)
+        ]);
     }
 }

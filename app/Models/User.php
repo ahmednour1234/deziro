@@ -99,4 +99,11 @@ class User extends  Authenticatable implements JWTSubject
     {
         return $this->hasMany(Notification::class, 'user_id', 'id');
     }
+    public function getExchangeRate()
+    {
+        if ($this->isStore())
+            return $this->vendor_exchange_rate;
+        else
+            return 80000;
+    }
 }

@@ -4,6 +4,9 @@ use App\Http\Controllers\Mobile\AuthController;
 use App\Http\Controllers\Mobile\MobileController;
 use App\Http\Controllers\Mobile\ProductController;
 use App\Http\Controllers\Mobile\HomeController;
+use App\Http\Controllers\Mobile\CartController;
+use App\Http\Controllers\Mobile\CheckoutController;
+use App\Http\Controllers\Mobile\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -80,6 +83,21 @@ Route::get('/getProductsByCategoryID', [HomeController::class, 'getProductsByCat
 Route::get('/globalSearch', [HomeController::class, 'globalSearch']);
 Route::post('/viewItem', [MobileController::class, 'viewItem']);
 Route::get('/getMostViewedProducts', [HomeController::class, 'getMostViewedProducts']);
+Route::get('/getProductsByIds', [ProductController::class, 'getProductsByIds']);
+
+Route::group(['prefix' => 'checkout', 'middleware' => 'auth:api'], function ($router) {
+    // Route::get('cart', [CartController::class, 'get']);
+    // Route::post('cart/add/{id}', [CartController::class, 'store']);
+    Route::post('cart/add-items', [CartController::class, 'storeItems']);
+    Route::post('save-order', [CheckoutController::class, 'saveOrder']);
+});
+
+Route::group(['prefix' => 'orders', 'middleware' => 'auth:api'], function ($router) {
+    Route::get('/', [OrderController::class, 'index']);
+    // Route::post('save-payment/{id}', [OrderController::class, 'savePayment']);
+    // Route::post('rate/{id}', [OrderController::class, 'rateOrder']);
+    // Route::get('/{status}', [OrderController::class, 'getOrdersByStatus']);
+});
 
 // Route::get('/getCategory', 'App\Http\Controllers\Mobile\MobileController@getCategory');
 // Route::get('/getSellingProduct', 'App\Http\Controllers\Mobile\MobileController@getSellingProduct');
