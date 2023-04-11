@@ -92,7 +92,7 @@
             <li class="menu-item   {{ request()->is('category') ? 'active' : '' }}">
                 <a href="{{ route('admin.category.listCategory') }}" class="menu-link ">
                     <i class="menu-icon tf-icons bx bx-user-circle"></i>
-                    <div data-i18n="Analytics">Categories</div>
+                    <div data-i18n="Analytics">Category</div>
                 </a>
             </li>
             {{-- End Categorye --}}
@@ -100,7 +100,7 @@
             <li class="menu-item  {{ request()->is('requesttochangecategories') ? 'active' : '' }} ">
                 <a href="{{ route('admin.category.listrequesttochangecategories') }}" class="menu-link ">
                     <i class="menu-icon tf-icons bx bx-user-circle"></i>
-                    <div data-i18n="Analytics">List Request to change categories</div>
+                    <div data-i18n="Analytics">List Request to change category</div>
                 </a>
             </li>
 
@@ -121,6 +121,34 @@
             </li>
 
 
+            {{--  Products --}}
+            <li
+                class="menu-item {{ request()->is('storeProduct') || request()->is('individualProduct') ? 'active' : '' }}">
+                <a class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-layout"></i>
+                    <div data-i18n="Layouts"> Products</div>
+                </a>
+
+                <ul
+                    class="{{ request()->is('storeProduct') || request()->is('individualProduct') ? 'active' : 'active menu-sub' }}">
+
+                    <li class="menu-item {{ request()->is('storeProduct') ? 'active' : '' }} ">
+                        <a href="{{ route('admin.storeProduct.listStoreProduct') }}" class="menu-link">
+                            <div data-i18n="Container">List Store Product </div>
+                        </a>
+                    </li>
+
+
+                    {{-- <li class="menu-item  {{ request()->is('storeBidProduct') ? 'active' : '' }} ">
+                        <a href="{{ route('admin.storeProduct.listBidProduct') }}" class="menu-link">
+                            <div data-i18n="Fluid">List Bid Product </div>
+                        </a>
+                    </li> --}}
+
+
+
+                </ul>
+            </li>
 
             {{-- <li class="menu-item {{ request()->is('category')  ? 'active' : '' }} ">
                     <a href="{{ route('admin.category.listCategory') }}" class="menu-link">
@@ -224,33 +252,7 @@
 
                 </ul>
             </li>
-             Store Products
-            <li
-                class="menu-item {{ request()->is('storeSellingProduct') || request()->is('storeBidProduct') ? 'active' : '' }}">
-                <a class="menu-link menu-toggle">
-                    <i class="menu-icon tf-icons bx bx-layout"></i>
-                    <div data-i18n="Layouts">Store Products</div>
-                </a>
 
-                <ul
-                    class="{{ request()->is('storeSellingProduct') || request()->is('storeBidProduct') ? 'active' : 'active menu-sub' }}">
-
-                    <li class="menu-item {{ request()->is('storeSellingProduct') ? 'active' : '' }} ">
-                        <a href="{{ route('admin.storeProduct.listSellingProduct') }}" class="menu-link">
-                            <div data-i18n="Container">List Selling Product </div>
-                        </a>
-                    </li>
-
-                    <li class="menu-item  {{ request()->is('storeBidProduct') ? 'active' : '' }} ">
-                        <a href="{{ route('admin.storeProduct.listBidProduct') }}" class="menu-link">
-                            <div data-i18n="Fluid">List Bid Product </div>
-                        </a>
-                    </li>
-
-
-
-                </ul>
-            </li>
 
              Orders
             <li

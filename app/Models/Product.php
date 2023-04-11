@@ -70,8 +70,11 @@ class Product extends Model
     {
         parent::boot();
 
-        static::addGlobalScope('inactive', function (Builder $builder) {
-            $builder->where('products.status', '<>', 'inactive');
+        static::updating(function ($product) {
+            if ($product->quantity === 0) {
+                $product->status = 'sold';
+                $product->save();
+            }
         });
     }
 

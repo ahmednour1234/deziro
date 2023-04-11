@@ -188,14 +188,17 @@ class CategoryController extends Controller
 
 
             if ($category) {
+
+
                 if ($request->hasFile('image')) {
 
                     $img = $request->image;
                     $uploadFile1 = $img->store('category_images') ;
                 } else {
                     $size1 = '';
-                    $uploadFile1 = '';
+                    $uploadFile1 = $category->image;
                 }
+     
 
 
                     $category->image = $uploadFile1;

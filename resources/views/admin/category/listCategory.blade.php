@@ -5,9 +5,9 @@
 @include('admin.category.crud_category.editCategorieModal')
 
     {{-- Active Modal --}}
-@include('admin.moreDetails.activate_modal.activeCategoryModal')
+@include('admin.moreDetails.activate_modal.activeModal')
 {{-- Inactive Modal --}}
-@include('admin.moreDetails.activate_modal.inactiveCategoryModal')
+@include('admin.moreDetails.activate_modal.inactiveModal')
 
     <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light"> <a href="{{ route('admin.home.listHome') }}"> Home
                 /</a></span> Categories</h4>
@@ -85,7 +85,7 @@
                                     <button class="btn btn-success btn-sm active_category" data-value1="{{ $category->name}}"
                                         value="{{ $category->id }}">Active</button>
                                 @else
-                                    <button class="btn btn-warning btn-sm inactive_category" data-value1="{{ $category->name}}"
+                                    <button class="btn btn-danger btn-sm inactive_category" data-value1="{{ $category->name}}"
                                         value="{{ $category->id }}">Inactive</button>
                                 @endif
                             </td>
@@ -212,7 +212,7 @@
                 $('#active_id').val(category_id)
                 $('#inactive_title').text('Inactivate  ' + name)
                 $('#inactive_msg').text('Are you sure do you want to inactivate  ' + name)
-                $('#activeCategoryModal').modal('show')
+                $('#activeModal').modal('show')
             })
 
             $(document).on('click', '.inactive_category', function(e) {
@@ -222,7 +222,7 @@
                 $('#inactive_id').val(category_id)
                 $('#active_title').text('Activate  ' + name)
                 $('#active_msg').text('Are you sure do you want to activate  ' + name)
-                $('#inactiveCategoryModal').modal('show')
+                $('#inactiveModal').modal('show')
             })
 
 
@@ -238,7 +238,7 @@
                         console.log(response);
                         $('#success_message').addClass('alert alert-success')
                         $('#success_message').text(response.message)
-                        $('#activeCategoryModal').modal('hide')
+                        $('#activeModal').modal('hide')
 
                         // location.reload(true)
                         setTimeout(function() {
@@ -260,7 +260,7 @@
                         console.log(response);
                         $('#success_message').addClass('alert alert-success')
                         $('#success_message').text(response.message)
-                        $('#inactiveCategoryModal').modal('hide')
+                        $('#inactiveModal').modal('hide')
 
                         // location.reload(true)
                         setTimeout(function() {

@@ -49,7 +49,7 @@ class UserController extends Controller
 
 
 
-    public function is_active(Request $request,$id){
+    public function is_active($id){
 
         $user = User::findOrFail($id);
 
@@ -66,7 +66,7 @@ class UserController extends Controller
 
     }
 
-    public function is_inactive(Request $request,$id){
+    public function is_inactive($id){
 
 
         $user = User::findOrFail($id);
@@ -82,7 +82,7 @@ class UserController extends Controller
         ]);
 
     }
-    public function approve(Request $request, $id)
+    public function approve($id)
     {
 
         $user = User::findOrFail($id);

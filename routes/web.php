@@ -11,6 +11,8 @@ use App\Http\Controllers\StoreController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AttributeController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StoreProductController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -144,78 +146,21 @@ Route::post('/attributes/delete/{id}', [AttributeController::class, 'destroy'])-
 
 
 
-// Route::get('/deleteCategory/{id}',[CategoryController::class,'deleteCategory'])->name('admin.category.deleteCategory');
-// Route::post('category_active/{id}', [CategoryController::class, 'is_active'])->name('admin.category.is_active');
-// Route::post('category_inactive/{id}', [CategoryController::class, 'is_inactive'])->name('admin.category.is_inactive');
-
-// Route::get('categoryIcons/{id}',[IconCategoryController::class,'displayCategoryIcon'])->name('admin.categoryicon.displayCategoryIcon');
-// Route::post('addNewiconpath',[IconCategoryController::class,'addNewiconpath'])->name('admin.categoryicon.addNewiconpath');
-// Route::post('addNewicondarkpath',[IconCategoryController::class,'addNewicondarkpath'])->name('admin.categoryicon.addNewicondarkpath');
-// Route::post('addNewloaderpath',[IconCategoryController::class,'addNewloaderpath'])->name('admin.categoryicon.addNewloaderpath');
-// Route::post('addNewloaderdarkpath',[IconCategoryController::class,'addNewloaderdarkpath'])->name('admin.categoryicon.addNewloaderdarkpath');
-// Route::post('addNewiconpathclicked',[IconCategoryController::class,'addNewiconpathclicked'])->name('admin.categoryicon.addNewiconpathclicked');
-// // Route::post('addNewiconpathdark',[IconCategoryController::class,'addNewiconpathdark'])->name('admin.categoryicon.addNewiconpathdark');
-// Route::post('addNewiconpathdarkclicked',[IconCategoryController::class,'addNewiconpathdarkclicked'])->name('admin.categoryicon.addNewiconpathdarkclicked');
-
-
-
-// //SubCategory
-// Route::get('category', [CategoryController::class, 'listCategory'])->name('admin.category.listCategory');
-// Route::post('addNewSubCategory',[CategoryController::class,'addNewSubCategory'])->name('admin.category.addNewSubCategory');
-// Route::get('editSubCategory/{id}', [CategoryController::class, 'editSubCategory'])->name('admin.category.editSubCategory');
-// Route::post('updateSubCategory/{id}',[CategoryController::class,'updateSubCategory'])->name('admin.category.updateSubCategory');
-// Route::get('/deleteSubcategory/{id}',[CategoryController::class,'deleteSubcategory'])->name('admin.category.deleteSubcategory');
-// Route::post('category_active/{id}', [CategoryController::class, 'is_active'])->name('admin.category.is_active');
-// Route::post('category_inactive/{id}', [CategoryController::class, 'is_inactive'])->name('admin.category.is_inactive');
-
-
-// //Products
-// Route::get('product', [ProductController::class, 'listRequestProduct'])->name('admin.product.listRequestProduct');
-
-// Route::post('/reject_product/{id}',[ProductController::class,'reject_product'])->name('admin.product.reject_product');
-// Route::post('/approve_product/{id}',[ProductController::class,'approve_product'])->name('admin.product.approve_product');
-
-
-// Route::get('rejectedProduct', [ProductController::class, 'listRejectedProduct'])->name('admin.product.listRejectedProduct');
-
-
-// //SellingProduct
-// Route::get('sellingProduct', [SellingProductController::class, 'listSellingProduct'])->name('admin.product.listSellingProduct');
-// // Route::post('addNewSellingProduct',[SellingProductController::class,'addNewSellingProduct'])->name('admin.product.addNewSellingProduct');
-// // Route::get('editSellingProduct/{id}', [SellingProductController::class, 'editSellingProduct'])->name('admin.product.editSellingProduct');
-// // Route::post('updateSellingProduct/{id}',[SellingProductController::class,'updateSellingProduct'])->name('admin.product.updateSellingProduct');
-// // Route::get('/deleteSellingProduct/{id}',[SellingProductController::class,'deleteSellingProduct'])->name('admin.product.deleteSellingProduct');
-// Route::get('sellingProductDetail/{id}', [SellingProductController::class, 'SellingProductDetail'])->name('admin.product.SellingProductDetail');
 
 
 
 
-// //Bid Product
-// Route::get('bidProduct', [BidProductController::class, 'listBidProduct'])->name('admin.product.listBidProduct');
-// // Route::post('addNewBidProduct',[BidProductController::class,'addNewBidProduct'])->name('admin.product.addNewBidProduct');
-// // Route::get('editBidProduct/{id}', [BidProductController::class, 'editBidProduct'])->name('admin.product.editBidProduct');
-// // Route::post('updateBidProduct/{id}',[BidProductController::class,'updateBidProduct'])->name('admin.product.updateBidProduct');
-// // Route::get('/deleteBidProduct/{id}',[BidProductController::class,'deleteBidProduct'])->name('admin.product.deleteBidProduct');
-// Route::get('bidProductDetail/{id}', [BidProductController::class, 'bidProductDetail'])->name('admin.product.bidProductDetail');
 
 
-// //Bid
-// Route::get('viewBidProduct/{id}', [BidProductController::class, 'viewBidProduct'])->name('admin.product.viewBidProduct');
+
+//store selling product
+Route::get('storeProduct', [ProductController::class, 'listStoreProduct'])->name('admin.storeProduct.listStoreProduct');
+
+Route::post('activeProduct/{id}', [ProductController::class, 'is_active'])->name('admin.product.is_active');
+Route::post('inactiveProduct/{id}', [ProductController::class, 'is_inactive'])->name('admin.product.is_inactive');
+Route::get('productDetail/{id}', [ProductController::class, 'productDetail'])->name('admin.product.productDetail');
 
 
-// //Swap Product
-// Route::get('swapProduct', [SwapProductController::class, 'listSwapProduct'])->name('admin.product.listSwapProduct');
-// // Route::get('editSwapProduct/{id}', [SwapProductController::class, 'editSwapProduct'])->name('admin.product.editSwapProduct');
-// // Route::post('updateSwapProduct/{id}',[SwapProductController::class,'updateSwapProduct'])->name('admin.product.updateSwapProduct');
-// // Route::get('/deleteSwapProduct/{id}',[SwapProductController::class,'deleteSwapProduct'])->name('admin.product.deleteSwapProduct');
-// Route::get('viewSwapProduct/{id}', [SwapProductController::class, 'viewSwapProduct'])->name('admin.product.viewSwapProduct');
-// Route::get('swapProductDetail/{id}', [SwapProductController::class, 'swapProductDetail'])->name('admin.product.swapProductDetail');
-
-// //store selling product
-// Route::get('storeSellingProduct', [StoreProductController::class, 'listSellingProduct'])->name('admin.storeProduct.listSellingProduct');
-// Route::post('addNewSellingProduct',[StoreProductController::class,'addNewSellingProduct'])->name('admin.storeProduct.addNewSellingProduct');
-// Route::get('editSellingProduct/{id}', [StoreProductController::class, 'editSellingProduct'])->name('admin.storeProduct.editSellingProduct');
-// Route::post('updateSellingProduct/{id}',[StoreProductController::class,'updateSellingProduct'])->name('admin.storeProduct.updateSellingProduct');
 
 
 // //store bid Product

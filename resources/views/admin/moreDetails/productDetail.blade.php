@@ -3,8 +3,7 @@
 {{-- @yield('title', 'Product') --}}
 
 @section('content')
-    @include('admin.product.request_product.status_modal.approveProductModal')
-    @include('admin.product.request_product.status_modal.rejectProductModal')
+
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap");
 
@@ -254,16 +253,13 @@
                     <div class="demoo">
 
                         <ul id="lightSlider">
-                            @foreach ($imageProduct as $image)
-                                <!--<li data-thumb="{{ asset('admin/assets/img/product_image/' . $image->product_image) }}"> <img-->
-                                <!--        src="{{ asset('admin/assets/img/product_image/' . $image->product_image) }}"-->
+                            @foreach ($productImages as $image)
+                                <!--<li data-thumb="{{ Storage::url($image->product_image) }}"> <img-->
+                                <!--        src="{{ Storage::url($image->product_image) }}"-->
                                 <!--        width="100%" height="300" />-->
                                 <!--</li>-->
-                                   <li data-thumb="{{asset($image->product_image) }}"  width="100%" height="300"> <img
-                                        src="{{asset($image->product_image) }}"
-                                        width="100%" height="300" />
-
-
+                                <li data-thumb="{{ Storage::url($image->product_image) }}" width="100%" height="300">
+                                    <img src="{{ Storage::url($image->product_image) }}" width="100%" height="300" />
 
                                 </li>
                             @endforeach
@@ -281,7 +277,7 @@
                                 <p class="mb-0">User Id</p>
                             </div>
                             <div class="col-sm-6">
-                                <a href="/individualDetail/{{ $productDetail->user_id }}" class="btn btn-dark btn-sm">
+                                <a href="/userDetail/{{ $productDetail->user_id }}" class="btn btn-dark btn-sm">
                                     {{ $productDetail->user_id }}
                                 </a>
                             </div>
@@ -294,7 +290,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <p class="text-muted mb-0">
-                                    {{ $productDetail->user->first_name.' '.$productDetail->user->last_name }}</p>
+                                    {{ $productDetail->user->first_name . ' ' . $productDetail->user->last_name }}</p>
                             </div>
                         </div>
                         <hr>
@@ -316,7 +312,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <p class="text-muted mb-0">
-                                    {{ $productDetail->user->phone_number}}</p>
+                                    {{ $productDetail->user->phone }}</p>
                             </div>
                         </div>
                         <hr>
@@ -343,16 +339,18 @@
                             </div>
                         </div>
                         <hr>
-                        {{-- <input type="text" id="store_id" value="{{ $productDetail->id }}"> --}}
+
                         <div class="row">
                             <div class="col-sm-6">
-                                <p class="mb-0">Sub Category </p>
+                                <p class="mb-0"> Category </p>
                             </div>
                             <div class="col-sm-6">
                                 <p class="text-muted mb-0">{{ $productDetail->category->name }}</p>
                             </div>
                         </div>
                         <hr>
+
+
 
                         <div class="row">
                             <div class="col-sm-6">
@@ -365,23 +363,14 @@
                         <hr>
                         <div class="row">
                             <div class="col-sm-6">
-                                <p class="mb-0">Condition</p>
+                                <p class="mb-0">Special Price</p>
                             </div>
                             <div class="col-sm-6">
-                                {{ $productDetail->condition }}
+                                <p class="text-muted mb-0">{{ $productDetail->special_price }}</p>
                             </div>
                         </div>
                         <hr>
 
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <p class="mb-0">Money Collection</p>
-                            </div>
-                            <div class="col-sm-6">
-                                {{ $productDetail->money_collection }}
-                            </div>
-                        </div>
-                        <hr>
 
                         <div class="row">
                             <div class="col-sm-6">
@@ -393,6 +382,9 @@
                         </div>
                         <hr>
 
+
+
+
                         <div class="row">
                             <div class="col-sm-6">
                                 <p class="mb-0">Description</p>
@@ -402,36 +394,15 @@
                             </div>
                         </div>
                         <hr>
-
-                          @if($productDetail->address_id !=Null)
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <p class="mb-0">Address</p>
-                            </div>
-                            <div class="col-sm-6">
-
-                                {{ $productDetail->address->city . ' , ' . $productDetail->address->address . ' , ' }} <a
-                                    href="http://maps.google.com/?q={{ $productDetail->address->lat }},{{ $productDetail->address->lng }}"
-                                    target="_blank"> Go To Map</a></p>
-
-                            </div>
-                        </div>
-                        @endif
                     </div>
 
                 </div>
-                <div class="text-center my-3">
-                    @if ($productDetail->status == 'pending')
-                        <button type="button" value="{{ $productDetail->id }}"
-                            class="approve_product  btn btn-primary editbtn  ">Approve</button>
-                        <button type="button" value="{{ $productDetail->id }}"
-                            class="reject_product btn btn-danger deletebtn  ">Reject</button>
-                    @endif
-                </div>
+
             </div>
         </div>
     </div>
-    </div>
+
+    @endsection
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js'></script>
     <script src='https://sachinchoolur.github.io/lightslider/dist/js/lightslider.js'></script>
     <script>
@@ -443,109 +414,3 @@
             thumbItem: 9
         });
     </script>
-@section('scripts')
-    <script>
-        $(document).ready(function() {
-
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            $(document).on('click', '.approve_product', function(e) {
-                e.preventDefault();
-                var store_id = $(this).val();
-                console.log(store_id)
-                $('#approve_id').val(store_id)
-                $('#approveProductModal').modal('show')
-            });
-
-            $(document).on('click', '.reject_product', function(e) {
-                e.preventDefault();
-                var store_id = $(this).val();
-                console.log(store_id)
-                $('#reject_id').val(store_id)
-                $('#rejectProductModal').modal('show')
-            });
-
-            $(document).on('click', '.reject_btn', function(e) {
-                e.preventDefault();
-
-                var store_id = $('#reject_id').val();
-                var data = {
-                    'reason': $('.reason').val(),
-                }
-
-                $.ajax({
-                    type: 'POST',
-                    url: '/reject_product/' + store_id,
-                    data: data,
-                    dataType: 'json',
-                    success: function(response) {
-                        console.log(response)
-
-                        if (response.status == 400) {
-                            const reason = $('#reason').val();
-                            reason == '' ? $('#error_reason').html(response.errors.reason) : $(
-                                '#error_reason').html('')
-                        } else if (response.status == 404) {
-                            $('#update_error_message').html('');
-                            $('#update_error_message').addClass('alert alert-danger');
-                            $('#update_error_message').text('response.message');
-                            $('.update_user').text('Update')
-                        } else {
-                            $('#success_message').text(response.message)
-                            $('#success_message').addClass('alert alert-success')
-                            $('#success_message').text(response.message)
-                            $('#rejectProductModal').modal('hide')
-                            $('#editStoreModal').find('input').val('')
-                            $('.update_user').text('Update')
-                            // fetchUser()
-                            location.reload();
-                        }
-                    }
-                })
-            })
-
-            $(document).on('click', '.approve_btn', function(e) {
-                e.preventDefault();
-
-                var store_id = $('#approve_id').val();
-                let formData = new FormData($('#approveStoreForm')[0]);
-                console.log(store_id)
-
-                $.ajax({
-                    type: 'POST',
-                    url: '/approve_product/' + store_id,
-                    data: formData,
-                    cache: false,
-                    contentType: false,
-                    processData: false,
-                    success: function(response) {
-                        console.log(response)
-
-                        if (response.status == 404) {
-                            $('#update_error_message').html('');
-                            $('#update_error_message').addClass('alert alert-danger');
-                            $('#update_error_message').text('response.message');
-                            $('.update_user').text('Update')
-                        } else {
-                            $('#success_message').text(response.message)
-                            $('#success_message').addClass('alert alert-success')
-                            $('#success_message').text(response.message)
-                            $('#approveProductModal').modal('hide')
-                            $('#approveProductModal').find('input').val('')
-                            $('.update_user').text('Update')
-                            // fetchUser()
-                            location.reload();
-
-                        }
-                    }
-                })
-
-            })
-        });
-    </script>
-@endsection
-@endsection
