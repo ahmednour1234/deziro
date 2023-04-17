@@ -745,31 +745,63 @@ class ProductRepository extends Repository
     {
         $params = request()->input();
         $perPage = isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 20;
-
         $page = Paginator::resolveCurrentPage('page');
 
         $repository = $this->with([
             'images',
         ])->scopeQuery(function ($query) use ($params, $type) {
-            $order = $params['order'] ?: 'newest_first';
-
-
+            $priceFilter =  $params['price'] ?? null;
+            $order = $params['order'] ?? 'newest_first';
             $qb = $query
                 ->distinct()
-                ->select('products.*')
-                // ->orderBy('products.created_at',  'desc')
+                ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
+                products.special_price,
+                products.price), 
+                (SELECT MIN(
+                    IF(
+                        p.special_price < p.price AND p.special_price > 0,
+                        p.special_price,
+                        p.price
+                    )
+                    ) FROM products p WHERE p.parent_id = products.id)) AS min_price
+                
+                '))
                 ->whereNull('products.parent_id');
             $qb
+                ->when($priceFilter, function ($query) use ($priceFilter) {
+                    $priceRange = explode(',', $priceFilter);
+                    if (count($priceRange) > 1) {
+                        $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                            ->where('variants.product_type', '=', 'simple')
+                            ->where(function ($query) use ($priceRange) {
+                                $query->whereBetween('variants.price', $priceRange)
+                                    ->orWhere(function ($query2) use ($priceRange) {
+                                        $query2->where('variants.special_price', '>', '0');
+                                        $query2->whereBetween('variants.special_price', $priceRange);
+                                    });
+                            });
+                        // dd(count($query->get()));
+                    } else if (count($priceRange) == 1) {
+                        $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                            ->where('variants.product_type', '=', 'simple')
+                            ->where(function ($query) use ($priceRange) {
+                                $query->where('variants.price', '>=', $priceRange[0])
+                                    ->orWhere(function ($query2) use ($priceRange) {
+                                        $query2->where('variants.special_price', '>', '0');
+                                        $query2->where('variants.special_price', '>=', $priceRange[0]);
+                                    });
+                            });
+                    }
+                })
                 ->when($order, function ($query) use ($order) {
                     if ($order == 'newest_first') {
                         $query = $query->orderBy('products.created_at',  'desc');
                     } else if ($order == 'low_to_high') {
-                        $query->leftJoin('products as v', function ($join) {
-                            $join->on('products.id', '=', 'v.parent_id')
-                                ->orOn('products.id', '=', 'v.id');
-                        })
-                            ->groupBy('products.id')
-                            ->orderByRaw('MIN(COALESCE(v.price, products.price)) ASC');
+                        $query->orderBy('min_price');
+                    } else if ($order == 'high_to_low') {
+                        $query->orderByDesc('min_price');
+                    } else {
+                        $query->orderBy('products.created_at',  'desc');
                     }
                 });
             // dd($qb->toSql());
@@ -781,60 +813,7 @@ class ProductRepository extends Repository
                 $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
             }
 
-            if (isset($params['price'])) {
-                if ($priceFilter = request('price')) {
-                    $priceRange = explode(',', $priceFilter);
 
-                    if (count($priceRange) > 1) {
-                        $qb
-                            ->where('products.price', '>=', $priceRange[0])
-                            ->where('products.price', '<=', end($priceRange));
-                    } else {
-                        $qb
-                            ->where('products.price', '>=', $priceRange);
-                    }
-                }
-            }
-
-            // if (isset($params['order'])) {
-            //     if (urldecode($params['order']) == 'newest_first') {
-            //         $qb->orderBy('products.created_at',  'desc');
-            //     } else if (urldecode($params['order']) == 'low_to_high') {
-            //         $qb->orderBy('products.price', 'asc');
-            //     } else if (urldecode($params['order']) == 'high_to_low') {
-            //         $qb->orderBy('products.price',  'desc');
-            //     }
-            // } else {
-            //     $qb->orderBy('products.created_at',  'desc');
-            // }
-            // if ($order == 'low_to_high') {
-            //     $query->leftJoin('products as v', function ($join) {
-            //         $join->on('products.id', '=', 'v.parent_id')
-            //             ->orOn('products.id', '=', 'v.id');
-            //     })
-            //         ->groupBy('products.id')
-            //         ->orderByRaw('MIN(COALESCE(v.price, products.price)) ASC');
-            // } else if ($order == 'high_to_low') {
-            //     $query->leftJoin('products as v', function ($join) {
-            //         $join->on('products.id', '=', 'v.parent_id')
-            //             ->orOn('products.id', '=', 'v.id');
-            //     })
-            //         ->groupBy('products.id')
-            //         ->orderByRaw('MIN(COALESCE(v.price, products.price)) DESC');
-            // } else {
-            //     $query->orderBy('products.created_at',  'desc');
-            // }
-
-
-
-            // if (isset($params['category'])) {
-            //     if ($categoryFilter = request('category')) {
-            //         $category = explode(',', $categoryFilter);
-            //         $qb->join('categories', 'categories.id', 'products.category_id')
-            //             ->join('categories', 'categories.id', 'categories.category_id')
-            //             ->whereIn('categories.id', $category);
-            //     }
-            // }
             return $qb->groupBy('products.id');
         });
 
@@ -871,14 +850,61 @@ class ProductRepository extends Repository
         $repository = $this->with([
             'images',
         ])->scopeQuery(function ($query) use ($params, $type) {
-
+            $priceFilter =  $params['price'] ?? null;
+            $order = $params['order'] ?? 'newest_first';
 
             $qb = $query
                 ->distinct()
-                ->select('products.*')
+                ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
+                products.special_price,
+                products.price), 
+                (SELECT MIN(
+                    IF(
+                        p.special_price < p.price AND p.special_price > 0,
+                        p.special_price,
+                        p.price
+                    )
+                    ) FROM products p WHERE p.parent_id = products.id)) AS min_price
+                '))
                 // ->orderBy('products.created_at',  'desc')
-                ->whereNull('parent_id');
-
+                ->whereNull('products.parent_id');
+            $qb
+                ->when($priceFilter, function ($query) use ($priceFilter) {
+                    $priceRange = explode(',', $priceFilter);
+                    if (count($priceRange) > 1) {
+                        $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                            ->where('variants.product_type', '=', 'simple')
+                            ->where(function ($query) use ($priceRange) {
+                                $query->whereBetween('variants.price', $priceRange)
+                                    ->orWhere(function ($query2) use ($priceRange) {
+                                        $query2->where('variants.special_price', '>', '0');
+                                        $query2->whereBetween('variants.special_price', $priceRange);
+                                    });
+                            });
+                        // dd(count($query->get()));
+                    } else if (count($priceRange) == 1) {
+                        $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                            ->where('variants.product_type', '=', 'simple')
+                            ->where(function ($query) use ($priceRange) {
+                                $query->where('variants.price', '>=', $priceRange[0])
+                                    ->orWhere(function ($query2) use ($priceRange) {
+                                        $query2->where('variants.special_price', '>', '0');
+                                        $query2->where('variants.special_price', '>=', $priceRange[0]);
+                                    });
+                            });
+                    }
+                })
+                ->when($order, function ($query) use ($order) {
+                    if ($order == 'newest_first') {
+                        $query = $query->orderBy('products.created_at',  'desc');
+                    } else if ($order == 'low_to_high') {
+                        $query->orderBy('min_price');
+                    } else if ($order == 'high_to_low') {
+                        $query->orderByDesc('min_price');
+                    } else {
+                        $query->orderBy('products.created_at',  'desc');
+                    }
+                });
             if (is_null(request()->input('status'))) {
                 $qb->where('products.status', 'active');
             }
@@ -887,32 +913,7 @@ class ProductRepository extends Repository
                 $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
             }
 
-            if (isset($params['price'])) {
-                if ($priceFilter = request('price')) {
-                    $priceRange = explode(',', $priceFilter);
 
-                    if (count($priceRange) > 1) {
-                        $qb
-                            ->where('products.price', '>=', $priceRange[0])
-                            ->where('products.price', '<=', end($priceRange));
-                    } else {
-                        $qb
-                            ->where('products.price', '>=', $priceRange);
-                    }
-                }
-            }
-
-            if (isset($params['order'])) {
-                if (urldecode($params['order']) == 'newest_first') {
-                    $qb->orderBy('products.created_at',  'desc');
-                } else if (urldecode($params['order']) == 'low_to_high') {
-                    $qb->orderBy('products.price', 'asc');
-                } else if (urldecode($params['order']) == 'high_to_low') {
-                    $qb->orderBy('products.price',  'desc');
-                }
-            } else {
-                $qb->orderBy('products.created_at',  'desc');
-            }
 
             // if (isset($params['category'])) {
             //     if ($categoryFilter = request('category')) {
@@ -960,36 +961,81 @@ class ProductRepository extends Repository
         $params = request()->input();
         $perPage = isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 20;
 
-        $parents_of_variants_having_special_price =
-            DB::table('products')->select('parent_id')
-            ->where('products.special_price', '!=', '0')
-            ->whereColumn('products.special_price', '<', 'products.price')
-            ->distinct();
+        // $parents_of_variants_having_special_price =
+        //     DB::table('products')->select('parent_id')
+        //     ->where('products.special_price', '!=', '0')
+        //     ->whereColumn('products.special_price', '<', 'products.price')
+        //     ->distinct();
 
         $page = Paginator::resolveCurrentPage('page');
 
         $repository = $this->with([
             'images',
-        ])->scopeQuery(function ($query) use ($params, $type, $parents_of_variants_having_special_price) {
-
-
+        ])->scopeQuery(function ($query) use ($params, $type) {
+            $priceFilter =  $params['price'] ?? null;
+            $order = $params['order'] ?? 'newest_first';
             $qb = $query
                 ->distinct()
-                ->select('products.*')
-                ->where(function ($query) use ($parents_of_variants_having_special_price) {
-                    // Check if the price of simple product is in range
-                    $query->where('product_type', '=', 'simple')
-                        ->whereNull('parent_id')
-                        ->where('products.special_price', '!=', '0')
-                        ->whereColumn('products.special_price', '<', 'products.price');
+                ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
+                products.special_price,
+                products.price), 
+                (SELECT MIN(
+                    IF(
+                        p.special_price < p.price AND p.special_price > 0,
+                        p.special_price,
+                        p.price
+                    )
+                    ) FROM products p WHERE p.parent_id = products.id)) AS min_price
+                '))
+                ->where(function ($query) {
+                    $query->where(function ($query2) {
+                        $query2->where('products.product_type', '=', 'simple');
+                        $query2->where('products.special_price', '>', '0');
+                    })
+                        ->orWhere(function ($query2) {
+                            $query2->where('products.product_type', '=', 'configurable');
+                            $query2->whereRaw(
+                                'products.id IN (select parent_id from products where product_type=\'simple\' and special_price>0)'
+                            );
+                        });
                 })
-                ->orWhere(function ($query) use ($parents_of_variants_having_special_price) {
-                    // Check if the variant price of configurable product is in range
-                    $query->where('product_type', '=', 'configurable')
-
-                        ->whereIn('id', $parents_of_variants_having_special_price);
+                ->whereNull('products.parent_id')
+                ->when($priceFilter, function ($query) use ($priceFilter) {
+                    $priceRange = explode(',', $priceFilter);
+                    if (count($priceRange) > 1) {
+                        $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                            ->where('variants.product_type', '=', 'simple')
+                            ->where(function ($query) use ($priceRange) {
+                                $query->whereBetween('variants.price', $priceRange)
+                                    ->orWhere(function ($query2) use ($priceRange) {
+                                        $query2->where('variants.special_price', '>', '0');
+                                        $query2->whereBetween('variants.special_price', $priceRange);
+                                    });
+                            });
+                        // dd(count($query->get()));
+                    } else if (count($priceRange) == 1) {
+                        $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                            ->where('variants.product_type', '=', 'simple')
+                            ->where(function ($query) use ($priceRange) {
+                                $query->where('variants.price', '>=', $priceRange[0])
+                                    ->orWhere(function ($query2) use ($priceRange) {
+                                        $query2->where('variants.special_price', '>', '0');
+                                        $query2->where('variants.special_price', '>=', $priceRange[0]);
+                                    });
+                            });
+                    }
                 })
-                ->whereNull('parent_id');
+                ->when($order, function ($query) use ($order) {
+                    if ($order == 'newest_first') {
+                        $query = $query->orderBy('products.created_at',  'desc');
+                    } else if ($order == 'low_to_high') {
+                        $query->orderBy('min_price');
+                    } else if ($order == 'high_to_low') {
+                        $query->orderByDesc('min_price');
+                    } else {
+                        $query->orderBy('products.created_at',  'desc');
+                    }
+                });
 
             if (is_null(request()->input('status'))) {
                 $qb->where('products.status', 'active');
@@ -999,32 +1045,32 @@ class ProductRepository extends Repository
                 $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
             }
 
-            if (isset($params['price'])) {
-                if ($priceFilter = request('price')) {
-                    $priceRange = explode(',', $priceFilter);
+            // if (isset($params['price'])) {
+            //     if ($priceFilter = request('price')) {
+            //         $priceRange = explode(',', $priceFilter);
 
-                    if (count($priceRange) > 1) {
-                        $qb
-                            ->where('products.price', '>=', $priceRange[0])
-                            ->where('products.price', '<=', end($priceRange));
-                    } else {
-                        $qb
-                            ->where('products.price', '>=', $priceRange);
-                    }
-                }
-            }
+            //         if (count($priceRange) > 1) {
+            //             $qb
+            //                 ->where('products.price', '>=', $priceRange[0])
+            //                 ->where('products.price', '<=', end($priceRange));
+            //         } else {
+            //             $qb
+            //                 ->where('products.price', '>=', $priceRange);
+            //         }
+            //     }
+            // }
 
-            if (isset($params['order'])) {
-                if (urldecode($params['order']) == 'newest_first') {
-                    $qb->orderBy('products.created_at',  'desc');
-                } else if (urldecode($params['order']) == 'low_to_high') {
-                    $qb->orderBy('products.price', 'asc');
-                } else if (urldecode($params['order']) == 'high_to_low') {
-                    $qb->orderBy('products.price',  'desc');
-                }
-            } else {
-                $qb->orderBy('products.created_at',  'desc');
-            }
+            // if (isset($params['order'])) {
+            //     if (urldecode($params['order']) == 'newest_first') {
+            //         $qb->orderBy('products.created_at',  'desc');
+            //     } else if (urldecode($params['order']) == 'low_to_high') {
+            //         $qb->orderBy('products.price', 'asc');
+            //     } else if (urldecode($params['order']) == 'high_to_low') {
+            //         $qb->orderBy('products.price',  'desc');
+            //     }
+            // } else {
+            //     $qb->orderBy('products.created_at',  'desc');
+            // }
 
             // if (isset($params['category'])) {
             //     if ($categoryFilter = request('category')) {
@@ -1062,22 +1108,66 @@ class ProductRepository extends Repository
         $params = request()->input();
         $perPage = isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 20;
 
-
         $page = Paginator::resolveCurrentPage('page');
 
         $repository = $this->with([
             'images',
         ])->scopeQuery(function ($query) use ($params, $type) {
-
-            $featured_products_ids = DB::table('featured_products')
-                ->select('product_id');
-
+            $priceFilter =  $params['price'] ?? null;
+            $order = $params['order'] ?? 'newest_first';
             $qb = $query
                 ->distinct()
-                ->select('products.*')
-                ->whereIn('id', $featured_products_ids)
-                ->whereNull('parent_id');
-
+                ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
+                products.special_price,
+                products.price), 
+                (SELECT MIN(
+                    IF(
+                        p.special_price < p.price AND p.special_price > 0,
+                        p.special_price,
+                        p.price
+                    )
+                    ) FROM products p WHERE p.parent_id = products.id)) AS min_price
+                '))
+                ->whereRaw(
+                    'products.id IN (select product_id from featured_products)'
+                )->whereNull('products.parent_id');
+            // dd(count($qb->get()));
+            $qb->when($priceFilter, function ($query) use ($priceFilter) {
+                $priceRange = explode(',', $priceFilter);
+                if (count($priceRange) > 1) {
+                    $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                        ->where('variants.product_type', '=', 'simple')
+                        ->where(function ($query) use ($priceRange) {
+                            $query->whereBetween('variants.price', $priceRange)
+                                ->orWhere(function ($query2) use ($priceRange) {
+                                    $query2->where('variants.special_price', '>', '0');
+                                    $query2->whereBetween('variants.special_price', $priceRange);
+                                });
+                        });
+                    // dd(count($query->get()));
+                } else if (count($priceRange) == 1) {
+                    $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                        ->where('variants.product_type', '=', 'simple')
+                        ->where(function ($query) use ($priceRange) {
+                            $query->where('variants.price', '>=', $priceRange[0])
+                                ->orWhere(function ($query2) use ($priceRange) {
+                                    $query2->where('variants.special_price', '>', '0');
+                                    $query2->where('variants.special_price', '>=', $priceRange[0]);
+                                });
+                        });
+                }
+            })
+                ->when($order, function ($query) use ($order) {
+                    if ($order == 'newest_first') {
+                        $query = $query->orderBy('products.created_at',  'desc');
+                    } else if ($order == 'low_to_high') {
+                        $query->orderBy('min_price');
+                    } else if ($order == 'high_to_low') {
+                        $query->orderByDesc('min_price');
+                    } else {
+                        $query->orderBy('products.created_at',  'desc');
+                    }
+                });
             if (is_null(request()->input('status'))) {
                 $qb->where('products.status', 'active');
             }
@@ -1086,41 +1176,6 @@ class ProductRepository extends Repository
                 $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
             }
 
-            if (isset($params['price'])) {
-                if ($priceFilter = request('price')) {
-                    $priceRange = explode(',', $priceFilter);
-
-                    if (count($priceRange) > 1) {
-                        $qb
-                            ->where('products.price', '>=', $priceRange[0])
-                            ->where('products.price', '<=', end($priceRange));
-                    } else {
-                        $qb
-                            ->where('products.price', '>=', $priceRange);
-                    }
-                }
-            }
-
-            if (isset($params['order'])) {
-                if (urldecode($params['order']) == 'newest_first') {
-                    $qb->orderBy('products.created_at',  'desc');
-                } else if (urldecode($params['order']) == 'low_to_high') {
-                    $qb->orderBy('products.price', 'asc');
-                } else if (urldecode($params['order']) == 'high_to_low') {
-                    $qb->orderBy('products.price',  'desc');
-                }
-            } else {
-                $qb->orderBy('products.created_at',  'desc');
-            }
-
-            // if (isset($params['category'])) {
-            //     if ($categoryFilter = request('category')) {
-            //         $category = explode(',', $categoryFilter);
-            //         $qb->join('categories', 'categories.id', 'products.category_id')
-            //             ->join('categories', 'categories.id', 'categories.category_id')
-            //             ->whereIn('categories.id', $category);
-            //     }
-            // }
             return $qb->groupBy('products.id');
         });
 
@@ -1158,14 +1213,60 @@ class ProductRepository extends Repository
         $repository = $this->with([
             'images',
         ])->scopeQuery(function ($query) use ($params, $type) {
-
+            $priceFilter =  $params['price'] ?? null;
+            $order = $params['order'] ?? 'newest_first';
 
             $qb = $query
                 ->distinct()
-                ->select('products.*')
+                ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
+                products.special_price,
+                products.price), 
+                (SELECT MIN(
+                    IF(
+                        p.special_price < p.price AND p.special_price > 0,
+                        p.special_price,
+                        p.price
+                    )
+                    ) FROM products p WHERE p.parent_id = products.id)) AS min_price
+                '))
                 ->where('brand_id', $params['brand_id'])
-                // ->orderBy('products.created_at',  'desc')
-                ->whereNull('parent_id');
+                ->whereNull('products.parent_id');
+            $qb->when($priceFilter, function ($query) use ($priceFilter) {
+                $priceRange = explode(',', $priceFilter);
+                if (count($priceRange) > 1) {
+                    $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                        ->where('variants.product_type', '=', 'simple')
+                        ->where(function ($query) use ($priceRange) {
+                            $query->whereBetween('variants.price', $priceRange)
+                                ->orWhere(function ($query2) use ($priceRange) {
+                                    $query2->where('variants.special_price', '>', '0');
+                                    $query2->whereBetween('variants.special_price', $priceRange);
+                                });
+                        });
+                    // dd(count($query->get()));
+                } else if (count($priceRange) == 1) {
+                    $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                        ->where('variants.product_type', '=', 'simple')
+                        ->where(function ($query) use ($priceRange) {
+                            $query->where('variants.price', '>=', $priceRange[0])
+                                ->orWhere(function ($query2) use ($priceRange) {
+                                    $query2->where('variants.special_price', '>', '0');
+                                    $query2->where('variants.special_price', '>=', $priceRange[0]);
+                                });
+                        });
+                }
+            })
+                ->when($order, function ($query) use ($order) {
+                    if ($order == 'newest_first') {
+                        $query = $query->orderBy('products.created_at',  'desc');
+                    } else if ($order == 'low_to_high') {
+                        $query->orderBy('min_price');
+                    } else if ($order == 'high_to_low') {
+                        $query->orderByDesc('min_price');
+                    } else {
+                        $query->orderBy('products.created_at',  'desc');
+                    }
+                });
 
             if (is_null(request()->input('status'))) {
                 $qb->where('products.status', 'active');
@@ -1175,41 +1276,6 @@ class ProductRepository extends Repository
                 $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
             }
 
-            if (isset($params['price'])) {
-                if ($priceFilter = request('price')) {
-                    $priceRange = explode(',', $priceFilter);
-
-                    if (count($priceRange) > 1) {
-                        $qb
-                            ->where('products.price', '>=', $priceRange[0])
-                            ->where('products.price', '<=', end($priceRange));
-                    } else {
-                        $qb
-                            ->where('products.price', '>=', $priceRange);
-                    }
-                }
-            }
-
-            if (isset($params['order'])) {
-                if (urldecode($params['order']) == 'newest_first') {
-                    $qb->orderBy('products.created_at',  'desc');
-                } else if (urldecode($params['order']) == 'low_to_high') {
-                    $qb->orderBy('products.price', 'asc');
-                } else if (urldecode($params['order']) == 'high_to_low') {
-                    $qb->orderBy('products.price',  'desc');
-                }
-            } else {
-                $qb->orderBy('products.created_at',  'desc');
-            }
-
-            // if (isset($params['category'])) {
-            //     if ($categoryFilter = request('category')) {
-            //         $category = explode(',', $categoryFilter);
-            //         $qb->join('categories', 'categories.id', 'products.category_id')
-            //             ->join('categories', 'categories.id', 'categories.category_id')
-            //             ->whereIn('categories.id', $category);
-            //     }
-            // }
             return $qb->groupBy('products.id');
         });
 
@@ -1247,15 +1313,61 @@ class ProductRepository extends Repository
         $repository = $this->with([
             'images',
         ])->scopeQuery(function ($query) use ($params, $type) {
-
+            $priceFilter =  $params['price'] ?? null;
+            $order = $params['order'] ?? 'newest_first';
 
             $qb = $query
                 ->distinct()
-                ->select('products.*')
+                ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
+                products.special_price,
+                products.price), 
+                (SELECT MIN(
+                    IF(
+                        p.special_price < p.price AND p.special_price > 0,
+                        p.special_price,
+                        p.price
+                    )
+                    ) FROM products p WHERE p.parent_id = products.id)) AS min_price
+                '))
                 ->where('user_id', $params['store_id'])
                 // ->orderBy('products.created_at',  'desc')
                 ->whereNull('parent_id');
-
+            $qb->when($priceFilter, function ($query) use ($priceFilter) {
+                $priceRange = explode(',', $priceFilter);
+                if (count($priceRange) > 1) {
+                    $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                        ->where('variants.product_type', '=', 'simple')
+                        ->where(function ($query) use ($priceRange) {
+                            $query->whereBetween('variants.price', $priceRange)
+                                ->orWhere(function ($query2) use ($priceRange) {
+                                    $query2->where('variants.special_price', '>', '0');
+                                    $query2->whereBetween('variants.special_price', $priceRange);
+                                });
+                        });
+                    // dd(count($query->get()));
+                } else if (count($priceRange) == 1) {
+                    $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                        ->where('variants.product_type', '=', 'simple')
+                        ->where(function ($query) use ($priceRange) {
+                            $query->where('variants.price', '>=', $priceRange[0])
+                                ->orWhere(function ($query2) use ($priceRange) {
+                                    $query2->where('variants.special_price', '>', '0');
+                                    $query2->where('variants.special_price', '>=', $priceRange[0]);
+                                });
+                        });
+                }
+            })
+                ->when($order, function ($query) use ($order) {
+                    if ($order == 'newest_first') {
+                        $query = $query->orderBy('products.created_at',  'desc');
+                    } else if ($order == 'low_to_high') {
+                        $query->orderBy('min_price');
+                    } else if ($order == 'high_to_low') {
+                        $query->orderByDesc('min_price');
+                    } else {
+                        $query->orderBy('products.created_at',  'desc');
+                    }
+                });
             if (is_null(request()->input('status'))) {
                 $qb->where('products.status', 'active');
             }
@@ -1263,42 +1375,6 @@ class ProductRepository extends Repository
             if (isset($params['search'])) {
                 $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
             }
-
-            if (isset($params['price'])) {
-                if ($priceFilter = request('price')) {
-                    $priceRange = explode(',', $priceFilter);
-
-                    if (count($priceRange) > 1) {
-                        $qb
-                            ->where('products.price', '>=', $priceRange[0])
-                            ->where('products.price', '<=', end($priceRange));
-                    } else {
-                        $qb
-                            ->where('products.price', '>=', $priceRange);
-                    }
-                }
-            }
-
-            if (isset($params['order'])) {
-                if (urldecode($params['order']) == 'newest_first') {
-                    $qb->orderBy('products.created_at',  'desc');
-                } else if (urldecode($params['order']) == 'low_to_high') {
-                    $qb->orderBy('products.price', 'asc');
-                } else if (urldecode($params['order']) == 'high_to_low') {
-                    $qb->orderBy('products.price',  'desc');
-                }
-            } else {
-                $qb->orderBy('products.created_at',  'desc');
-            }
-
-            // if (isset($params['category'])) {
-            //     if ($categoryFilter = request('category')) {
-            //         $category = explode(',', $categoryFilter);
-            //         $qb->join('categories', 'categories.id', 'products.category_id')
-            //             ->join('categories', 'categories.id', 'categories.category_id')
-            //             ->whereIn('categories.id', $category);
-            //     }
-            // }
             return $qb->groupBy('products.id');
         });
 
@@ -1336,15 +1412,61 @@ class ProductRepository extends Repository
         $repository = $this->with([
             'images',
         ])->scopeQuery(function ($query) use ($params, $type) {
-
+            $priceFilter =  $params['price'] ?? null;
+            $order = $params['order'] ?? 'newest_first';
 
             $qb = $query
                 ->distinct()
-                ->select('products.*')
+                ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
+                products.special_price,
+                products.price), 
+                (SELECT MIN(
+                    IF(
+                        p.special_price < p.price AND p.special_price > 0,
+                        p.special_price,
+                        p.price
+                    )
+                    ) FROM products p WHERE p.parent_id = products.id)) AS min_price
+                '))
                 ->where('category_id', $params['category_id'])
                 // ->orderBy('products.created_at',  'desc')
                 ->whereNull('parent_id');
-
+            $qb->when($priceFilter, function ($query) use ($priceFilter) {
+                $priceRange = explode(',', $priceFilter);
+                if (count($priceRange) > 1) {
+                    $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                        ->where('variants.product_type', '=', 'simple')
+                        ->where(function ($query) use ($priceRange) {
+                            $query->whereBetween('variants.price', $priceRange)
+                                ->orWhere(function ($query2) use ($priceRange) {
+                                    $query2->where('variants.special_price', '>', '0');
+                                    $query2->whereBetween('variants.special_price', $priceRange);
+                                });
+                        });
+                    // dd(count($query->get()));
+                } else if (count($priceRange) == 1) {
+                    $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                        ->where('variants.product_type', '=', 'simple')
+                        ->where(function ($query) use ($priceRange) {
+                            $query->where('variants.price', '>=', $priceRange[0])
+                                ->orWhere(function ($query2) use ($priceRange) {
+                                    $query2->where('variants.special_price', '>', '0');
+                                    $query2->where('variants.special_price', '>=', $priceRange[0]);
+                                });
+                        });
+                }
+            })
+                ->when($order, function ($query) use ($order) {
+                    if ($order == 'newest_first') {
+                        $query = $query->orderBy('products.created_at',  'desc');
+                    } else if ($order == 'low_to_high') {
+                        $query->orderBy('min_price');
+                    } else if ($order == 'high_to_low') {
+                        $query->orderByDesc('min_price');
+                    } else {
+                        $query->orderBy('products.created_at',  'desc');
+                    }
+                });
             if (is_null(request()->input('status'))) {
                 $qb->where('products.status', 'active');
             }
@@ -1353,41 +1475,6 @@ class ProductRepository extends Repository
                 $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
             }
 
-            if (isset($params['price'])) {
-                if ($priceFilter = request('price')) {
-                    $priceRange = explode(',', $priceFilter);
-
-                    if (count($priceRange) > 1) {
-                        $qb
-                            ->where('products.price', '>=', $priceRange[0])
-                            ->where('products.price', '<=', end($priceRange));
-                    } else {
-                        $qb
-                            ->where('products.price', '>=', $priceRange);
-                    }
-                }
-            }
-
-            if (isset($params['order'])) {
-                if (urldecode($params['order']) == 'newest_first') {
-                    $qb->orderBy('products.created_at',  'desc');
-                } else if (urldecode($params['order']) == 'low_to_high') {
-                    $qb->orderBy('products.price', 'asc');
-                } else if (urldecode($params['order']) == 'high_to_low') {
-                    $qb->orderBy('products.price',  'desc');
-                }
-            } else {
-                $qb->orderBy('products.created_at',  'desc');
-            }
-
-            // if (isset($params['category'])) {
-            //     if ($categoryFilter = request('category')) {
-            //         $category = explode(',', $categoryFilter);
-            //         $qb->join('categories', 'categories.id', 'products.category_id')
-            //             ->join('categories', 'categories.id', 'categories.category_id')
-            //             ->whereIn('categories.id', $category);
-            //     }
-            // }
             return $qb->groupBy('products.id');
         });
 
@@ -1425,54 +1512,66 @@ class ProductRepository extends Repository
         $repository = $this->with([
             'images',
         ])->scopeQuery(function ($query) use ($params, $type) {
-
+            $priceFilter =  $params['price'] ?? null;
+            $order = $params['order'] ?? 'newest_first';
 
             $qb = $query
                 ->distinct()
-                ->select('products.*')
+                ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
+                products.special_price,
+                products.price), 
+                (SELECT MIN(
+                    IF(
+                        p.special_price < p.price AND p.special_price > 0,
+                        p.special_price,
+                        p.price
+                    )
+                    ) FROM products p WHERE p.parent_id = products.id)) AS min_price
+                '))
                 ->where('products.name', 'like', '%' . urldecode($params['search']) . '%')
                 // ->orderBy('products.created_at',  'desc')
                 ->whereNull('parent_id');
-
+            $qb->when($priceFilter, function ($query) use ($priceFilter) {
+                $priceRange = explode(',', $priceFilter);
+                if (count($priceRange) > 1) {
+                    $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                        ->where('variants.product_type', '=', 'simple')
+                        ->where(function ($query) use ($priceRange) {
+                            $query->whereBetween('variants.price', $priceRange)
+                                ->orWhere(function ($query2) use ($priceRange) {
+                                    $query2->where('variants.special_price', '>', '0');
+                                    $query2->whereBetween('variants.special_price', $priceRange);
+                                });
+                        });
+                    // dd(count($query->get()));
+                } else if (count($priceRange) == 1) {
+                    $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                        ->where('variants.product_type', '=', 'simple')
+                        ->where(function ($query) use ($priceRange) {
+                            $query->where('variants.price', '>=', $priceRange[0])
+                                ->orWhere(function ($query2) use ($priceRange) {
+                                    $query2->where('variants.special_price', '>', '0');
+                                    $query2->where('variants.special_price', '>=', $priceRange[0]);
+                                });
+                        });
+                }
+            })
+                ->when($order, function ($query) use ($order) {
+                    if ($order == 'newest_first') {
+                        $query = $query->orderBy('products.created_at',  'desc');
+                    } else if ($order == 'low_to_high') {
+                        $query->orderBy('min_price');
+                    } else if ($order == 'high_to_low') {
+                        $query->orderByDesc('min_price');
+                    } else {
+                        $query->orderBy('products.created_at',  'desc');
+                    }
+                });
             if (is_null(request()->input('status'))) {
                 $qb->where('products.status', 'active');
             }
 
-            if (isset($params['price'])) {
-                if ($priceFilter = request('price')) {
-                    $priceRange = explode(',', $priceFilter);
 
-                    if (count($priceRange) > 1) {
-                        $qb
-                            ->where('products.price', '>=', $priceRange[0])
-                            ->where('products.price', '<=', end($priceRange));
-                    } else {
-                        $qb
-                            ->where('products.price', '>=', $priceRange);
-                    }
-                }
-            }
-
-            if (isset($params['order'])) {
-                if (urldecode($params['order']) == 'newest_first') {
-                    $qb->orderBy('products.created_at',  'desc');
-                } else if (urldecode($params['order']) == 'low_to_high') {
-                    $qb->orderBy('products.price', 'asc');
-                } else if (urldecode($params['order']) == 'high_to_low') {
-                    $qb->orderBy('products.price',  'desc');
-                }
-            } else {
-                $qb->orderBy('products.created_at',  'desc');
-            }
-
-            // if (isset($params['category'])) {
-            //     if ($categoryFilter = request('category')) {
-            //         $category = explode(',', $categoryFilter);
-            //         $qb->join('categories', 'categories.id', 'products.category_id')
-            //             ->join('categories', 'categories.id', 'categories.category_id')
-            //             ->whereIn('categories.id', $category);
-            //     }
-            // }
             return $qb->groupBy('products.id');
         });
 
@@ -1501,13 +1600,12 @@ class ProductRepository extends Repository
         $params = request()->input();
         $perPage = isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 20;
 
-
         $page = Paginator::resolveCurrentPage('page');
 
         $repository = $this->with([
             'images',
         ])->scopeQuery(function ($query) use ($params, $type) {
-
+            $priceFilter =  $params['price'] ?? null;
 
             $qb = $query
                 ->distinct()
@@ -1515,27 +1613,38 @@ class ProductRepository extends Repository
                 ->orderBy('products.views',  'desc')
                 ->whereNull('parent_id');
 
+            $qb->when($priceFilter, function ($query) use ($priceFilter) {
+                $priceRange = explode(',', $priceFilter);
+                if (count($priceRange) > 1) {
+                    $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                        ->where('variants.product_type', '=', 'simple')
+                        ->where(function ($query) use ($priceRange) {
+                            $query->whereBetween('variants.price', $priceRange)
+                                ->orWhere(function ($query2) use ($priceRange) {
+                                    $query2->where('variants.special_price', '>', '0');
+                                    $query2->whereBetween('variants.special_price', $priceRange);
+                                });
+                        });
+                    // dd(count($query->get()));
+                } else if (count($priceRange) == 1) {
+                    $query->leftJoin('products as variants', 'products.id', '=', DB::raw('COALESCE(variants.parent_id, variants.id)'))
+                        ->where('variants.product_type', '=', 'simple')
+                        ->where(function ($query) use ($priceRange) {
+                            $query->where('variants.price', '>=', $priceRange[0])
+                                ->orWhere(function ($query2) use ($priceRange) {
+                                    $query2->where('variants.special_price', '>', '0');
+                                    $query2->where('variants.special_price', '>=', $priceRange[0]);
+                                });
+                        });
+                }
+            });
+
             if (is_null(request()->input('status'))) {
                 $qb->where('products.status', 'active');
             }
 
             if (isset($params['search'])) {
                 $qb->where('products.name', 'like', '%' . urldecode($params['search']) . '%');
-            }
-
-            if (isset($params['price'])) {
-                if ($priceFilter = request('price')) {
-                    $priceRange = explode(',', $priceFilter);
-
-                    if (count($priceRange) > 1) {
-                        $qb
-                            ->where('products.price', '>=', $priceRange[0])
-                            ->where('products.price', '<=', end($priceRange));
-                    } else {
-                        $qb
-                            ->where('products.price', '>=', $priceRange);
-                    }
-                }
             }
 
             return $qb->groupBy('products.id');
