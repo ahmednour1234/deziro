@@ -118,44 +118,46 @@
                                         </div>
                                     </div>
                                     <hr>
-@endif
-                                    @if ($userDetail->tax_number != null)
+                                @endif
+                                @if ($userDetail->tax_number != null)
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Tax Number</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="text-muted mb-0">{{ $userDetail->tax_number }}</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                @endif
+
+                                @php
+                                    // $categories = json_decode($userDetail->categories)
+                                    $categories = explode(',', $userDetail->categories);
+                                @endphp
+                                @if ($userDetail->categories != null || $userDetail->categories != '')
+                                    @if ($categories != '')
                                         <div class="row">
                                             <div class="col-sm-3">
-                                                <p class="mb-0">Tax Number</p>
+                                                <p class="mb-0">Categories</p>
                                             </div>
                                             <div class="col-sm-9">
-                                                <p class="text-muted mb-0">{{ $userDetail->tax_number }}</p>
+
+                                                @foreach ($categories as $category)
+                                                    @foreach ($listCategorys as $categorys)
+                                                        @if ($category == $categorys->id)
+                                                            <button
+                                                                class="btn btn-success btn-sm">{{ $categorys->name }}</button>
+                                                        @endif
+                                                    @endforeach
+                                                @endforeach
                                             </div>
                                         </div>
                                         <hr>
                                     @endif
+                                @endif
 
-                                    @php
-                                    // $categories = json_decode($userDetail->categories)
-                                    $categories = explode(',', $userDetail->categories)
-                                @endphp
-
-                                @if($categories !='')
-                                    <div class="row">
-                                        <div class="col-sm-3">
-                                            <p class="mb-0">Categories</p>
-                                        </div>
-                                        <div class="col-sm-9">
-
-                                            @foreach ($categories as $category )
-                                            @foreach ($listCategorys as $categorys )
-                                                @if($category == $categorys->id)
-                                            <button class="btn btn-success btn-sm">{{ $categorys->name  }}</button>
-                                            @endif
-                                            @endforeach
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                    <hr>
-                                    @endif
-
-                                    @foreach ($listAddress as $key => $storeAddress)
+                                @foreach ($listAddress as $key => $storeAddress)
                                     <div class="row">
                                         <div class="col-sm-3">
                                             <p class="mb-0">Address {{ $key + 1 }}</p>

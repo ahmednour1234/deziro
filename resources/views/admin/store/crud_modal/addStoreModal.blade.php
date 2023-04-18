@@ -143,7 +143,7 @@
 
         $(document).ready(function() {
             $('.addselect2').select2({
-                width: '100%',
+                width: '100%',log
                 allowClear: true,
                 theme: 'classic',
                 // containerCssClass: ':all:'

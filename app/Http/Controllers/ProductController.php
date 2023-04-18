@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
+use App\Models\FeaturedProducts;
 use App\Models\Product;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+
 
 class ProductController extends Controller
 {
@@ -13,15 +15,16 @@ class ProductController extends Controller
     {
         $this->middleware('auth');
     }
-    public function listRequestProduct(Request $request)
+    public function listStoreProduct(Request $request)
     {
+
         $sortColumn = $request->input('sort', 'created_at');
         $sortDirection = $request->input('direction', 'desc');
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
-        $listRequestProduct = Product::with('user', 'category', 'category')
-            ->where('status', 'pending')
+        $listStoreProduct = Product::where('type', 'sell')
+            ->whereNull('parent_id')
             ->orderBy($sortColumn, $sortDirection)
             ->whereHas('user', function ($query) {
                 $query->where('type', 1);
@@ -37,104 +40,153 @@ class ProductController extends Controller
                             $query->where('name', 'like', '%' . $request->search . '%');
                         }
                     )
+                    ->orWhereHas(
+                        'brand',
+                        function ($query) use ($request) {
+                            $query->where('name', 'like', '%' . $request->search . '%');
+                        }
+                    )
+                    ->orWhere('quantity', 'like', '%' . $request->search . '%')
                     ->orWhere('price', 'like', '%' . $request->search . '%')
-                    ->orWhere('money_collection', 'like', '%' . $request->search . '%');
+                    ->orWhere('special_price', 'like', '%' . $request->search . '%')
+                    ->orWhere('created_at', 'like', '%' . $request->search . '%')
+                    ->orWhere('status', 'like', '%' . $request->search . '%');
             })
-            //     ->where(function ($query) use ($request) {
-            //         return $query->where('created_at', 'like', '%' . $request->date . '%');
-            //     })
-            //     ->where(function ($query) use ($request) {
-            //         return $query->where('store_name', 'like', '%' . $request->store_name . '%');
-            // })
-            ->paginate($perPage);
-        $listRequestProduct->appends(request()->query());
 
-        return view('admin.product.request_product.listRequestProduct', compact('listRequestProduct', 'sortColumn', 'sortDirection'));
+            ->when($request->status, function ($query) use ($request) {
+                return $query->where('status', $request->status);
+            })
+
+            ->paginate($perPage);
+        $listStoreProduct->appends(request()->query());
+        return view('admin.product.listStoreProduct', compact('listStoreProduct', 'sortColumn', 'sortDirection'));
     }
 
-    public function listRejectedProduct(Request $request)
+    public function listFeaturedProducts(Request $request)
     {
+
         $sortColumn = $request->input('sort', 'created_at');
         $sortDirection = $request->input('direction', 'desc');
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
-        $listRejectedProduct = Product::with('user', 'category', 'category')->where('status', 'rejected')
-            ->orderBy($sortColumn, $sortDirection)
-            ->whereHas('user', function ($query) {
-                $query->where('type', 1);
-            })
+        $listFeaturedProducts = FeaturedProducts::orderBy($sortColumn, $sortDirection)
             ->where(function ($query) use ($request) {
                 return $query->where('id', 'like', '%' . $request->search . '%')
-                    ->orWhere('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('user_id', 'like', '%' . $request->search . '%')
-                    ->orWhere('type', 'like', '%' . $request->search . '%')
+                    ->orWhere('product_id', 'like', '%' . $request->search . '%')
                     ->orWhereHas(
-                        'category',
+                        'product',
                         function ($query) use ($request) {
-                            $query->where('name', 'like', '%' . $request->search . '%');
+                            $query->where('name', 'like', '%' . $request->search . '%')
+                                ->orWhere('quantity', 'like', '%' . $request->search . '%')
+                                ->orWhere('price', 'like', '%' . $request->search . '%')
+                                ->orWhere('special_price', 'like', '%' . $request->search . '%')
+                                ->orWhere('created_at', 'like', '%' . $request->search . '%')
+                                ->orWhere('status', 'like', '%' . $request->status . '%')
+                                ->orWhere('user_id', 'like', '%' . $request->search . '%')
+                                ->orWhere('type', 'like', '%' . $request->search . '%')
+                                ->orWhereHas(
+                                    'category',
+                                    function ($query) use ($request) {
+                                        $query->where('name', 'like', '%' . $request->search . '%');
+                                    }
+                                )
+                                ->orWhereHas(
+                                    'brand',
+                                    function ($query) use ($request) {
+                                        $query->where('name', 'like', '%' . $request->search . '%');
+                                    }
+                                );
                         }
-                    )
-                    ->orWhere('price', 'like', '%' . $request->search . '%')
-                    ->orWhere('money_collection', 'like', '%' . $request->search . '%')
-                    ->orWhere('created_at', 'like', '%' . $request->search . '%');
-            })
-            //     ->where(function ($query) use ($request) {
-            //         return $query->where('created_at', 'like', '%' . $request->date . '%');
-            //     })
-            //     ->where(function ($query) use ($request) {
-            //         return $query->where('store_name', 'like', '%' . $request->store_name . '%');
-            // })
-            ->paginate($perPage);
-        $listRejectedProduct->appends(request()->query());
-        return view('admin.product.rejected_product.listRejectedProduct', compact('listRejectedProduct', 'sortColumn', 'sortDirection'));
+
+                    );
+            })->paginate($perPage);
+
+        $listProducts = Product::where('status', 'active')->get();
+
+        $listFeaturedProducts->appends(request()->query());
+        return view('admin.product.listFeaturedProducts', compact('listFeaturedProducts', 'listProducts', 'sortColumn', 'sortDirection'));
     }
 
 
-    public function reject_product(Request $request, $id)
+
+    public function productDetail($id)
+    {
+        $productDetail = Product::findOrFail($id);
+        $productImages = ProductImage::where('product_id', $id)->get();
+        return view('admin.moreDetails.productDetail', compact('productDetail', 'productImages'));
+    }
+
+
+    public function is_active($id)
+    {
+
+        $product = Product::findOrFail($id);
+
+        if ($product) {
+            $product->status = 'active';
+        }
+
+        $product->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Product Activate Successfully',
+        ]);
+    }
+
+    public function is_inactive($id)
+    {
+
+
+        $product = Product::findOrFail($id);
+        if ($product) {
+            $product->status = 'inactive';
+        }
+
+        $product->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Product Inactivate Successfully',
+        ]);
+    }
+
+
+    public function addFeaturedProduct(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'reason' => 'required',
-
+            'featured_product' => 'required',
         ]);
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => 400,
                 'errors' => $validator->messages(),
             ]);
         } else {
-            $product = Product::findOrFail($id);
-            if ($product) {
-                $product->reason = $request->reason;
-                $product->status = 'rejected';
+        $featuredProduct = new FeaturedProducts();
 
-                $product->save();
-                return response()->json([
-                    'status' => 200,
-                    'product' => $product,
-                    'message' => 'Product Rejected Successfully',
-                ]);
-            } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => "Product Not Found",
-                ]);
-            }
-        }
+        $featuredProduct->product_id = $request->featured_product;
+        $featuredProduct->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Featured Product Added Successfully'
+        ]);
     }
+}
 
-    public function approve_product(Request $request, $id)
-    {
-
-        $product = Product::findOrFail($id);
-        if ($product) {
-            $product->status = 'active';
-            $product->save();
+    public function deleteFeaturedProduct($id){
+        $featuredProduct = FeaturedProducts::find($id);
+        if($featuredProduct){
+            $featuredProduct->delete();
             return response()->json([
-                'status' => 200,
-                'product' => $product,
-                'message' => 'Product Activated Successfully',
+                'status'=>200,
+                'message' => 'Featured Product Deleted Successfully',
             ]);
         }
     }
+
+
 }

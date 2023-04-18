@@ -1,4 +1,4 @@
-<div class="modal fade" id="inactiveUserModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="inactiveModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog" role="document">
 
         @csrf

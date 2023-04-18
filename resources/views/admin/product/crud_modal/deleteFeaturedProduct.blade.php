@@ -1,25 +1,25 @@
-<div class="modal fade" id="approveProductModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog" role="document">
 
         @csrf
         <div class="modal-content">
-            <form id="approveProductForm" method="POST" enctype="multipart/form-data">
+            <form action="">
                 <div class="modal-header">
-                    <h3 class="modal-title" id="exampleModalLabel1">Approve Product</h3>
+                    <h3 class="modal-title" id="delete_title"></h3>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
 
-                    <input type="hidden" id="approve_id" name="approve_id">
-                    <h3>Are you sure do you want to Approve this Product?</h3>
+                    <input type="hidden" id="delete_id" name="delete_id">
+                    <h5 id="delete_msg"></h5 id="msg">
 
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary approve_btn" id="saveBtn">Yes
-                        Approve</button>
+                    <button type="submit" class="btn btn-danger delete" id="saveBtn">Yes
+                        Delete</button>
                 </div>
-
+            </form>
         </div>
     </div>
 </div>

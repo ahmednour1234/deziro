@@ -122,53 +122,6 @@ class CategoryController extends Controller
     }
 
 
-//     public function updateCategory(Request $request,$id){
-
-
-//         $category = Category::find($id);
-
-//         if($category){
-
-//         $validator = Validator::make($request->all(), [
-//             'name' => 'required',
-
-
-//         ]);
-
-//         if ($validator->fails()) {
-//             return response()->json([
-//                 'status' => 400,
-//                 'errors' => $validator->messages(),
-//             ]);
-//         } else {
-
-// dd($category);
-//             $category->name = $request->name;
-
-//             if ($request->hasFile('image')) {
-
-//                 $img = $request->image;
-//                 $uploadFile1 = $img->store('category_images') ;
-//             } else {
-//                 $size1 = '';
-//                 $uploadFile1 = '';
-//             }
-
-//             $category->image = $uploadFile1;
-
-//             $category->save();
-
-
-//             return response()->json([
-//                 'status' => 200,
-//                 'category' => $category,
-//                 'message' => 'Category Updated Successfully',
-//             ]);
-//         }
-//     }
-
-//     }
-
 
     public function updateCategory(Request $request, $id)
     {
@@ -188,14 +141,17 @@ class CategoryController extends Controller
 
 
             if ($category) {
+
+
                 if ($request->hasFile('image')) {
 
                     $img = $request->image;
                     $uploadFile1 = $img->store('category_images') ;
                 } else {
                     $size1 = '';
-                    $uploadFile1 = '';
+                    $uploadFile1 = $category->image;
                 }
+
 
 
                     $category->image = $uploadFile1;

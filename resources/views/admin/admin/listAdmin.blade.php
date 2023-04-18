@@ -6,9 +6,9 @@
 {{-- delete Modal --}}
 @include('admin.admin.crud_modal.deleteAdminModal')
 {{-- Active Modal --}}
-@include('admin.moreDetails.activate_modal.activeUserModal')
+@include('admin.moreDetails.activate_modal.activeModal')
 {{-- Inactive Modal --}}
-@include('admin.moreDetails.activate_modal.inactiveUserModal')
+@include('admin.moreDetails.activate_modal.inactiveModal')
 @section('content')
 
     <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light"> <a href="{{ route('admin.home.listHome') }}"> Home
@@ -325,7 +325,7 @@
                 $('#active_id').val(user_id)
                 $('#inactive_title').text('Inactivate  ' + name)
                 $('#inactive_msg').text('Are you sure do you want to inactivate  ' + name)
-                $('#activeUserModal').modal('show')
+                $('#activeModal').modal('show')
             })
 
             $(document).on('click', '.inactive_admin', function(e) {
@@ -335,7 +335,7 @@
                 $('#inactive_id').val(user_id)
                 $('#active_title').text('Activate  ' + name)
                 $('#active_msg').text('Are you sure do you want to activate  ' + name)
-                $('#inactiveUserModal').modal('show')
+                $('#inactiveModal').modal('show')
             })
 
 
@@ -351,7 +351,7 @@
                         console.log(response);
                         $('#success_message').addClass('alert alert-success')
                         $('#success_message').text(response.message)
-                        $('#activeUserModal').modal('hide')
+                        $('#activeModal').modal('hide')
 
                         // location.reload(true)
                         setTimeout(function() {
@@ -373,7 +373,7 @@
                         console.log(response);
                         $('#success_message').addClass('alert alert-success')
                         $('#success_message').text(response.message)
-                        $('#inactiveUserModal').modal('hide')
+                        $('#inactiveModal').modal('hide')
 
                         // location.reload(true)
                         setTimeout(function() {
