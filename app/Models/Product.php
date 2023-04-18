@@ -157,7 +157,7 @@ class Product extends Model
             return $this->price;
         } else {
             // return $this->getMaximumPrice();
-            return $this->getMinimalPrice();
+            return $this->getMinimalPrice(null, true);
         }
     }
 
@@ -167,7 +167,7 @@ class Product extends Model
      * @param  int  $qty
      * @return float
      */
-    public function getMinimalPrice($qty = null)
+    public function getMinimalPrice($qty = null, $includeSpecialPriceInConfigurableProductPriceCalculation = false)
     {
         $minPrice = null;
         if ($this->product_type == 'simple') {
@@ -182,9 +182,14 @@ class Product extends Model
 
         $result = Product::distinct()
             ->where('products.parent_id', $this->id)
-            ->selectRaw("IF( {$tablePrefix}products.special_price IS NULL
+            ->selectRaw(
+                $includeSpecialPriceInConfigurableProductPriceCalculation ?
+                    "{$tablePrefix}products.price
+                            AS min_price" :
+                    "IF( {$tablePrefix}products.special_price IS NULL
                             OR {$tablePrefix}products.special_price = 0 , {$tablePrefix}products.price,
-                            LEAST( {$tablePrefix}products.special_price, {$tablePrefix}products.price )) AS min_price")
+                            LEAST( {$tablePrefix}products.special_price, {$tablePrefix}products.price )) AS min_price"
+            )
             ->get();
 
         $minPrices = [];
@@ -201,7 +206,6 @@ class Product extends Model
             //  $minPrice =
             min($minPrices);
     }
-
 
 
     /**
