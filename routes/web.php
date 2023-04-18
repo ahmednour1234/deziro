@@ -11,6 +11,7 @@ use App\Http\Controllers\StoreController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AttributeController;
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StoreProductController;
 use App\Http\Controllers\UserController;
@@ -97,7 +98,16 @@ Route::post('rejectRequest/{id}', [CategoryController::class, 'rejectRequest'])-
 Route::post('approveRequest/{id}', [CategoryController::class, 'approveRequest'])->name('admin.category.approveRequest');
 //End
 
+//Brand
 
+Route::get('brand', [BrandController::class, 'listBrand'])->name('admin.brand.listBrand');
+Route::post('addNewBrand', [BrandController::class, 'addNewBrand'])->name('admin.brand.addNewBrand');
+Route::get('editBrand/{id}', [BrandController::class, 'editBrand'])->name('admin.brand.editBrand');
+Route::post('updateBrand/{id}', [BrandController::class, 'updateBrand'])->name('admin.brand.updateBrand');
+Route::post('brand_active/{id}', [BrandController::class, 'is_active'])->name('admin.brand.is_active');
+Route::post('brand_inactive/{id}', [BrandController::class, 'is_inactive'])->name('admin.brand.is_inactive');
+
+//End Brand
 
 
 //Notification
@@ -160,6 +170,9 @@ Route::post('activeProduct/{id}', [ProductController::class, 'is_active'])->name
 Route::post('inactiveProduct/{id}', [ProductController::class, 'is_inactive'])->name('admin.product.is_inactive');
 Route::get('productDetail/{id}', [ProductController::class, 'productDetail'])->name('admin.product.productDetail');
 
+Route::get('featuredProducts', [ProductController::class, 'listFeaturedProducts'])->name('admin.product.listFeaturedProducts');
+Route::post('addFeaturedProduct', [ProductController::class, 'addFeaturedProduct'])->name('admin.product.addFeaturedProduct');
+Route::post('deleteFeaturedProduct/{id}', [ProductController::class, 'deleteFeaturedProduct'])->name('admin.product.deleteFeaturedProduct');
 
 
 

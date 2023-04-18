@@ -1,8 +1,8 @@
 @extends('admin.layouts.app')
 
 @section('content')
-@include('admin.category.crud_category.addCategorieModal')
-@include('admin.category.crud_category.editCategorieModal')
+@include('admin.brand.crud_brand.addBrandModal')
+@include('admin.brand.crud_brand.editBrandModal')
 
     {{-- Active Modal --}}
 @include('admin.moreDetails.activate_modal.activeModal')
@@ -10,7 +10,7 @@
 @include('admin.moreDetails.activate_modal.inactiveModal')
 
     <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light"> <a href="{{ route('admin.home.listHome') }}"> Home
-                /</a></span> Categories</h4>
+                /</a></span> Brands</h4>
 
 
     <div id="success_message"></div>
@@ -32,7 +32,7 @@
             <div class="m-3 d-flex gap-2">
                 <div>
                     <button type="button" class="btn btn-primary" id="addModalBtn" data-bs-toggle="modal"
-                        data-bs-target="#addCategorieModal">
+                        data-bs-target="#addBrandModal">
                         <span class="flex-center">Add <i class="bx bx-plus"></i></span>
                     </button>
                 </div>
@@ -58,8 +58,8 @@
             <nav class="nav-pagination" aria-label="Page navigation">
                 <div class="row mb-0">
                     <div class="label col-lg-10 col-md-6 mx-3">
-                        <span>Showing {{ $listCategorie->firstItem() }} to {{ $listCategorie->lastItem() }}
-                            of total {{ $listCategorie->total() }} entries</span>
+                        <span>Showing {{ $listBrands->firstItem() }} to {{ $listBrands->lastItem() }}
+                            of total {{ $listBrands->total() }} entries</span>
                     </div>
                 </div>
             </nav>
@@ -73,20 +73,21 @@
                     </tr>
                 </thead>
                 <tbody class="text-center">
-                    @foreach ($listCategorie as $category)
+                    @foreach ($listBrands as $brand)
                         <tr>
-                            <td>{{ $category->created_at->format('d-m-Y') }}</td>
-                            <td>{{ $category->name }}</td>
-                            <td><img src="{{ Storage::url($category->image) }}" alt="" width="200"></td>
+                            <td>{{ $brand->created_at->format('d-m-Y') }}</td>
+                            <td>{{ $brand->name }}</td>
+                            <td><img src="{{ Storage::url($brand->image_path) }} " alt="" width="200"></td>
+
                             <td>
-                                <button class="btn btn-primary btn-sm edit_category"
-                                    value="{{ $category->id }}" data-value1="{{ $category->name}}">Edit</button>
-                                @if ($category->is_active == 1)
-                                    <button class="btn btn-success btn-sm active_category" data-value1="{{ $category->name}}"
-                                        value="{{ $category->id }}">Active</button>
+                                <button class="btn btn-primary btn-sm edit_brand"
+                                    value="{{ $brand->id }}" data-value1="{{ $brand->name}}">Edit</button>
+                                @if ($brand->is_active == 1)
+                                    <button class="btn btn-success btn-sm active_brand" data-value1="{{ $brand->name}}"
+                                        value="{{ $brand->id }}">Active</button>
                                 @else
-                                    <button class="btn btn-danger btn-sm inactive_category" data-value1="{{ $category->name}}"
-                                        value="{{ $category->id }}">Inactive</button>
+                                    <button class="btn btn-danger btn-sm inactive_brand" data-value1="{{ $brand->name}}"
+                                        value="{{ $brand->id }}">Inactive</button>
                                 @endif
                             </td>
                         </tr>
@@ -96,7 +97,7 @@
             </table>
             <div class="row my-3">
                 <div class="col-lg-8 mx-2">
-                    {{ $listCategorie->links() }}
+                    {{ $listBrands->links() }}
                 </div>
             </div>
         </div>
@@ -113,14 +114,14 @@
                 }
             });
 
-            $(document).on('click', '.add_category', function(e) {
+            $(document).on('click', '.add_brand', function(e) {
                 e.preventDefault();
 
-                let formData = new FormData($('#AddCategoryForm')[0]);
+                let formData = new FormData($('#AddBrandForm')[0]);
                 // console.log(formData)
                 $.ajax({
                     type: 'POST',
-                    url: '/addNewCategory',
+                    url: '/addNewBrand',
                     data: formData,
                     contentType: false,
                     processData: false,
@@ -130,15 +131,15 @@
                         if (response.status == 400) {
                             response.errors.name != undefined ? $('#error_name').html(response
                                 .errors.name) : $('#error_name').html('')
-                            response.errors.image != undefined ? $('#error_image').html(response
-                                .errors.image) : $('#error_image').html('')
+                            response.errors.image_path != undefined ? $('#error_image').html(response
+                                .errors.image_path) : $('#error_image').html('')
 
                         } else {
                             $('#success_message').text(response.message)
                             $('#success_message').addClass('alert alert-success')
                             $('#success_message').text(response.message)
-                            $('#addCategoryModal').modal('hide')
-                            $('#addCategoryModal').find('input').val('')
+                            $('#addBrandModal').modal('hide')
+                            $('#addBrandModal').find('input').val('')
                             setTimeout(function() {
                                 window.location.reload();
                             }, 1000);
@@ -148,37 +149,37 @@
             })
 
 
-               $(document).on('click', '.edit_category', function(e) {
+               $(document).on('click', '.edit_brand', function(e) {
                 e.preventDefault();
-                var category_id = $(this).val();
-                console.log(category_id)
-                $('#editCategorieModal').modal('show')
+                var brand_id = $(this).val();
+                console.log(brand_id)
+                $('#editBrandModal').modal('show')
                 $.ajax({
                     type: 'GET',
-                    url: 'editCategory/' + category_id,
+                    url: 'editBrand/' + brand_id,
                     success: function(response) {
-                        console.log(response.category);
+                        console.log(response);
                         if (response.status == 404) {
                             $('#success_message').html("")
                             $('#success_message').addClass('alert alert-danger')
                             $('#success_message').text(response.message)
                         } else {
-                            $('#edit_id').val(response.category.id)
-                            $('#edit_name').val(response.category.name)
-                            $('#edit_showImg').attr("src", "storage/" + response.category.image)
+                            $('#edit_id').val(response.Brand.id)
+                            $('#edit_name').val(response.Brand.name)
+                            $('#edit_showImg').attr("src", "{{ Storage::url('/') }}" + response.Brand.image_path);
 
                         }
                     }
                 })
             })
 
-            $(document).on('click', '.update_category', function(e) {
+            $(document).on('click', '.update_brand', function(e) {
                 e.preventDefault();
-                var category_id = $('#edit_id').val();
-                let formData = new FormData($('#UpdateCategoryForm')[0]);
+                var brand_id = $('#edit_id').val();
+                let formData = new FormData($('#EditBrandForm')[0]);
                 $.ajax({
                     type: "POST",
-                    url: "updateCategory/" + category_id,
+                    url: "updateBrand/" + brand_id,
                     data: formData,
                     processData: false,
                     contentType: false,
@@ -207,21 +208,21 @@
 
 
 
-            $(document).on('click', '.active_category', function(e) {
+            $(document).on('click', '.active_brand', function(e) {
                 e.preventDefault();
                 var name = $(this).data('value1');
-                var category_id = $(this).val();
-                $('#active_id').val(category_id)
+                var brand_id = $(this).val();
+                $('#active_id').val(brand_id)
                 $('#inactive_title').text('Inactivate  ' + name)
                 $('#inactive_msg').text('Are you sure do you want to inactivate  ' + name)
                 $('#activeModal').modal('show')
             })
 
-            $(document).on('click', '.inactive_category', function(e) {
+            $(document).on('click', '.inactive_brand', function(e) {
                 e.preventDefault();
                 var name = $(this).data('value1');
-                var category_id = $(this).val();
-                $('#inactive_id').val(category_id)
+                var brand_id = $(this).val();
+                $('#inactive_id').val(brand_id)
                 $('#active_title').text('Activate  ' + name)
                 $('#active_msg').text('Are you sure do you want to activate  ' + name)
                 $('#inactiveModal').modal('show')
@@ -231,11 +232,11 @@
             $(document).on('click', '.is_active', function(e) {
                 e.preventDefault();
 
-                var category_id = $('#active_id').val();
-                console.log(category_id)
+                var brand_id = $('#active_id').val();
+                console.log(brand_id)
                 $.ajax({
                     type: 'POST',
-                    url: 'category_active/' + category_id,
+                    url: 'brand_active/' + brand_id,
                     success: function(response) {
                         console.log(response);
                         $('#success_message').addClass('alert alert-success')
@@ -253,11 +254,11 @@
             $(document).on('click', '.is_inactive', function(e) {
                 e.preventDefault();
 
-                var category_id = $('#inactive_id').val();
-                console.log(category_id)
+                var brand_id = $('#inactive_id').val();
+                console.log(brand_id)
                 $.ajax({
                     type: 'POST',
-                    url: 'category_inactive/' + category_id,
+                    url: 'brand_inactive/' + brand_id,
                     success: function(response) {
                         console.log(response);
                         $('#success_message').addClass('alert alert-success')

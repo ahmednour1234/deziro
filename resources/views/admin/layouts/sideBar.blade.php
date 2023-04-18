@@ -18,7 +18,7 @@
             <!-- Dashboard -->
             <li class="menu-item   {{ request()->is('home') ? 'active' : '' }}">
                 <a href="{{ route('admin.home.listHome') }}" class="menu-link ">
-                    <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                    <i class="menu-icon tf-icons bx bxs-home"></i>
                     <div data-i18n="Analytics">Home</div>
                 </a>
             </li>
@@ -26,7 +26,7 @@
             <!-- Admin -->
             <li class="menu-item  {{ request()->is('adminn') ? 'active' : '' }} ">
                 <a href="{{ route('admin.admin.listAdmin') }}" class="menu-link ">
-                    <i class="menu-icon tf-icons bx bx-user-circle"></i>
+                    <i class="menu-icon tf-icons bx bxs-user-circle"></i>
                     <div data-i18n="Analytics">Admin</div>
                 </a>
             </li>
@@ -42,7 +42,7 @@
                     ? 'active'
                     : '' }}">
                 <a class="menu-link menu-toggle ">
-                    <i class="menu-icon tf-icons bx bx-layout"></i>
+                    <i class="menu-icon tf-icons bx bxs-user-account"></i>
                     <div data-i18n="Layouts">Users</div>
 
                 </a>
@@ -91,7 +91,7 @@
             {{-- Category --}}
             <li class="menu-item   {{ request()->is('category') ? 'active' : '' }}">
                 <a href="{{ route('admin.category.listCategory') }}" class="menu-link ">
-                    <i class="menu-icon tf-icons bx bx-user-circle"></i>
+                                    <i class="menu-icon tf-icons bx bxs-category"></i>
                     <div data-i18n="Analytics">Category</div>
                 </a>
             </li>
@@ -99,15 +99,22 @@
 
             <li class="menu-item  {{ request()->is('requesttochangecategories') ? 'active' : '' }} ">
                 <a href="{{ route('admin.category.listrequesttochangecategories') }}" class="menu-link ">
-                    <i class="menu-icon tf-icons bx bx-user-circle"></i>
+                                    <i class="menu-icon tf-icons bx bxs-category"></i>
                     <div data-i18n="Analytics">List Request to change category</div>
+                </a>
+            </li>
+
+            <li class="menu-item   {{ request()->is('brand') ? 'active' : '' }}">
+                <a href="{{ route('admin.brand.listBrand') }}" class="menu-link ">
+                                    <i class="menu-icon tf-icons bx bxs-category"></i>
+                    <div data-i18n="Analytics">Brand</div>
                 </a>
             </li>
 
 
             <li class="menu-item   {{ request()->is('banner') ? 'active' : '' }}">
                 <a href="{{ route('admin.banner.listBanner') }}" class="menu-link ">
-                    <i class="menu-icon tf-icons bx bx-user-circle"></i>
+                    <i class="menu-icon tf-icons bx bxs-image-add"></i>
                     <div data-i18n="Analytics">Banner</div>
                 </a>
             </li>
@@ -115,7 +122,7 @@
 
             <li class="menu-item   {{ request()->is('notification') ? 'active' : '' }}">
                 <a href="{{ route('admin.notification.listNotification') }}" class="menu-link ">
-                    <i class="menu-icon tf-icons bx bx-user-circle"></i>
+                    <i class="menu-icon tf-icons bx bxs-bell-ring"></i>
                     <div data-i18n="Analytics">Notification</div>
                 </a>
             </li>
@@ -123,18 +130,24 @@
 
             {{--  Products --}}
             <li
-                class="menu-item {{ request()->is('storeProduct') || request()->is('individualProduct') ? 'active' : '' }}">
+                class="menu-item {{ request()->is('storeProduct') || request()->is('featuredProducts') ? 'active' : '' }}">
                 <a class="menu-link menu-toggle">
-                    <i class="menu-icon tf-icons bx bx-layout"></i>
+                    <i class="menu-icon tf-icons bx bxl-product-hunt"></i>
                     <div data-i18n="Layouts"> Products</div>
                 </a>
 
                 <ul
-                    class="{{ request()->is('storeProduct') || request()->is('individualProduct') ? 'active' : 'active menu-sub' }}">
+                    class="{{ request()->is('storeProduct') || request()->is('featuredProducts') ? 'active' : 'active menu-sub' }}">
 
                     <li class="menu-item {{ request()->is('storeProduct') ? 'active' : '' }} ">
                         <a href="{{ route('admin.storeProduct.listStoreProduct') }}" class="menu-link">
-                            <div data-i18n="Container">List Store Product </div>
+                            <div data-i18n="Container">List Store Products </div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->is('featuredProducts') ? 'active' : '' }} ">
+                        <a href="{{ route('admin.product.listFeaturedProducts') }}" class="menu-link">
+                            <div data-i18n="Container">List Featured Products </div>
                         </a>
                     </li>
 
