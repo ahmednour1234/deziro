@@ -77,7 +77,14 @@
                         <tr>
                             <td>{{ $brand->created_at->format('d-m-Y') }}</td>
                             <td>{{ $brand->name }}</td>
-                            <td><img src="{{ Storage::url($brand->image_path) }} " alt="" width="200"></td>
+                            <td> <a data-download-src="{{ Storage::url($brand->image_path) }} "
+                                href="{{ Storage::url($brand->image_path) }} " data-fancybox
+                                data-caption="brand">
+                                <img width="200" id="brand-img" style="object-fit: contain"
+                                    src="{{ Storage::url($brand->image_path) }} " alt="">
+                            </a>
+
+
 
                             <td>
                                 <button class="btn btn-primary btn-sm edit_brand"
@@ -108,6 +115,16 @@
 @section('scripts')
     <script type="text/javascript">
         $(document).ready(function() {
+            var selectize = $('#categorie').selectize({
+                plugins: ['remove_button'],
+                delimiter: ',',
+                persist: false,
+
+                onDropdownOpen: function($dropdown) {
+                    // Set focus to the search input when the dropdown is opened
+                    $dropdown.find('.selectize-input input[type="text"]').first().focus();
+                }
+            })[0].selectize;
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -158,7 +175,12 @@
                     type: 'GET',
                     url: 'editBrand/' + brand_id,
                     success: function(response) {
-                        console.log(response);
+
+                        var brand = response.Brand;
+                        var selectedCategories = response.selectedCategories;
+                        var allCategories = response.allCategories;
+
+                        selectize.setValue(selectedCategories);
                         if (response.status == 404) {
                             $('#success_message').html("")
                             $('#success_message').addClass('alert alert-danger')
@@ -167,7 +189,14 @@
                             $('#edit_id').val(response.Brand.id)
                             $('#edit_name').val(response.Brand.name)
                             $('#edit_showImg').attr("src", "{{ Storage::url('/') }}" + response.Brand.image_path);
-
+                            var options = '';
+                            allCategories.forEach(function(category) {
+                                var selected = selectedCategories.includes(category.id) ?
+                                    'selected' : '';
+                                options += '<option value="' + category.id + '" ' +
+                                    selected + '>' + category.name + '</option>';
+                            });
+                            $('#categorie').html(options);
                         }
                     }
                 })

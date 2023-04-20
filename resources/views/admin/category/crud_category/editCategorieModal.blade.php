@@ -25,6 +25,19 @@
                             <span class="text-danger" id="error_edit_name"></span>
                         </div>
 
+                        <div class="col-12 mb-0">
+                            <label for="brand" class="form-label">Select Brand <span
+                                    class="text-error"></span></label>
+                            <select  id="brand" name="brand[]" multiple>
+                                @foreach ($listBrands as $brand)
+                                    <option value="{{ $brand->id }}"  >{{ $brand->name }}</option>
+                                @endforeach
+
+                            </select>
+                            <span class="text-danger" id="edit_error_brand"></span>
+                        </div>
+
+
 
                         {{--
                         <div class="col-12 mb-0">

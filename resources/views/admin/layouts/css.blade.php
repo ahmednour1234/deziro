@@ -61,6 +61,9 @@
 <link rel="stylesheet" href="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-5-theme/1.3.0/select2-bootstrap-5-theme.min.css') }}" integrity="sha512-z/90a5SWiu4MWVelb5+ny7sAayYUfMmdXKEAbpj27PfdkamNdyI3hcjxPxkOPbrXoKIm7r9V2mElt5f1OtVhqA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 
+<link href="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.min.css') }}" rel="stylesheet"/>
+
+
 <style>
     .hide {
         display: none;

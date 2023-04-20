@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\RequestCategorie;
 use App\Models\User;
@@ -12,7 +13,6 @@ class CategoryController extends Controller
 {
     public function listCategory(Request $request)
     {
-
 
         $sortColumn = $request->input('sort', 'created_at');
         $sortDirection = $request->input('direction', 'desc');
@@ -26,7 +26,9 @@ class CategoryController extends Controller
                     ->orWhere('created_at', 'like', '%' . $search . '%');
             })->paginate($perPage);
         $listCategorie->appends(request()->query());
-        return view('admin.category.listCategory', compact('listCategorie', 'sortColumn', 'sortDirection'));
+
+        $listBrands = Brand::where('is_active','1')->get();
+        return view('admin.category.listCategory', compact('listCategorie','listBrands', 'sortColumn', 'sortDirection'));
     }
 
     public function addNewCategory(Request $request)
@@ -48,8 +50,6 @@ class CategoryController extends Controller
 
             $category->name = $request->name;
 
-
-            // $category = Category::latest()->take(1)->first();
             if ($request->hasFile('image')) {
 
                 $img = $request->image;
@@ -106,28 +106,32 @@ class CategoryController extends Controller
         ]);
     }
 
-
     public function editCategory(Request $request,$id){
 
-        $category = Category::find($id);
+        $category = Category::with('brands')->find($id);
+
+
 
         if($category){
 
             return response()->json([
-                'category' => $category
+                'category' => $category,
+                'selectedBrands' => $category->brands->pluck('id')->toArray(),
+                'allBrands' => Brand::all(),
+
             ]);
 
         }
 
     }
 
-
-
     public function updateCategory(Request $request, $id)
     {
 
+
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'name' => 'required|max:255',
+
 
         ]);
 
@@ -151,25 +155,24 @@ class CategoryController extends Controller
                     $size1 = '';
                     $uploadFile1 = $category->image;
                 }
-
-
-
                     $category->image = $uploadFile1;
                     $category->name = $request->name;
                     $category->save();
 
+                    $brands = $request->brand;
+
+                    $category->brands()->sync($brands);
+
                     return response()->json([
                         'status' => 200,
                         'category' => $category,
-                        'message' => 'category Added Successfully',
+                        'message' => 'category Updated Successfully',
                     ]);
                 }
 
 
         }
     }
-
-
 
     public function listrequesttochangecategories(Request $request){
         $sortColumn = $request->input('sort', 'created_at');

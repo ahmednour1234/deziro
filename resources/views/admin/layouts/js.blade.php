@@ -54,5 +54,8 @@
 <script src="{{ asset('https://code.jquery.com/ui/1.12.1/jquery-ui.js') }}"></script>
 
 
+<script src="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.min.js') }}"></script>
+
+
 
 @yield('scripts')
