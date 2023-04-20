@@ -112,7 +112,7 @@
                             <td> <a href="/productDetail/{{ $featuredProduct->product->id }}"  class="btn btn-info btn-sm">View More
                                     Details</a></td>
                             <td>
-                           <button class="btn btn-sm btn-danger delete_product" value="{{ $featuredProduct->id }}" data-value1="{{  $featuredProduct->product->name }}">Delete</button>
+                           <button class="btn btn-sm btn-danger delete_product" value="{{ $featuredProduct->id }}" data-value1="{{  $featuredProduct->product->name }}">Remove</button>
                             </td>
 
                         </tr>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -24,7 +25,9 @@ class BrandController extends Controller
                     ->orWhere('created_at', 'like', '%' . $search . '%');
             })->paginate($perPage);
         $listBrands->appends(request()->query());
-        return view('admin.brand.listBrand', compact('listBrands', 'sortColumn', 'sortDirection'));
+
+        $listCategories = Category::where('is_active', '1')->get();
+        return view('admin.brand.listBrand', compact('listBrands', 'listCategories', 'sortColumn', 'sortDirection'));
     }
 
     public function addNewBrand(Request $request)
@@ -113,7 +116,9 @@ class BrandController extends Controller
         if ($Brand) {
 
             return response()->json([
-                'Brand' => $Brand
+                'Brand' => $Brand,
+                'selectedCategories' => $Brand->categories->pluck('id')->toArray(),
+                'allCategories' => Category::all(),
             ]);
         }
     }
@@ -138,18 +143,22 @@ class BrandController extends Controller
 
             if ($Brand) {
 
-                if ($request->hasFile('image')) {
+                if ($request->hasFile('image_path')) {
 
                     $img = $request->image_path;
                     $uploadFile1 = $img->store('Brand_images');
                 } else {
                     $size1 = '';
-                    $uploadFile1 = $Brand->image;
+                    $uploadFile1 = $Brand->image_path;
                 }
 
                 $Brand->image_path = $uploadFile1;
                 $Brand->name = $request->name;
                 $Brand->save();
+
+                $categories = $request->categorie;
+
+                $Brand->categories()->sync($categories);
 
                 return response()->json([
                     'status' => 200,

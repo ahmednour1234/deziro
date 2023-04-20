@@ -26,6 +26,17 @@
                         </div>
 
 
+                        <div class="col-12 mb-0">
+                            <label for="categorie" class="form-label">Select categories <span
+                                    class="text-error"></span></label>
+                            <select  id="categorie" name="categorie[]" multiple>
+                                @foreach ($listCategories as $categorie)
+                                    <option value="{{ $categorie->id }}">{{ $categorie->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="text-danger" id="edit_error_categorie"></span>
+                        </div>
+
                         {{--
                         <div class="col-12 mb-0">
                             <label for="attributes" class="form-label">Filterable Attributes <span

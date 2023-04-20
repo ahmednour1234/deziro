@@ -1,13 +1,13 @@
 @extends('admin.layouts.app')
 
 @section('content')
-@include('admin.category.crud_category.addCategorieModal')
-@include('admin.category.crud_category.editCategorieModal')
+    @include('admin.category.crud_category.addCategorieModal')
+    @include('admin.category.crud_category.editCategorieModal')
 
     {{-- Active Modal --}}
-@include('admin.moreDetails.activate_modal.activeModal')
-{{-- Inactive Modal --}}
-@include('admin.moreDetails.activate_modal.inactiveModal')
+    @include('admin.moreDetails.activate_modal.activeModal')
+    {{-- Inactive Modal --}}
+    @include('admin.moreDetails.activate_modal.inactiveModal')
 
     <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light"> <a href="{{ route('admin.home.listHome') }}"> Home
                 /</a></span> Categories</h4>
@@ -77,16 +77,20 @@
                         <tr>
                             <td>{{ $category->created_at->format('d-m-Y') }}</td>
                             <td>{{ $category->name }}</td>
-                            <td><img src="{{ Storage::url($category->image) }}" alt="" width="200"></td>
+                            <td><a data-download-src="{{ Storage::url($category->image) }} "
+                                    href="{{ Storage::url($category->image) }} " data-fancybox data-caption="category">
+                                    <img width="200" id="category-img" style="object-fit: contain"
+                                        src="{{ Storage::url($category->image) }} " alt="">
+                                </a> </td>
                             <td>
-                                <button class="btn btn-primary btn-sm edit_category"
-                                    value="{{ $category->id }}" data-value1="{{ $category->name}}">Edit</button>
+                                <button class="btn btn-primary btn-sm edit_category" value="{{ $category->id }}"
+                                    data-value1="{{ $category->name }}">Edit</button>
                                 @if ($category->is_active == 1)
-                                    <button class="btn btn-success btn-sm active_category" data-value1="{{ $category->name}}"
-                                        value="{{ $category->id }}">Active</button>
+                                    <button class="btn btn-success btn-sm active_category"
+                                        data-value1="{{ $category->name }}" value="{{ $category->id }}">Active</button>
                                 @else
-                                    <button class="btn btn-danger btn-sm inactive_category" data-value1="{{ $category->name}}"
-                                        value="{{ $category->id }}">Inactive</button>
+                                    <button class="btn btn-danger btn-sm inactive_category"
+                                        data-value1="{{ $category->name }}" value="{{ $category->id }}">Inactive</button>
                                 @endif
                             </td>
                         </tr>
@@ -107,11 +111,25 @@
 @section('scripts')
     <script type="text/javascript">
         $(document).ready(function() {
+
+            var selectize = $('#brand').selectize({
+                plugins: ['remove_button'],
+                delimiter: ',',
+                persist: false,
+
+                onDropdownOpen: function($dropdown) {
+                    // Set focus to the search input when the dropdown is opened
+                    $dropdown.find('.selectize-input input[type="text"]').first().focus();
+                }
+            })[0].selectize;
+
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+
+
 
             $(document).on('click', '.add_category', function(e) {
                 e.preventDefault();
@@ -148,7 +166,7 @@
             })
 
 
-               $(document).on('click', '.edit_category', function(e) {
+            $(document).on('click', '.edit_category', function(e) {
                 e.preventDefault();
                 var category_id = $(this).val();
                 console.log(category_id)
@@ -157,7 +175,17 @@
                     type: 'GET',
                     url: 'editCategory/' + category_id,
                     success: function(response) {
-                        console.log(response.category);
+
+
+
+                        console.log(response);
+                        var category = response.category;
+                        var selectedBrands = response.selectedBrands;
+                        var allBrands = response.allBrands;
+
+
+                        selectize.setValue(selectedBrands);
+
                         if (response.status == 404) {
                             $('#success_message').html("")
                             $('#success_message').addClass('alert alert-danger')
@@ -166,6 +194,18 @@
                             $('#edit_id').val(response.category.id)
                             $('#edit_name').val(response.category.name)
                             $('#edit_showImg').attr("src", "storage/" + response.category.image)
+
+                            // var options = '';
+                            // allBrands.forEach(function(brand) {
+
+                            //     var selected = selectedBrands.includes(brand.id) ?
+                            //         'selected' : '';
+                            //     options += '<option value="' + brand.id + '" ' +
+                            //         selected + '>' + brand.name + '</option>';
+
+                            // });
+
+                            // $('#brand').html(options);
 
                         }
                     }
@@ -190,7 +230,7 @@
                                     '#error_edit_name').html(response.errors.name) :
                                 $('#error_edit_name').html('')
 
-                         } else {
+                        } else {
                             $('#success_message').text(response.message)
                             $('#success_message').addClass('alert alert-success')
                             $('#editCategorieModal').modal('hide')
