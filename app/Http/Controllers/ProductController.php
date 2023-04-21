@@ -108,8 +108,6 @@ class ProductController extends Controller
         return view('admin.product.listFeaturedProducts', compact('listFeaturedProducts', 'listProducts', 'sortColumn', 'sortDirection'));
     }
 
-
-
     public function productDetail($id)
     {
         $productDetail = Product::findOrFail($id);
@@ -152,7 +150,6 @@ class ProductController extends Controller
         ]);
     }
 
-
     public function addFeaturedProduct(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -165,28 +162,27 @@ class ProductController extends Controller
                 'errors' => $validator->messages(),
             ]);
         } else {
-        $featuredProduct = new FeaturedProducts();
+            $featuredProduct = new FeaturedProducts();
 
-        $featuredProduct->product_id = $request->featured_product;
-        $featuredProduct->save();
+            $featuredProduct->product_id = $request->featured_product;
+            $featuredProduct->save();
 
-        return response()->json([
-            'status' => 200,
-            'message' => 'Featured Product Added Successfully'
-        ]);
-    }
-}
-
-    public function deleteFeaturedProduct($id){
-        $featuredProduct = FeaturedProducts::find($id);
-        if($featuredProduct){
-            $featuredProduct->delete();
             return response()->json([
-                'status'=>200,
-                'message' => 'Featured Product Deleted Successfully',
+                'status' => 200,
+                'message' => 'Featured Product Added Successfully'
             ]);
         }
     }
 
-
+    public function deleteFeaturedProduct($id)
+    {
+        $featuredProduct = FeaturedProducts::find($id);
+        if ($featuredProduct) {
+            $featuredProduct->delete();
+            return response()->json([
+                'status' => 200,
+                'message' => 'Featured Product Deleted Successfully',
+            ]);
+        }
+    }
 }

@@ -26,11 +26,7 @@
                             <input type="text" id="search" name="search" class="form-control"
                                 placeholder="Search ..." value="{{ request()->get('search') }}" autofocus>
                         </div>
-
-
-
                     </div>
-
                 </form>
             </div>
             <div class="m-3 d-flex gap-2">
@@ -153,8 +149,6 @@
                 }
             });
 
-
-
             $('.add_featured_product').click(function(e) {
                 e.preventDefault();
                 $.ajax({
@@ -183,7 +177,6 @@
                     }
                 })
             })
-
 
             $(document).on('click', '.delete_product', function(e) {
                 e.preventDefault();

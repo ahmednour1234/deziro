@@ -3,13 +3,13 @@
 
 
 @section('content')
-{{-- Active Modal --}}
-@include('admin.moreDetails.activate_modal.activeModal')
-{{-- Inactive Modal --}}
-@include('admin.moreDetails.activate_modal.inactiveModal')
+    {{-- Active Modal --}}
+    @include('admin.moreDetails.activate_modal.activeModal')
+    {{-- Inactive Modal --}}
+    @include('admin.moreDetails.activate_modal.inactiveModal')
 
     <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light"> <a href="{{ route('admin.home.listHome') }}"> Home
-                /</a></span>Store  Products</h4>
+                /</a></span>Store Products</h4>
 
     <!-- Basic Bootstrap Table -->
 
@@ -31,6 +31,9 @@
                         <div class="col-lg-3 input-group input-group-merge">
                             <select name="status" class="form-select" value="{{ request()->get('status') }}">
                                 <option value="">Select All</option>
+                                <option value="pending" {{ request()->get('status') == 'pending' ? 'selected' : '' }}>
+                                    Pending
+                                </option>
                                 <option value="active" {{ request()->get('status') == 'active' ? 'selected' : '' }}>Active
                                 </option>
                                 <option value="inactive" {{ request()->get('status') == 'inactive' ? 'selected' : '' }}>
@@ -82,8 +85,11 @@
                 <thead class="text-center">
                     <tr>
                         <th><a class="text-dark"
-                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'created_at', 'direction' => $sortColumn == 'created_at' && $sortDirection == 'asc' ? 'desc' : 'asc',   'status' => request()->get('status')
-                                                            ]) }}">Created
+                                href="{{ route('admin.storeProduct.listStoreProduct', [
+                                    'sort' => 'created_at',
+                                    'direction' => $sortColumn == 'created_at' && $sortDirection == 'asc' ? 'desc' : 'asc',
+                                    'status' => request()->get('status'),
+                                ]) }}">Created
                                 At @if ($sortColumn == 'created_at')
                                     @if ($sortDirection == 'asc')
                                         <i class="fas fa-arrow-up"></i>
@@ -93,7 +99,7 @@
                                 @endif
                             </a></th>
                         <th><a class="text-dark"
-                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'id', 'direction' => $sortColumn == 'id' && $sortDirection == 'asc' ? 'desc' : 'asc',   'status' => request()->get('status')]) }}">
+                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'id', 'direction' => $sortColumn == 'id' && $sortDirection == 'asc' ? 'desc' : 'asc', 'status' => request()->get('status')]) }}">
                                 Product id
                                 @if ($sortColumn == 'id')
                                     @if ($sortDirection == 'asc')
@@ -104,7 +110,7 @@
                                 @endif
                             </a></th>
                         <th><a class="text-dark"
-                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'name', 'direction' => $sortColumn == 'name' && $sortDirection == 'asc' ? 'desc' : 'asc',   'status' => request()->get('status')]) }}">
+                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'name', 'direction' => $sortColumn == 'name' && $sortDirection == 'asc' ? 'desc' : 'asc', 'status' => request()->get('status')]) }}">
                                 Product name
                                 @if ($sortColumn == 'name')
                                     @if ($sortDirection == 'asc')
@@ -115,7 +121,7 @@
                                 @endif
                             </a></th>
                         <th><a class="text-dark"
-                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'user_id', 'direction' => $sortColumn == 'user_id' && $sortDirection == 'asc' ? 'desc' : 'asc',   'status' => request()->get('status')]) }}">
+                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'user_id', 'direction' => $sortColumn == 'user_id' && $sortDirection == 'asc' ? 'desc' : 'asc', 'status' => request()->get('status')]) }}">
                                 Store id
                                 @if ($sortColumn == 'user_id')
                                     @if ($sortDirection == 'asc')
@@ -125,8 +131,8 @@
                                     @endif
                                 @endif
                             </a></th>
-                            <th><a class="text-dark"
-                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'category_id', 'direction' => $sortColumn == 'category_id' && $sortDirection == 'asc' ? 'desc' : 'asc',   'status' => request()->get('status')]) }}">
+                        <th><a class="text-dark"
+                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'category_id', 'direction' => $sortColumn == 'category_id' && $sortDirection == 'asc' ? 'desc' : 'asc', 'status' => request()->get('status')]) }}">
                                 cat
                                 @if ($sortColumn == 'category_id')
                                     @if ($sortDirection == 'asc')
@@ -136,9 +142,9 @@
                                     @endif
                                 @endif
                             </a></th>
-                           <th>Brand</th>
+                        <th>Brand</th>
                         <th><a class="text-dark"
-                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'quantity', 'direction' => $sortColumn == 'quantity' && $sortDirection == 'asc' ? 'desc' : 'asc',   'status' => request()->get('status')]) }}">
+                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'quantity', 'direction' => $sortColumn == 'quantity' && $sortDirection == 'asc' ? 'desc' : 'asc', 'status' => request()->get('status')]) }}">
                                 quantity
                                 @if ($sortColumn == 'quantity')
                                     @if ($sortDirection == 'asc')
@@ -149,7 +155,7 @@
                                 @endif
                             </a></th>
                         <th><a class="text-dark"
-                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'price', 'direction' => $sortColumn == 'price' && $sortDirection == 'asc' ? 'desc' : 'asc',   'status' => request()->get('status')]) }}">
+                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'price', 'direction' => $sortColumn == 'price' && $sortDirection == 'asc' ? 'desc' : 'asc', 'status' => request()->get('status')]) }}">
                                 price
                                 @if ($sortColumn == 'price')
                                     @if ($sortDirection == 'asc')
@@ -160,7 +166,7 @@
                                 @endif
                             </a></th>
                         <th><a class="text-dark"
-                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'special_price', 'direction' => $sortColumn == 'special_price' && $sortDirection == 'asc' ? 'desc' : 'asc',   'status' => request()->get('status')]) }}">
+                                href="{{ route('admin.storeProduct.listStoreProduct', ['sort' => 'special_price', 'direction' => $sortColumn == 'special_price' && $sortDirection == 'asc' ? 'desc' : 'asc', 'status' => request()->get('status')]) }}">
                                 special price
                                 @if ($sortColumn == 'special_price')
                                     @if ($sortDirection == 'asc')
@@ -188,14 +194,18 @@
                             <td>{{ $sellingProduct->quantity }}</td>
                             <td>{{ $sellingProduct->price }}</td>
                             <td>{{ $sellingProduct->special_price }}</td>
-                            <td> <a href="/productDetail/{{ $sellingProduct->id}}" class="btn btn-info btn-sm">View More Details</a></td>
+                            <td> <a href="/productDetail/{{ $sellingProduct->id }}" class="btn btn-info btn-sm">View More
+                                    Details</a></td>
                             <td>
-                                @if($sellingProduct->status == 'active')
-                                <button class="btn btn-sm btn-success active_product" value="{{ $sellingProduct->id }}" data-value1={{ $sellingProduct->name }}>{{ $sellingProduct->status }}</button>
+                                @if ($sellingProduct->status == 'active')
+                                    <button class="btn btn-sm btn-success active_product" value="{{ $sellingProduct->id }}"
+                                        data-value1={{ $sellingProduct->name }}>{{ $sellingProduct->status }}</button>
                                 @elseif($sellingProduct->status == 'inactive')
-                                <button class="btn btn-sm btn-danger inactive_product" value="{{ $sellingProduct->id }}" data-value1={{ $sellingProduct->name }}>{{ $sellingProduct->status }}</button>
+                                    <button class="btn btn-sm btn-danger inactive_product"
+                                        value="{{ $sellingProduct->id }}"
+                                        data-value1={{ $sellingProduct->name }}>{{ $sellingProduct->status }}</button>
                                 @else
-                                <button class="btn btn-sm btn-dark">{{ $sellingProduct->status }}</button>
+                                    <button class="btn btn-sm btn-dark">{{ $sellingProduct->status }}</button>
                                 @endif
                             </td>
 

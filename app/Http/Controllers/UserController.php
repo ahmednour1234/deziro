@@ -39,7 +39,7 @@ class UserController extends Controller
     public function listUserDetail(Request $request, $id)
     {
         $userDetail = User::findOrFail($id);
-        $listAddress = Address::where('user_id', $id)->get();
+        $listAddress = Address::where('user_id', $id)->where('type','user')->get();
         $listCategorys = Category::all();
         if ($userDetail) {
             return view('admin.moreDetails.userDetail', compact('userDetail','listCategorys','listAddress'));

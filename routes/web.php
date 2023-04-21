@@ -7,6 +7,7 @@ use App\Http\Controllers\BannerController;
 use App\Http\Controllers\BannerImageController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StoreController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -99,14 +100,12 @@ Route::post('approveRequest/{id}', [CategoryController::class, 'approveRequest']
 //End
 
 //Brand
-
 Route::get('brand', [BrandController::class, 'listBrand'])->name('admin.brand.listBrand');
 Route::post('addNewBrand', [BrandController::class, 'addNewBrand'])->name('admin.brand.addNewBrand');
 Route::get('editBrand/{id}', [BrandController::class, 'editBrand'])->name('admin.brand.editBrand');
 Route::post('updateBrand/{id}', [BrandController::class, 'updateBrand'])->name('admin.brand.updateBrand');
 Route::post('brand_active/{id}', [BrandController::class, 'is_active'])->name('admin.brand.is_active');
 Route::post('brand_inactive/{id}', [BrandController::class, 'is_inactive'])->name('admin.brand.is_inactive');
-
 //End Brand
 
 
@@ -176,47 +175,8 @@ Route::post('deleteFeaturedProduct/{id}', [ProductController::class, 'deleteFeat
 
 
 
-// //store bid Product
-// Route::get('storeBidProduct', [StoreProductController::class, 'listBidProduct'])->name('admin.storeProduct.listBidProduct');
-// Route::post('addNewBidProduct',[StoreProductController::class,'addNewBidProduct'])->name('admin.storeProduct.addNewBidProduct');
-// Route::get('editBidProduct/{id}', [StoreProductController::class, 'editBidProduct'])->name('admin.storeProduct.editBidProduct');
-// Route::post('updateBidProduct/{id}',[StoreProductController::class,'updateBidProduct'])->name('admin.storeProduct.updateBidProduct');
-
-
-// Route::get('/productImages/{id}', [ProductImagesController::class, 'fileCreate'])->name('admin.productImages.fileCreate');
-// Route::post('/productImages/store/{id}', [ProductImagesController::class,'fileStore'])->name('admin.productImages.fileStore');
-// Route::post('/productImages/delete', [ProductImagesController::class,'fileDestroy'])->name('admin.productImages.fileDestroy');
-// Route::get('/productImages/delete/{id}', [ProductImagesController::class,'fileDelete'])->name('admin.productImages.fileDelete');
-
-
-
-// //store Product
-// Route::get('/storeProduct/{id}',[StoreController::class,'listStoreProduct'])->name('admin.store.listStoreProduct');
-
-// //individual Product
-// Route::get('/individualProduct/{id}',[IndividualController::class,'listIndividualProduct'])->name('admin.store.listIndividualProduct');
-
-
-
-
-// //info
-// Route::get('/info',[InfoController::class,'listInfo'])->name('admin.info.listInfo');
-
-
-// //setting
-// Route::get('/setting',[SettingController::class,'listSetting'])->name('admin.setting.listSetting');
-
-// //review
-// Route::get('/review',[ReviewController::class,'listReview'])->name('admin.review.listReview');
-
-
-// //Orders
-// Route::get('/pendingOrder',[OrderController::class,'listPendingOrder'])->name('admin.order.listPendingOrder');
-// Route::get('/shippingOrder',[OrderController::class,'listShippingOrder'])->name('admin.order.listShippingOrder');
-// Route::get('/canceledOrder',[OrderController::class,'listCanceledOrder'])->name('admin.order.listCanceledOrder');
-// Route::get('/deliverydOrder',[OrderController::class,'listDeliverydOrder'])->name('admin.order.listDeliverydOrder');
-
-
-
-// //Notification
-// Route::get('/notification',[NotificationController::class,'listNotification'])->name('admin.notification.listNotification');
+Route::get('/order', [OrderController::class, 'listOrder'])->name('admin.order.listOrder');
+Route::post('/be_shipped/{id}', [OrderController::class, 'be_shipped'])->name('admin.order.be_shipped');
+Route::post('/delivered/{id}', [OrderController::class, 'delivered'])->name('admin.order.delivered');
+Route::post('/canceled/{id}', [OrderController::class, 'canceled'])->name('admin.order.canceled');
+Route::get('/orderDetail/{id}', [OrderController::class, 'orderDetail'])->name('admin.order.orderDetail');
