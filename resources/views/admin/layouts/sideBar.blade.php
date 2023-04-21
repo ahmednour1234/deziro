@@ -91,7 +91,7 @@
             {{-- Category --}}
             <li class="menu-item   {{ request()->is('category') ? 'active' : '' }}">
                 <a href="{{ route('admin.category.listCategory') }}" class="menu-link ">
-                                    <i class="menu-icon tf-icons bx bxs-category"></i>
+                    <i class="menu-icon tf-icons bx bxs-category"></i>
                     <div data-i18n="Analytics">Category</div>
                 </a>
             </li>
@@ -99,14 +99,14 @@
 
             <li class="menu-item  {{ request()->is('requesttochangecategories') ? 'active' : '' }} ">
                 <a href="{{ route('admin.category.listrequesttochangecategories') }}" class="menu-link ">
-                                    <i class="menu-icon tf-icons bx bxs-category"></i>
+                    <i class="menu-icon tf-icons bx bxs-category"></i>
                     <div data-i18n="Analytics">List Request to change category</div>
                 </a>
             </li>
 
             <li class="menu-item   {{ request()->is('brand') ? 'active' : '' }}">
                 <a href="{{ route('admin.brand.listBrand') }}" class="menu-link ">
-                                    <i class="menu-icon tf-icons bx bxs-category"></i>
+                    <i class="menu-icon tf-icons bx bxs-category"></i>
                     <div data-i18n="Analytics">Brand</div>
                 </a>
             </li>
@@ -152,13 +152,27 @@
                     </li>
 
 
-                    {{-- <li class="menu-item  {{ request()->is('storeBidProduct') ? 'active' : '' }} ">
-                        <a href="{{ route('admin.storeProduct.listBidProduct') }}" class="menu-link">
-                            <div data-i18n="Fluid">List Bid Product </div>
+
+
+
+
+                </ul>
+            </li>
+
+
+            {{--  Orders --}}
+            <li class="menu-item {{ request()->is('order') ? 'active' : '' }}">
+                <a class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bxs-cart-download"></i>
+                    <div data-i18n="Layouts"> Orders</div>
+                </a>
+
+                <ul class="{{ request()->is('order') ? 'active' : 'active menu-sub' }}">
+                    <li class="menu-item {{ request()->is('order') ? 'active' : '' }} ">
+                        <a href="{{ route('admin.order.listOrder') }}" class="menu-link">
+                            <div data-i18n="Container">List Orders </div>
                         </a>
-                    </li> --}}
-
-
+                    </li>
 
                 </ul>
             </li>

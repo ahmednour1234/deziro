@@ -1,16 +1,16 @@
 @extends('admin.layouts.app')
 
 @section('content')
-@include('admin.brand.crud_brand.addBrandModal')
-@include('admin.brand.crud_brand.editBrandModal')
+    @include('admin.brand.crud_brand.addBrandModal')
+    @include('admin.brand.crud_brand.editBrandModal')
 
     {{-- Active Modal --}}
-@include('admin.moreDetails.activate_modal.activeModal')
-{{-- Inactive Modal --}}
-@include('admin.moreDetails.activate_modal.inactiveModal')
+    @include('admin.moreDetails.activate_modal.activeModal')
+    {{-- Inactive Modal --}}
+    @include('admin.moreDetails.activate_modal.inactiveModal')
 
     <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light"> <a href="{{ route('admin.home.listHome') }}"> Home
-                /</a></span> Brands</h4>
+                /</a></span> Brands </h4>
 
 
     <div id="success_message"></div>
@@ -78,22 +78,21 @@
                             <td>{{ $brand->created_at->format('d-m-Y') }}</td>
                             <td>{{ $brand->name }}</td>
                             <td> <a data-download-src="{{ Storage::url($brand->image_path) }} "
-                                href="{{ Storage::url($brand->image_path) }} " data-fancybox
-                                data-caption="brand">
-                                <img width="200" id="brand-img" style="object-fit: contain"
-                                    src="{{ Storage::url($brand->image_path) }} " alt="">
-                            </a>
+                                    href="{{ Storage::url($brand->image_path) }} " data-fancybox data-caption="brand">
+                                    <img width="200" id="brand-img" style="object-fit: contain"
+                                        src="{{ Storage::url($brand->image_path) }} " alt="">
+                                </a>
 
 
 
                             <td>
-                                <button class="btn btn-primary btn-sm edit_brand"
-                                    value="{{ $brand->id }}" data-value1="{{ $brand->name}}">Edit</button>
+                                <button class="btn btn-primary btn-sm edit_brand" value="{{ $brand->id }}"
+                                    data-value1="{{ $brand->name }}">Edit</button>
                                 @if ($brand->is_active == 1)
-                                    <button class="btn btn-success btn-sm active_brand" data-value1="{{ $brand->name}}"
+                                    <button class="btn btn-success btn-sm active_brand" data-value1="{{ $brand->name }}"
                                         value="{{ $brand->id }}">Active</button>
                                 @else
-                                    <button class="btn btn-danger btn-sm inactive_brand" data-value1="{{ $brand->name}}"
+                                    <button class="btn btn-danger btn-sm inactive_brand" data-value1="{{ $brand->name }}"
                                         value="{{ $brand->id }}">Inactive</button>
                                 @endif
                             </td>
@@ -148,7 +147,8 @@
                         if (response.status == 400) {
                             response.errors.name != undefined ? $('#error_name').html(response
                                 .errors.name) : $('#error_name').html('')
-                            response.errors.image_path != undefined ? $('#error_image').html(response
+                            response.errors.image_path != undefined ? $('#error_image').html(
+                                response
                                 .errors.image_path) : $('#error_image').html('')
 
                         } else {
@@ -166,7 +166,7 @@
             })
 
 
-               $(document).on('click', '.edit_brand', function(e) {
+            $(document).on('click', '.edit_brand', function(e) {
                 e.preventDefault();
                 var brand_id = $(this).val();
                 console.log(brand_id)
@@ -188,10 +188,12 @@
                         } else {
                             $('#edit_id').val(response.Brand.id)
                             $('#edit_name').val(response.Brand.name)
-                            $('#edit_showImg').attr("src", "{{ Storage::url('/') }}" + response.Brand.image_path);
+                            $('#edit_showImg').attr("src", "{{ Storage::url('/') }}" + response
+                                .Brand.image_path);
                             var options = '';
                             allCategories.forEach(function(category) {
-                                var selected = selectedCategories.includes(category.id) ?
+                                var selected = selectedCategories.includes(category
+                                    .id) ?
                                     'selected' : '';
                                 options += '<option value="' + category.id + '" ' +
                                     selected + '>' + category.name + '</option>';
@@ -220,7 +222,7 @@
                                     '#error_edit_name').html(response.errors.name) :
                                 $('#error_edit_name').html('')
 
-                         } else {
+                        } else {
                             $('#success_message').text(response.message)
                             $('#success_message').addClass('alert alert-success')
                             $('#editCategorieModal').modal('hide')
