@@ -1428,9 +1428,9 @@ class ProductRepository extends Repository
                     )
                     ) FROM products p WHERE p.parent_id = products.id)) AS min_price
                 '))
-                ->where('category_id', $params['category_id'])
+                ->where('products.category_id', $params['category_id'])
                 // ->orderBy('products.created_at',  'desc')
-                ->whereNull('parent_id');
+                ->whereNull('products.parent_id');
             $qb->when($priceFilter, function ($query) use ($priceFilter) {
                 $priceRange = explode(',', $priceFilter);
                 if (count($priceRange) > 1) {
