@@ -218,7 +218,6 @@
                                 <th>Brand</th>
                                 <th>Quantity</th>
                                 <th>Price</th>
-                                <th>address</th>
                             </tr>
                         </thead>
                         <tbody class="text-center">
@@ -237,10 +236,6 @@
                                     <td>{{ $item->product->brand->name }}</td>
                                     <td>{{ $item->qty_ordered }}</td>
                                     <td>{{ formatPrice($item->price) }}</td>
-                                    {{-- <td> {{ $item->product->address->city . ' , ' . $item->product->address->address . ' , ' }}
-                                        <a href="http://maps.google.com/?q={{ $item->product->address->lat }},{{ $item->product->address->lng }}"
-                                            target="_blank"> Go To Map</a>
-                                    </td> --}}
                                 </tr>
                             @endforeach
                             <tr>

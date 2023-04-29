@@ -102,7 +102,10 @@ class ProductController extends Controller
                     );
             })->paginate($perPage);
 
-        $listProducts = Product::where('status', 'active')->get();
+        $listProducts =Product::whereNull('parent_id')->where('status', 'active')->whereNotIn('id', function ($query) {
+            $query->select('product_id')->from('featured_products');
+        })
+        ->get();
 
         $listFeaturedProducts->appends(request()->query());
         return view('admin.product.listFeaturedProducts', compact('listFeaturedProducts', 'listProducts', 'sortColumn', 'sortDirection'));

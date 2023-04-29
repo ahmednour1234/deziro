@@ -63,7 +63,7 @@
 
 <link href="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.min.css') }}" rel="stylesheet"/>
 
-
+<link rel="stylesheet" href="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css') }}">
 <style>
     .hide {
         display: none;

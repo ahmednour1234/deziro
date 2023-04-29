@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StoreProductController;
 use App\Http\Controllers\UserController;
@@ -180,3 +181,14 @@ Route::post('/be_shipped/{id}', [OrderController::class, 'be_shipped'])->name('a
 Route::post('/delivered/{id}', [OrderController::class, 'delivered'])->name('admin.order.delivered');
 Route::post('/canceled/{id}', [OrderController::class, 'canceled'])->name('admin.order.canceled');
 Route::get('/orderDetail/{id}', [OrderController::class, 'orderDetail'])->name('admin.order.orderDetail');
+
+
+
+
+
+Route::get('/coupon', [CouponController::class, 'listCoupon'])->name('admin.coupon.listCoupons');
+Route::post('/addNewCoupon', [CouponController::class, 'addNewCoupon'])->name('admin.coupon.addNewCoupon');
+Route::get('editCoupon/{id}', [CouponController::class, 'editCoupon'])->name('admin.brand.editCoupon');
+Route::post('updateCoupon/{id}', [CouponController::class, 'updateCoupon'])->name('admin.brand.updateCoupon');
+Route::post('coupon_active/{id}', [CouponController::class, 'is_active'])->name('admin.coupon.is_active');
+Route::post('coupon_inactive/{id}', [CouponController::class, 'is_inactive'])->name('admin.coupon.is_inactive');
