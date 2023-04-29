@@ -177,6 +177,15 @@
                 </ul>
             </li>
 
+
+
+            <li class="menu-item   {{ request()->is('coupon') ? 'active' : '' }}">
+                <a href="{{ route('admin.coupon.listCoupons') }}" class="menu-link ">
+                    <i class="menu-icon tf-icons bx bxs-discount"></i>
+                    <div data-i18n="Analytics">Promo Code</div>
+                </a>
+            </li>
+
             {{-- <li class="menu-item {{ request()->is('category')  ? 'active' : '' }} ">
                     <a href="{{ route('admin.category.listCategory') }}" class="menu-link">
                         <div data-i18n="Without navbar">List Sub Categories </div>

@@ -167,6 +167,7 @@
                         }else{
                             $('#success_message').text(response.message)
                             $('#success_message').addClass('alert alert-success')
+                            // toastr.success(response.message);
                             $('#addFeaturedProduct').modal('hide')
                             $('#addFeaturedProductForm')[0].reset();
                             setTimeout(function() {
