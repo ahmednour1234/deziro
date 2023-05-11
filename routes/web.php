@@ -68,6 +68,8 @@ Route::post('active/{id}', [UserController::class, 'is_active'])->name('admin.st
 Route::post('inactive/{id}', [UserController::class, 'is_inactive'])->name('admin.store.is_inactive');
 Route::post('approve/{id}', [UserController::class, 'approve'])->name('admin.user.approve');
 Route::post('reject/{id}', [UserController::class, 'reject'])->name('admin.user.reject');
+Route::post('/reject_product/{id}', [ProductController::class, 'reject_product'])->name('admin.product.reject_product');
+Route::post('/approve_product/{id}', [ProductController::class, 'approve_product'])->name('admin.product.approve_product');
 //End
 
 

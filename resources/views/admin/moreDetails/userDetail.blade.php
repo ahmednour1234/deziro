@@ -2,8 +2,8 @@
 
 
 @section('content')
-    @include('admin.moreDetails.activate_modal.approveStoreModal')
-    @include('admin.moreDetails.activate_modal.rejectStoreModal')
+    @include('admin.moreDetails.activate_modal.approveModal')
+    @include('admin.moreDetails.activate_modal.rejectModal')
     <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light"> <a href="{{ route('admin.home.listHome') }}"> Home
                 /</a></span> User Details</h4>
     <div class="card">
@@ -223,7 +223,7 @@
                 $('#approve_id').val(store_id)
                 $('#approve_title').text('Approve  ' + name)
                 $('#approve_msg').text('Are you sure do you want to Approve  ' + name)
-                $('#approveWholeSaleModal').modal('show')
+                $('#approveModal').modal('show')
             })
 
 
@@ -239,7 +239,7 @@
                         console.log(response);
                         $('#success_message').addClass('alert alert-success')
                         $('#success_message').text(response.message)
-                        $('#approveWholeSaleModal').modal('hide')
+                        $('#approveModal').modal('hide')
 
                         location.href = '/requestStore'
 
@@ -255,7 +255,7 @@
                 $('#reject_id').val(store_id)
                 $('#reject_title').text('Reject  ' + name)
                 $('#reject_msg').text('Are you sure do you want to Reject  ' + name)
-                $('#rejectWholeSaleModal').modal('show')
+                $('#rejectModal').modal('show')
             });
 
             $(document).on('click', '.reject_btn', function(e) {
@@ -271,8 +271,8 @@
                         $('#success_message').text(response.message)
                         $('#success_message').addClass('alert alert-success')
                         $('#success_message').text(response.message)
-                        $('#rejectWholeSaleModal').modal('hide')
-                        $('#rejectWholeSaleModal').find('input').val('')
+                        $('#rejectModal').modal('hide')
+                        $('#rejectModal').find('input').val('')
                         location.href = '/requestStore'
                     }
                 })

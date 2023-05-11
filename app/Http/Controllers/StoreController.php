@@ -100,7 +100,7 @@ class StoreController extends Controller
     public function createStore()
     {
         $listCategorys = Category::all();
-        return view('admin.store.crud_modal.addStoreModal',compact('listCategorys'));
+        return view('admin.store.crud_modal.addStoreModal', compact('listCategorys'));
     }
 
 
@@ -170,9 +170,11 @@ class StoreController extends Controller
 
     public function editStore($id)
     {
-        $listCategorys = Category::all();
+
         $store = User::findOrFail($id);
-        return view('admin.store.crud_modal.editStoreModal', compact('store','listCategorys'));
+        $categoryIds = explode(',', $store->categories);
+        $allCategories =Category::where('is_active',1)->get();
+        return view('admin.store.crud_modal.editStoreModal', compact('store', 'allCategories','categoryIds'));
     }
 
 
@@ -247,4 +249,7 @@ class StoreController extends Controller
             }
         }
     }
+
+
+    
 }

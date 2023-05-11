@@ -56,10 +56,8 @@
                     </div>
 
                     <div class="col-12 mb-0">
-                        <label for="category_type" class="form-label">Category Name <span
-                                class="text-error"></span></label>
-                        <select class="form-control addselect2  category_type" id="categorys_type" name="category_type[]"
-                            multiple required value=''>
+                        <label for="category_type" class="form-label">Category Name <span class="text-error"></span></label>
+                        <select id="categorys_type" name="category_type[]" multiple>
                             <!--<option value=""> Select Category ...</option>-->
                             @foreach ($listCategorys as $category)
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -68,6 +66,7 @@
                         </select>
                         <span class="text-danger" id="error_category_type"></span>
                     </div>
+
 
 
 
@@ -132,7 +131,6 @@
 
 @section('scripts')
     <script>
-
         // document.getElementById('showImg').style.display = 'none'
 
         // function displayAddImage(event) {
@@ -142,12 +140,18 @@
 
 
         $(document).ready(function() {
-            $('.addselect2').select2({
-                width: '100%',log
-                allowClear: true,
-                theme: 'classic',
-                // containerCssClass: ':all:'
-            });
+
+            var selectize = $('#categorys_type').selectize({
+                plugins: ['remove_button'],
+                delimiter: ',',
+                persist: false,
+
+                onDropdownOpen: function($dropdown) {
+                    // Set focus to the search input when the dropdown is opened
+                    $dropdown.find('.selectize-input input[type="text"]').first().focus();
+                }
+            })[0].selectize;
+
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
