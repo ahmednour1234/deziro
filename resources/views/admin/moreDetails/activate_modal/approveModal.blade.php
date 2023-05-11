@@ -1,4 +1,4 @@
-<div class="modal fade" id="approveWholeSaleModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog" role="document">
 
         @csrf

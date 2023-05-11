@@ -188,4 +188,45 @@ class ProductController extends Controller
             ]);
         }
     }
+
+
+
+
+    public function reject_product(Request $request, $id)
+    {
+
+            $product = Product::findOrFail($id);
+            if ($product) {
+                $product->status = 'rejected';
+
+                $product->save();
+                return response()->json([
+                    'status' => 200,
+                    'product' => $product->id,
+                    'message' => 'Product Rejected Successfully',
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 404,
+                    'message' => "Product Not Found",
+                ]);
+
+        }
+    }
+
+    public function approve_product(Request $request, $id)
+    {
+
+        $product = Product::findOrFail($id);
+        if ($product) {
+            $product->status = 'active';
+            $product->save();
+            return response()->json([
+                'status' => 200,
+                'product' => $product->id,
+                'message' => 'Product Activated Successfully',
+            ]);
+        }
+    }
+
 }

@@ -3,7 +3,8 @@
 {{-- @yield('title', 'Product') --}}
 
 @section('content')
-
+@include('admin.moreDetails.activate_modal.approveModal')
+@include('admin.moreDetails.activate_modal.rejectModal')
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap");
 
@@ -397,8 +398,25 @@
                     </div>
 
                 </div>
+                <div class="row mx-3 my-3">
+                    <div class="d-flex ">
 
+                        @if ($productDetail->status == 'pending')
+                            <div class="text-center mx-auto">
+                                <button type="button" value="{{ $productDetail->id }}"
+                                    data-value1="{{ $productDetail->name }}"
+                                    class="approve  btn btn-primary   ">Approve</button>
+                                <button type="button" value="{{ $productDetail->id }}"
+                                    data-value1="{{ $productDetail->name }}"
+                                    class="reject btn btn-danger   ">Reject</button>
+                            </div>
+                        @else
+                            <div></div>
+                        @endif
+                    </div>
+                </div>
             </div>
+
         </div>
     </div>
 
@@ -414,3 +432,81 @@
             thumbItem: 9
         });
     </script>
+@section('scripts')
+<script>
+    $(document).ready(function() {
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+
+
+        $(document).on('click', '.approve', function(e) {
+            e.preventDefault();
+            var name = $(this).data('value1');
+            var product_id = $(this).val();
+            console.log(product_id)
+            $('#approve_id').val(product_id)
+            $('#approve_title').text('Approve  ' + name)
+            $('#approve_msg').text('Are you sure do you want to Approve  ' + name)
+            $('#approveModal').modal('show')
+        })
+
+
+        $(document).on('click', '.approve_btn', function(e) {
+            e.preventDefault();
+
+            var product_id = $('#approve_id').val();
+            console.log(product_id)
+            $.ajax({
+                type: 'POST',
+                url: '/approve_product/' + product_id,
+                success: function(response) {
+                    console.log(response);
+                    $('#success_message').addClass('alert alert-success')
+                    $('#success_message').text(response.message)
+                    $('#approveModal').modal('hide')
+
+                    location.href = '/storeProduct'
+
+                }
+            })
+        })
+
+        $(document).on('click', '.reject', function(e) {
+            e.preventDefault();
+            var name = $(this).data('value1');
+            var product_id = $(this).val();
+            console.log(product_id)
+            $('#reject_id').val(product_id)
+            $('#reject_title').text('Reject  ' + name)
+            $('#reject_msg').text('Are you sure do you want to Reject  ' + name)
+            $('#rejectModal').modal('show')
+        });
+
+        $(document).on('click', '.reject_btn', function(e) {
+            e.preventDefault();
+            var product_id = $('#reject_id').val();
+            console.log(product_id)
+            $.ajax({
+                type: 'POST',
+                url: '/reject_product/' + product_id,
+
+                success: function(response) {
+                    console.log(response)
+                    $('#success_message').text(response.message)
+                    $('#success_message').addClass('alert alert-success')
+                    $('#success_message').text(response.message)
+                    $('#rejectModal').modal('hide')
+                    $('#rejectModal').find('input').val('')
+                    location.href = '/storeProduct'
+                }
+            })
+        })
+
+    })
+</script>
+@endsection

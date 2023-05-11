@@ -16,7 +16,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-danger is_active" id="saveBtn">Yes
+                    <button type="submit" class="btn btn-warning is_active" id="saveBtn">Yes
                         Inactivate</button>
                 </div>
             </form>

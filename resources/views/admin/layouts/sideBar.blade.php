@@ -16,7 +16,7 @@
 
         <ul class="menu-inner py-1">
             <!-- Dashboard -->
-            <li class="menu-item   {{ request()->is('home') ? 'active' : '' }}">
+            <li class="menu-item   {{ request()->is('/') ? 'active' : '' }}">
                 <a href="{{ route('admin.home.listHome') }}" class="menu-link ">
                     <i class="menu-icon tf-icons bx bxs-home"></i>
                     <div data-i18n="Analytics">Home</div>

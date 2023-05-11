@@ -200,8 +200,12 @@
                                 @if ($sellingProduct->status == 'active')
                                     <button class="btn btn-sm btn-success active_product" value="{{ $sellingProduct->id }}"
                                         data-value1={{ $sellingProduct->name }}>{{ $sellingProduct->status }}</button>
-                                @elseif($sellingProduct->status == 'inactive')
-                                    <button class="btn btn-sm btn-danger inactive_product"
+                                        @elseif($sellingProduct->status == 'inactive')
+                                        <button class="btn btn-sm btn-warning inactive_product"
+                                            value="{{ $sellingProduct->id }}"
+                                            data-value1={{ $sellingProduct->name }}>{{ $sellingProduct->status }}</button>
+                                            @elseif($sellingProduct->status == 'rejected')
+                                    <button class="btn btn-sm btn-danger"
                                         value="{{ $sellingProduct->id }}"
                                         data-value1={{ $sellingProduct->name }}>{{ $sellingProduct->status }}</button>
                                 @else

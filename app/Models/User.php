@@ -16,17 +16,22 @@ class User extends  Authenticatable implements JWTSubject
 
     public function scopeStore($query)
     {
+        return $query->where('type', 1);
+    }
+
+    public function scopeRetail($query)
+    {
         return $query->where('type', 2);
     }
 
     public function isIndividual()
     {
-        return $this->type == 1;
+        return $this->type == 2;
     }
 
     public function isStore()
     {
-        return $this->type == 2;
+        return $this->type == 1;
     }
 
     public function product()
@@ -99,6 +104,11 @@ class User extends  Authenticatable implements JWTSubject
     {
         return $this->hasMany(Notification::class, 'user_id', 'id');
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id', 'id');
+    }
     public function getExchangeRate()
     {
         if ($this->isStore())
@@ -106,4 +116,6 @@ class User extends  Authenticatable implements JWTSubject
         else
             return 80000;
     }
+
+
 }

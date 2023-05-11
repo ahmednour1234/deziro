@@ -57,25 +57,18 @@
                         <span class="text-danger" id="error_confirm_password"></span>
                     </div>
 
-                    @php
-                    $categories = explode(",", $store->categories);
 
-
-               @endphp
                     <div class="col-12 mb-0">
-                        <label for="category_type" class="form-label">Category Name <span
-                                class="text-error"></span></label>
-                        <select class="form-control editselect2  category_type" id="categorys_type" name="category_type[]" multiple="multiple"
-                            multiple required >
+                        <label for="category_type" class="form-label">Category Name <span class="text-error"></span></label>
+                        <select id="categorys_type" name="category_type[]" multiple="multiple" multiple required>
 
-                            <!--<option value=""> Select Category ...</option>-->
 
-                            @foreach ($listCategorys as $category)
-                            @foreach ($categories as $key => $categorie)
-                                <option value="{{ $category->id }}" {{$category->id == $categorie ?  "selected"  : ""}}>{{ $category->name }}</option>
-                                {{-- {{ in_array($option->id, explode(',', $record->field_name)) ? 'selected' : '' }} --}}
+                            @foreach ($allCategories as $category)
+                                <option value="{{ $category->id }}"
+                                    {{ in_array($category->id, $categoryIds) ? 'selected' : '' }}>{{ $category->name }}
+                                </option>
                             @endforeach
-                            @endforeach
+
                         </select>
                         <span class="text-danger" id="error_category_type"></span>
                     </div>
@@ -111,12 +104,13 @@
                     </div>
 
                     <div class="col-12 mb-0 " id="display_image">
-                    @if ($store->certificate != '')
-                    <iframe src="{{ asset($store->certificate) }}" id="showImg" width="100%" height="300">
-                    </iframe>
-                    <a href="{{ $store->certificate }}">Click To Open!</a>
-                @endif
-            </div>
+                        @if ($store->certificate != '')
+                            <iframe src="{{ asset($store->certificate) }}" id="showImg" width="100%"
+                                height="300">
+                            </iframe>
+                            <a href="{{ $store->certificate }}">Click To Open!</a>
+                        @endif
+                    </div>
 
 
 
@@ -132,15 +126,23 @@
 
 @section('scripts')
     <script>
-
-
-function displayAddImage(event) {
-    document.getElementById('showImg').style.display = 'block'
-    document.getElementById('showImg').src = URL.createObjectURL(event.target.files[0]);
-}
+        function displayAddImage(event) {
+            document.getElementById('showImg').style.display = 'block'
+            document.getElementById('showImg').src = URL.createObjectURL(event.target.files[0]);
+        }
 
 
         $(document).ready(function() {
+            var selectize = $('#categorys_type').selectize({
+                plugins: ['remove_button'],
+                delimiter: ',',
+                persist: false,
+
+                onDropdownOpen: function($dropdown) {
+                    // Set focus to the search input when the dropdown is opened
+                    $dropdown.find('.selectize-input input[type="text"]').first().focus();
+                }
+            })[0].selectize;
             $('.editselect2').select2({
                 width: '100%',
                 allowClear: true,
