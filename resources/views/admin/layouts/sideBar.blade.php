@@ -186,6 +186,46 @@
                 </a>
             </li>
 
+
+
+            <li
+            class="menu-item {{ request()->is('listproductreport') || request()->is('listuserreport') ||request()->is('listorderreport') ? 'active' : '' }} ">
+            <a class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-layout"></i>
+                <div data-i18n="Layouts">Reports</div>
+            </a>
+
+            <ul class="{{
+              request()->is('listproductreport') || request()->is('listuserreport')||request()->is('listorderreport')
+                ? 'active'
+                : 'active menu-sub' }}">
+
+
+<li class="menu-item {{ request()->is('listuserreport')  ? 'active' : '' }} ">
+    <a href="{{route('admin.report.listuserreport')}}" class="menu-link">
+        <div data-i18n="Fluid">Users </div>
+    </a>
+</li>
+
+<li class="menu-item {{ request()->is('listproductreport')  ? 'active' : '' }} ">
+    <a href="{{route('admin.report.listproductreport')}}" class="menu-link">
+        <div data-i18n="Fluid">Products </div>
+    </a>
+</li>
+<li class="menu-item {{ request()->is('listorderreport')  ? 'active' : '' }} ">
+    <a href="{{route('admin.report.listorderreport')}}" class="menu-link">
+        <div data-i18n="Fluid">Orders </div>
+    </a>
+</li>
+
+
+
+            </ul>
+        </li>
+
+
+
+
             {{-- <li class="menu-item {{ request()->is('category')  ? 'active' : '' }} ">
                     <a href="{{ route('admin.category.listCategory') }}" class="menu-link">
                         <div data-i18n="Without navbar">List Sub Categories </div>

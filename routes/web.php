@@ -8,6 +8,7 @@ use App\Http\Controllers\BannerImageController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StoreController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -194,3 +195,18 @@ Route::get('editCoupon/{id}', [CouponController::class, 'editCoupon'])->name('ad
 Route::post('updateCoupon/{id}', [CouponController::class, 'updateCoupon'])->name('admin.brand.updateCoupon');
 Route::post('coupon_active/{id}', [CouponController::class, 'is_active'])->name('admin.coupon.is_active');
 Route::post('coupon_inactive/{id}', [CouponController::class, 'is_inactive'])->name('admin.coupon.is_inactive');
+
+
+
+
+
+//Report
+Route::get('/listproductreport', [ReportController::class, 'listproductreport'])->name('admin.report.listproductreport');
+
+Route::get('/listuserreport', [ReportController::class, 'listuserreport'])->name('admin.report.listuserreport');
+Route::get('/listorderreport', [ReportController::class, 'listorderreport'])->name('admin.report.listorderreport');
+
+
+// //excel route
+// Route::get('product/export/', [ReportController::class, 'productexport'])->name('productexport');
+// Route::get('users/export/', [ReportController::class, 'export_user'])->name('usersexport');
