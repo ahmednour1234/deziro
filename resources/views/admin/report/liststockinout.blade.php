@@ -61,7 +61,7 @@
                     </div>
 
 
-                 
+
 
 
 
@@ -126,7 +126,7 @@
                     <th>Views</th>
                     <th>Product Type</th>
                     <th>Type</th>
-                    <th>product count</th>
+                 
 
                     <th>Status</th>
                 </tr>

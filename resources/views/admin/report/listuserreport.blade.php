@@ -182,9 +182,9 @@
                             <td>{{ $user->phone }} </td>
 
                             @if ($user->type == 1)
-                                <td>Individual</td>
-                            @else
                                 <td>Store</td>
+                            @else
+                                <td>Individual</td>
                             @endif
                             <td>{{ ucfirst($user->status) }} </td>
                         </tr>
