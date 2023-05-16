@@ -83,13 +83,23 @@ class Product extends Model
         return $this->belongsTo(Category::class, 'category_id', 'id');
     }
 
+    public function featuredProducts()
+    {
+        return $this->hasMany(FeaturedProducts::class, 'product_id', 'id');
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(\App\Models\OrderItem::class);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
 
     }
 
-  
+
     public function brand()
     {
         return $this->belongsTo(Brand::class);
@@ -253,8 +263,8 @@ class Product extends Model
         return $query->whereExists(function ($query) {
             $query->from('users')
                 ->whereRaw('users.id = products.user_id')
-                ->where('users.status', 'accept')
-                ->where('users.is_active', 1);
+                ->where('users.status', 'active');
+
         });
     }
 

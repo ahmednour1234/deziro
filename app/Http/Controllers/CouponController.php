@@ -63,7 +63,7 @@ class CouponController extends Controller
             $coupon->expiry_date = $request->expiry_date;
             $coupon->usage_limit_per_coupon = $request->usage_limit_per_coupon;
             $coupon->usage_limit_per_user = $request->usage_limit_per_user;
-            $coupon->status = 1;
+            $coupon->status = 'active';
             $coupon->save();
 
             return response()->json([
@@ -122,13 +122,12 @@ class CouponController extends Controller
                 $coupon->expiry_date = $request->expiry_date;
                 $coupon->usage_limit_per_coupon = $request->usage_limit_per_coupon;
                 $coupon->usage_limit_per_user = $request->usage_limit_per_user;
-                $coupon->status = 1;
                 $coupon->save();
 
                 return response()->json([
                     'status' => 200,
                     'coupon' => $coupon,
-                    'message' => 'Coupon Added Successfully',
+                    'message' => 'Coupon Updated Successfully',
                 ]);
             } else {
                 return response()->json([

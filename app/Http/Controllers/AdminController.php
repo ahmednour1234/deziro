@@ -59,8 +59,7 @@ class AdminController extends Controller
             if ($request->password == $request->confirm_password) {
                 $admin = new User();
                 $admin->type = 0;
-                $admin->is_active = 1;
-                $admin->status = 'accept';
+                $admin->status = 'active';
                 $admin->first_name = $request->first_name;
                 $admin->last_name = $request->last_name;
                 $admin->email = $request->email;
@@ -124,7 +123,7 @@ class AdminController extends Controller
 
                 if ($request->password == $request->confirm_password) {
                     $admin->type = 0;
-                    $admin->is_active = 1;
+                    $admin->status = 'active';
                     $admin->first_name = $request->first_name;
                     $admin->last_name = $request->last_name;
                     $admin->email = $request->email;

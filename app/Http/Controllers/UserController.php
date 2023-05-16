@@ -54,7 +54,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         if ($user) {
-            $user->is_active = 1;
+            $user->status = 'active';
         }
 
         $user->save();
@@ -71,7 +71,7 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
         if ($user) {
-            $user->is_active = 0;
+            $user->status = 'inactive';
         }
 
         $user->save();
@@ -88,8 +88,8 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         if ($user) {
-            $user->status = 'accept';
-            $user->is_active = 1;
+            $user->status = 'active';
+
         }
 
         $user->save();
@@ -105,7 +105,7 @@ class UserController extends Controller
             $user = User::findOrFail($id);
             if ($user) {
                 $user->status = 'reject';
-                $user->is_active = 0;
+
 
                 $user->save();
 

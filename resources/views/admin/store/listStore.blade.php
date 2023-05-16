@@ -164,10 +164,10 @@
                             <td><a href="/userDetail/{{ $store->id }}" class="btn btn-info btn-sm">View More
                                     Details</a></td>
                             <td>
-                                @if ($store->is_active == 1)
+                                @if ($store->status == 'active')
                                     <button type="button" value="{{ $store->id }}" data-value1="{{ $store->first_name.' '.$store->last_name }}"
                                         class="active_store btn btn-success  btn-sm ">Active</button>
-                                @else
+                                @elseif($store->status == 'inactive')
                                     <button type="button" value="{{ $store->id }}" data-value1="{{ $store->first_name.' '.$store->last_name }}"
                                         class="inactive_store btn btn-danger  btn-sm ">Inactive</button>
                                 @endif

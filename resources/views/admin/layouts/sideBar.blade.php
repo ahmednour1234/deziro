@@ -4,12 +4,12 @@
                 <h3 class="mx-5">Deziro</h3>
                 {{--
                 <div class="text-center mx-5 "> <img src="{{ asset('admin/assets/img/logo_img/1672497704.png') }}"
-                        alt="" width="100"></div> --}}
-            </a>
+                alt="" width="100"></div> --}}
+        </a>
 
-            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
-                <i class="bx bx-chevron-left bx-sm align-middle"></i>
-            </a>
+        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+            <i class="bx bx-chevron-left bx-sm align-middle"></i>
+        </a>
         </div>
 
         <div class="menu-inner-shadow"></div>
@@ -32,8 +32,7 @@
             </li>
 
             {{-- Stores --}}
-            <li
-                class="menu-item {{ request()->is('store') ||
+            <li class="menu-item {{ request()->is('store') ||
                 request()->is('createStore') ||
                 request()->is('store') ||
                 request()->is('user') ||
@@ -47,8 +46,7 @@
 
                 </a>
 
-                <ul
-                    class=" {{ request()->is('store') ||
+                <ul class=" {{ request()->is('store') ||
                     request()->is('createStore') ||
                     request()->is('store') ||
                     request()->is('user') ||
@@ -128,16 +126,14 @@
             </li>
 
 
-            {{--  Products --}}
-            <li
-                class="menu-item {{ request()->is('storeProduct') || request()->is('featuredProducts') ? 'active' : '' }}">
+            {{-- Products --}}
+            <li class="menu-item {{ request()->is('storeProduct') || request()->is('featuredProducts') ? 'active' : '' }}">
                 <a class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons bx bxl-product-hunt"></i>
                     <div data-i18n="Layouts"> Products</div>
                 </a>
 
-                <ul
-                    class="{{ request()->is('storeProduct') || request()->is('featuredProducts') ? 'active' : 'active menu-sub' }}">
+                <ul class="{{ request()->is('storeProduct') || request()->is('featuredProducts') ? 'active' : 'active menu-sub' }}">
 
                     <li class="menu-item {{ request()->is('storeProduct') ? 'active' : '' }} ">
                         <a href="{{ route('admin.storeProduct.listStoreProduct') }}" class="menu-link">
@@ -160,7 +156,7 @@
             </li>
 
 
-            {{--  Orders --}}
+            {{-- Orders --}}
             <li class="menu-item {{ request()->is('order') ? 'active' : '' }}">
                 <a class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons bx bxs-cart-download"></i>
@@ -188,76 +184,92 @@
 
 
 
-            <li
-            class="menu-item {{ request()->is('listproductreport') || request()->is('listuserreport') ||request()->is('listorderreport') ? 'active' : '' }} ">
-            <a class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-layout"></i>
-                <div data-i18n="Layouts">Reports</div>
-            </a>
+            <li class="menu-item {{ request()->is('listproductreport') || request()->is('listuserreport') || request()->is('listtop10users') || request()->is('listorderreport') || request()->is('liststockinout') || request()->is('listbestseller') ? 'active' : '' }} ">
+                <a class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-layout"></i>
+                    <div data-i18n="Layouts">Reports</div>
+                </a>
 
-            <ul class="{{
-              request()->is('listproductreport') || request()->is('listuserreport')||request()->is('listorderreport')
-                ? 'active'
-                : 'active menu-sub' }}">
+                <ul class="{{ request()->is('listproductreport') || request()->is('listuserreport') || request()->is('listtop10users') || request()->is('listorderreport')|| request()->is('liststockinout')|| request()->is('listbestseller')
+                        ? 'active'
+                        : 'active menu-sub' }}">
 
 
-<li class="menu-item {{ request()->is('listuserreport')  ? 'active' : '' }} ">
-    <a href="{{route('admin.report.listuserreport')}}" class="menu-link">
-        <div data-i18n="Fluid">Users </div>
-    </a>
-</li>
+                    <li class="menu-item {{ request()->is('listuserreport') ? 'active' : '' }} ">
+                        <a href="{{ route('admin.report.listuserreport') }}" class="menu-link">
+                            <div data-i18n="Fluid">Users </div>
+                        </a>
+                    </li>
 
-<li class="menu-item {{ request()->is('listproductreport')  ? 'active' : '' }} ">
-    <a href="{{route('admin.report.listproductreport')}}" class="menu-link">
-        <div data-i18n="Fluid">Products </div>
-    </a>
-</li>
-<li class="menu-item {{ request()->is('listorderreport')  ? 'active' : '' }} ">
-    <a href="{{route('admin.report.listorderreport')}}" class="menu-link">
-        <div data-i18n="Fluid">Orders </div>
-    </a>
-</li>
+                    <li class="menu-item {{ request()->is('listtop10users') ? 'active' : '' }} ">
+                        <a href="{{ route('admin.report.listtop10users') }}" class="menu-link">
+                            <div data-i18n="Fluid">Top Users </div>
+                        </a>
+                    </li>
 
 
+                    <li class="menu-item {{ request()->is('listproductreport') ? 'active' : '' }} ">
+                        <a href="{{ route('admin.report.listproductreport') }}" class="menu-link">
+                            <div data-i18n="Fluid">Products </div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('listorderreport') ? 'active' : '' }} ">
+                        <a href="{{ route('admin.report.listorderreport') }}" class="menu-link">
+                            <div data-i18n="Fluid">Orders </div>
+                        </a>
+                    </li>
 
-            </ul>
-        </li>
+                    <li class="menu-item {{ request()->is('listbestseller') ? 'active' : '' }} ">
+                        <a href="{{ route('admin.report.listbestseller') }}" class="menu-link">
+                            <div data-i18n="Fluid">Best Seller </div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->is('liststockinout') ? 'active' : '' }} ">
+                        <a href="{{ route('admin.report.liststockinout') }}" class="menu-link">
+                            <div data-i18n="Fluid">Stcok In Out </div>
+                        </a>
+                    </li>
+
+
+
+                </ul>
+            </li>
 
 
 
 
             {{-- <li class="menu-item {{ request()->is('category')  ? 'active' : '' }} ">
-                    <a href="{{ route('admin.category.listCategory') }}" class="menu-link">
-                        <div data-i18n="Without navbar">List Sub Categories </div>
-                    </a>
-                </li> --}}
+            <a href="{{ route('admin.category.listCategory') }}" class="menu-link">
+                <div data-i18n="Without navbar">List Sub Categories </div>
+            </a>
+            </li> --}}
 
             {{-- </ul>
         </li> --}}
 
 
-            {{--  Individual
+            {{-- Individual
             <li
                 class="menu-item {{ request()->is('activeIndividuals') || request()->is('inactiveIndividuals') ? 'active' : '' }}">
-                <a class="menu-link menu-toggle">
-                    <i class="menu-icon tf-icons bx bx-user-circle"></i>
-                    <div data-i18n="Layouts">Individuals</div>
-                </a>
+            <a class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-user-circle"></i>
+                <div data-i18n="Layouts">Individuals</div>
+            </a>
 
-                <ul
-                    class="{{ request()->is('activeIndividuals') || request()->is('inactiveIndividuals') ? 'active' : 'menu-sub' }}">
-                    <li class="menu-item {{ request()->is('activeIndividuals') ? 'active' : '' }}">
-                        <a href="{{ route('admin.individual.listActiveIndividuals') }}" class="menu-link">
-                            <div data-i18n="Without menu">List Individual Active</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('inactiveIndividuals') ? 'active' : '' }}">
-                        <a href="{{ route('admin.individual.listinactiveIndividuals') }}" class="menu-link">
-                            <div data-i18n="Without navbar">List Individual Inactive</div>
-                        </a>
-                    </li>
+            <ul class="{{ request()->is('activeIndividuals') || request()->is('inactiveIndividuals') ? 'active' : 'menu-sub' }}">
+                <li class="menu-item {{ request()->is('activeIndividuals') ? 'active' : '' }}">
+                    <a href="{{ route('admin.individual.listActiveIndividuals') }}" class="menu-link">
+                        <div data-i18n="Without menu">List Individual Active</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->is('inactiveIndividuals') ? 'active' : '' }}">
+                    <a href="{{ route('admin.individual.listinactiveIndividuals') }}" class="menu-link">
+                        <div data-i18n="Without navbar">List Individual Inactive</div>
+                    </a>
+                </li>
 
-                </ul>
+            </ul>
             </li>
 
 
@@ -274,9 +286,8 @@
                 </a>
             </li>
 
-             Individual Products
-            <li
-                class="menu-item {{ request()->is('product') ||
+            Individual Products
+            <li class="menu-item {{ request()->is('product') ||
                 request()->is('rejectedProduct') ||
                 request()->is('sellingProduct') ||
                 request()->is('bidProduct') ||
@@ -288,8 +299,7 @@
                     <div data-i18n="Layouts">Individual Products</div>
                 </a>
 
-                <ul
-                    class="{{ request()->is('product') ||
+                <ul class="{{ request()->is('product') ||
                     request()->is('rejectedProduct') ||
                     request()->is('sellingProduct') ||
                     request()->is('bidProduct') ||
@@ -330,9 +340,8 @@
             </li>
 
 
-             Orders
-            <li
-                class="menu-item {{ request()->is('pendingOrder') ||
+            Orders
+            <li class="menu-item {{ request()->is('pendingOrder') ||
                 request()->is('shippingOrder') ||
                 request()->is('canceledOrder') ||
                 request()->is('deliverydOrder')
@@ -343,8 +352,7 @@
                     <div data-i18n="Layouts">Orders</div>
                 </a>
 
-                <ul
-                    class="{{ request()->is('pendingOrder') ||
+                <ul class="{{ request()->is('pendingOrder') ||
                     request()->is('shippingOrder') ||
                     request()->is('canceledOrder') ||
                     request()->is('deliverydOrder')
@@ -418,7 +426,7 @@
 
 
 
-             Notification
+            Notification
             <li class="menu-item   {{ request()->is('notification') ? 'active' : '' }}">
                 <a href="{{ route('admin.notification.listNotification') }}" class="menu-link ">
                     <i class="menu-icon tf-icons bx bx-home-circle"></i>

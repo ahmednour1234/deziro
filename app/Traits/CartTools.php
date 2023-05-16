@@ -54,7 +54,7 @@ trait CartTools
         if (session()->has('cart')) {
             $cart = $this->cartRepository->findOneWhere([
                 'user_id' => auth()->guard('api')->user()->id,
-                'is_active'   => 1,
+                'status'   => 'active',
             ]);
 
             $this->setCart($cart);

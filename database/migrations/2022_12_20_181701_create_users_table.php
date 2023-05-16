@@ -27,7 +27,6 @@ return new class extends Migration
             $table->string('categories')->nullable();
             $table->string('status')->nullable();
             $table->boolean('type');
-            $table->boolean('is_active')->nullable();
             $table->string('reason')->nullable();
             $table->string('fcm_token')->nullable();
             $table->rememberToken();

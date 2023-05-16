@@ -34,6 +34,9 @@
                                 <option value="pending" {{ request()->get('status') == 'pending' ? 'selected' : '' }}>
                                     Pending
                                 </option>
+                                <option value="rejected" {{ request()->get('status') == 'rejected' ? 'selected' : '' }}>
+                                    Rejected
+                                </option>
                                 <option value="active" {{ request()->get('status') == 'active' ? 'selected' : '' }}>Active
                                 </option>
                                 <option value="inactive" {{ request()->get('status') == 'inactive' ? 'selected' : '' }}>
