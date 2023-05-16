@@ -73,7 +73,7 @@ class StoreController extends Controller
         $perPage = $request->limit ?: default_limit();
         // $search = $request->search ?: null;
         // $listCategorys = Category::all();
-        $listStore = User::where('type', 1)->where('status', 'accept')
+        $listStore = User::where('type', 1)->where('status', 'active')
             ->orderBy($sortColumn, $sortDirection)
             ->where(function ($query) use ($request) {
                 return $query->where('store_name', 'like', '%' . $request->search . '%')
