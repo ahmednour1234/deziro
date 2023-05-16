@@ -8,7 +8,7 @@
 
 <h4 class="fw-bold py-3 mb-4">
     <span class="text-muted fw-light"> <a href="{{ route('admin.home.listHome') }}"> Home
-            /</a></span> Product Report
+            /</a></span> Best Seller Report
 </h4>
 
 <!-- Basic Bootstrap Table -->
@@ -61,15 +61,7 @@
                     </div>
 
 
-                    <div class="col-lg-3 input-group input-group-merge">
-                        <select name="product_type" class="form-select" value="{{ request()->get('product_type') }}">
-                            <option value="">Select All Products</option>
-                            <option value="products" {{ request()->get('product_type') == 'products' ? 'selected' : '' }}>Products
-                            </option>
-                            <option value="featuredproducts" {{ request()->get('product_type') == 'featuredproducts' ? 'selected' : '' }}>Featured Products
-                            </option>
-                        </select>
-                    </div>
+                
 
 
 
@@ -132,6 +124,8 @@
                     <th>Views</th>
                     <th>Product Type</th>
                     <th>Type</th>
+                    <th>product  count</th>
+                    <th>sum product quantity</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -147,6 +141,8 @@
                     <td>{{ $product->views }}</td>
                     <td>{{ $product->product_type }}</td>
                     <td>{{ $product->type }}</td>
+                    <td>{{ $product->order_items_count !=0 ? $product->order_items_count : 0 }}</td>
+                    <td>{{ $product->order_items_sum_qty_ordered !=0 ?  $product->order_items_sum_qty_ordered  : 0 }}</td>
                     <td>{{ $product->status }} </td>
                 </tr>
                 @endforeach

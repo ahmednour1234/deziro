@@ -128,14 +128,14 @@ class CheckoutController extends Controller
 
         if (
             auth()->check()
-            && !auth()->user()->is_active
+            && !auth()->user()->status == 'inactive'
         ) {
             throw new \Exception(trans('Your account has been inactive.'));
         }
 
         if (
             auth()->user()
-            && auth()->user()->status != 'accept'
+            && auth()->user()->status != 'active'
         ) {
             // dd(auth()->user()->status);
             throw new \Exception(trans('Your account is not active.'));

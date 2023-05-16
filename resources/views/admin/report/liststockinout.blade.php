@@ -8,7 +8,7 @@
 
 <h4 class="fw-bold py-3 mb-4">
     <span class="text-muted fw-light"> <a href="{{ route('admin.home.listHome') }}"> Home
-            /</a></span> Product Report
+            /</a></span> Stock In Out
 </h4>
 
 <!-- Basic Bootstrap Table -->
@@ -61,15 +61,7 @@
                     </div>
 
 
-                    <div class="col-lg-3 input-group input-group-merge">
-                        <select name="product_type" class="form-select" value="{{ request()->get('product_type') }}">
-                            <option value="">Select All Products</option>
-                            <option value="products" {{ request()->get('product_type') == 'products' ? 'selected' : '' }}>Products
-                            </option>
-                            <option value="featuredproducts" {{ request()->get('product_type') == 'featuredproducts' ? 'selected' : '' }}>Featured Products
-                            </option>
-                        </select>
-                    </div>
+                 
 
 
 
@@ -127,11 +119,15 @@
                     <th>Name</th>
                     <th>Category</th>
                     <th>Quantity</th>
+                    <th>sum product quantity </th>
+                    <th>Rest quantity</th>
                     <th>Price</th>
                     <th>Special Price</th>
                     <th>Views</th>
                     <th>Product Type</th>
                     <th>Type</th>
+                    <th>product count</th>
+
                     <th>Status</th>
                 </tr>
             </thead>
@@ -142,6 +138,8 @@
                     <td>{{ $product->name }}</td>
                     <td>{{ $product->category->name }}</td>
                     <td>{{ $product->quantity }}</td>
+                    <td>{{ $product->order_items_sum_qty_ordered !=0 ?  $product->order_items_sum_qty_ordered  : 0 }}</td>
+                    <td>{{ $product->quantity  - $product->order_items_sum_qty_ordered   }}</td>
                     <td>{{ $product->price }}</td>
                     <td>{{ $product->special_price }}</td>
                     <td>{{ $product->views }}</td>
@@ -161,4 +159,3 @@
     </div>
 </div>
 @endsection
-

@@ -45,17 +45,7 @@ class AuthController extends Controller
         }
         $user = Auth::getProvider()->retrieveByCredentials($credentials);
 
-        // if ($user->status == 0) {
-        //     session()->flash('fail', trans('Your account has been disabled.'));
-        //     return redirect()->to('login');
-        // }
-
-        if ($user->is_ban == 1) {
-            session()->flash('fail', trans('Your account has been banned.'));
-            return redirect()->to('login');
-        }
-
-        if ($user->is_active == 0) {
+        if ($user->status == 'inactive') {
             session()->flash('fail', trans('Your account has been deactivated.'));
             return redirect()->to('login');
         }

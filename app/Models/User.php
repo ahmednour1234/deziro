@@ -92,7 +92,6 @@ class User extends  Authenticatable implements JWTSubject
         'fcm_token',
         'categories',
         'status',
-        'is_active',
         'reason'
     ];
 
@@ -109,6 +108,13 @@ class User extends  Authenticatable implements JWTSubject
     {
         return $this->hasMany(Order::class, 'user_id', 'id');
     }
+
+    public function orders2()
+    {
+        return $this->hasManyThrough(Order::class, Product::class);
+    }
+
+
     public function getExchangeRate()
     {
         if ($this->isStore())

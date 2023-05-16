@@ -59,7 +59,7 @@ class AuthController extends Controller
                 // 'reason'=> $user->reason,
                 'errors' => [],
             ], 200);
-        } else if ($user->is_active == 0) {
+        } else if ($user->sttaus == 'inactive') {
             auth()->guard()->logout();
 
             return response()->json([
@@ -87,10 +87,7 @@ class AuthController extends Controller
                 'password' => 'required|min:6',
                 'confirm_password' => 'required|min:6',
                 'phone' => 'required|unique:users',
-
             ]);
-
-
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -100,8 +97,7 @@ class AuthController extends Controller
                 if ($request->password == $request->confirm_password) {
                     $user = new User();
                     $user->type = 2;
-                    $user->is_active = 1;
-                    $user->status = 'accept';
+                    $user->status = 'active';
                     $user->first_name = $request->first_name;
                     $user->last_name = $request->last_name;
                     $user->email = $request->email;
@@ -127,8 +123,6 @@ class AuthController extends Controller
                 }
             }
         } else if ($request->type == '1') {
-
-
             $validator = Validator::make($request->all(), [
                 'store_name' => 'required|string|min:3',
                 'first_name' => 'required|min:2|string',
@@ -141,7 +135,6 @@ class AuthController extends Controller
                 'certificate' => 'mimes:png,jpg,jpeg,pdf|max:2048',
                 'fcm_token' => 'required|min:3',
             ]);
-
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -161,7 +154,6 @@ class AuthController extends Controller
                     }
                     $store = new User();
                     $store->type = 1;
-                    $store->is_active = 1;
                     $store->status = 'pending';
                     $store->first_name = $request->first_name;
                     $store->last_name = $request->last_name;

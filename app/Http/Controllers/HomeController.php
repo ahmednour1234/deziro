@@ -21,44 +21,36 @@ class HomeController extends Controller
     {
         if (Auth::check()) {
             $users = User::count();
-            $products = Product::count();
+            $products = Product::whereNull('parent_id')->count();
             $orders = Order::where('status', 'delivered')->count();
 
 
             $mostuploadingstores = User::store()->withCount('product')
                 ->orderBy('product_count', 'desc')
-                ->having('product_count','>',0)
+                ->having('product_count', '>', 0)
                 ->take(5)
                 ->get();
 
 
-                $mostorderingusers= User::retail()->withCount('orders')
+            $mostorderingusers = User::retail()->withCount('orders')
                 ->orderBy('orders_count', 'desc')
-                ->having('orders_count','>',0)
+                ->having('orders_count', '>', 0)
                 ->take(5)
                 ->get();
 
-                 $mostgetingorderstores =  DB::table('orders')
-                 ->join('order_items', 'orders.id', '=', 'order_items.order_id')
-                 ->join('products', 'order_items.product_id', '=', 'products.id')
-                 ->join('users', 'products.user_id', '=', 'users.id')
-                 ->where('users.type',1)
-                 ->select('users.*', DB::raw('count(order_items.id) as orders_count'))
-                 ->groupBy('users.id')
-                 ->orderByDesc('orders_count')
-                 ->limit(5)
-                 ->get();
+            $mostgetingorderstores =  DB::table('orders')
+                ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+                ->join('products', 'order_items.product_id', '=', 'products.id')
+                ->join('users', 'products.user_id', '=', 'users.id')
+                ->where('users.type', 1)
+                ->select('users.*', DB::raw('count(order_items.id) as orders_count'))
+                ->groupBy('users.id')
+                ->orderByDesc('orders_count')
+                ->limit(5)
+                ->get();
 
-
-
-
-
-
-
-
-            return view('admin.home.listHome', compact('users', 'products', 'orders','mostuploadingstores','mostorderingusers','mostgetingorderstores'));
+            return view('admin.home.listHome', compact('users', 'products', 'orders', 'mostuploadingstores', 'mostorderingusers', 'mostgetingorderstores'));
         }
         return redirect('/login');
     }
-
 }
