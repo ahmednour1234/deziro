@@ -70,14 +70,10 @@ class Product extends Model
     {
         parent::boot();
 
-        static::updating(function ($product) {
-            if ($product->quantity === 0) {
-                $product->status = 'sold';
-                $product->save();
-            }
+        static::addGlobalScope('inactive', function (Builder $builder) {
+            $builder->where('products.status', '<>', 'inactive');
         });
     }
-
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id', 'id');
