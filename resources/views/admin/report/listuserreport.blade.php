@@ -35,7 +35,7 @@
 
                         <div class="col-lg-2 input-group input-group-merge">
                             <select name="user_type" class="form-select" value="{{ request()->get('user_type') }}">
-                                <option value=""> Select type</option>
+                                <option value=""> Select Type</option>
                                 <option value="2" {{ request()->get('user_type') == '2' ? 'selected' : '' }}>Individual
                                 </option>
                                 <option value="1" {{ request()->get('user_type') == '1' ? 'selected' : '' }}>Store
