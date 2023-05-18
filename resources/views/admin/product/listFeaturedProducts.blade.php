@@ -95,20 +95,20 @@
                     @foreach ($listFeaturedProducts as $key => $featuredProduct)
                         <tr>
                             <td>{{ $featuredProduct->created_at->format('Y-m-d ') }} </td>
-                            <td>{{ $featuredProduct->product_id }}</td>
-                            <td>{{ $featuredProduct->product->name }} </td>
-                            <td><a href="/userDetail/{{ $featuredProduct->product->user_id }}" class="btn btn-info btn-sm">
-                                    {{ $featuredProduct->product->user_id }}
+                            <td>{{ $featuredProduct->id }}</td>
+                            <td>{{ $featuredProduct->name }} </td>
+                            <td><a href="/userDetail/{{ $featuredProduct->user_id }}" class="btn btn-info btn-sm">
+                                    {{ $featuredProduct->user_id }}
                                 </a></td>
-                            <td>{{ $featuredProduct->product->category->name }} </td>
-                            <td>{{ $featuredProduct->product->brand->name }} </td>
-                            <td>{{ $featuredProduct->product->quantity }}</td>
-                            <td>{{ $featuredProduct->product->price }}</td>
-                            <td>{{ $featuredProduct->product->special_price }}</td>
-                            <td> <a href="/productDetail/{{ $featuredProduct->product->id }}"  class="btn btn-info btn-sm">View More
+                            <td>{{ $featuredProduct->category->name }} </td>
+                            <td>{{ $featuredProduct->brand->name }} </td>
+                            <td>{{ $featuredProduct->quantity }}</td>
+                            <td>{{ $featuredProduct->price }}</td>
+                            <td>{{ $featuredProduct->special_price }}</td>
+                            <td> <a href="/productDetail/{{ $featuredProduct->id }}"  class="btn btn-info btn-sm">View More
                                     Details</a></td>
                             <td>
-                           <button class="btn btn-sm btn-danger delete_product" value="{{ $featuredProduct->id }}" data-value1="{{  $featuredProduct->product->name }}">Remove</button>
+                           <button class="btn btn-sm btn-danger delete_product" value="{{ $featuredProduct->id }}" data-value1="{{  $featuredProduct->name }}">Remove</button>
                             </td>
 
                         </tr>
