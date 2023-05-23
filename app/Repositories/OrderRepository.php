@@ -52,7 +52,6 @@ class OrderRepository extends Repository
         }
 
         $data['status'] = 'pending';
-
         $order = $this->model->create($data);
         $order->increment_id = $order->id;
         $order->save();
@@ -65,8 +64,11 @@ class OrderRepository extends Repository
 
         foreach ($data['items'] as $item) {
 
+            // dd(json_encode($data['items']));
             $orderItem = $this->orderItemRepository->create(array_merge($item, ['order_id' => $order->id]));
             $orderItem->product->quantity -= $orderItem->qty_ordered;
+            // dd($orderItem->product);
+            // dd(json_encode($orderItem->product));
             $orderItem->product->save();
         }
 
@@ -84,6 +86,7 @@ class OrderRepository extends Repository
         DB::beginTransaction();
 
         try {
+            // dd(json_encode($data));
             return $this->createOrder($data);
         } catch (\Exception $e) {
             /* rolling back first */
@@ -91,7 +94,6 @@ class OrderRepository extends Repository
 
             /* storing log for errors */
             Log::error($e);
-
             return $this->createOrder($data);
         } finally {
             /* commit in each case */

@@ -92,15 +92,18 @@ class CheckoutController extends Controller
 
         try {
             Cart::collectTotals();
-
-            $this->validateOrder();
-
             $dataArray = Cart::prepareDataForOrder();
+            // dd($dataArray[0]);
+            // dd(json_encode($dataArray[0]));
             $orders = array();
 
             foreach ($dataArray as $data) {
+                // dd($data);
+
                 $orders[] = $this->orderRepository->create(array_merge($data, ['payment' => request()->get('payment')]));
+                // dd(1);
             }
+            // dd(1);
 
             Cart::deActivateCart();
 

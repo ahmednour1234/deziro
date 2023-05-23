@@ -33,6 +33,8 @@ class Order extends JsonResource
             'grand_total' => number_format($this->grand_total, 4, '.', ''),
             // 'base_grand_total' => number_format($this->base_grand_total, 4, '.', ''),
             'sub_total' => number_format($this->sub_total, 4, '.', ''),
+            'discount_amount' => number_format($this->discount_amount, 4, '.', ''),
+            'discount_percent' => number_format($this->discount_percent, 4, '.', ''),
             // 'base_sub_total' => number_format($this->base_sub_total, 4, '.', ''),
             'fees_percent'  => getFeesPercent(),
             'fees_amount' => number_format($this->fees_amount, 4, '.', ''),
