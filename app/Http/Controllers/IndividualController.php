@@ -27,7 +27,7 @@ class IndividualController extends Controller
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
         $listActiveIndividual = User::where('type', 1)
-            ->where('is_active', 1)
+            ->where('status', 'active')
             ->orderBy($sortColumn, $sortDirection)
             ->where(function ($query) use ($search) {
                 return $query->where('phone_number', 'like', '%' . $search . '%')
@@ -51,7 +51,7 @@ class IndividualController extends Controller
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
         $listInactiveIndividual = User::where('type', 1)
-            ->where('is_active', 0)
+            ->where('status', 'inactive')
             ->orderBy($sortColumn, $sortDirection)
             ->where(function ($query) use ($search) {
                 return $query->where('phone_number', 'like', '%' . $search . '%')
@@ -98,9 +98,8 @@ class IndividualController extends Controller
 
         $Individual = User::findOrFail($id);
         if ($Individual) {
-            $Individual->is_active = 0;
-            $Individual->is_ban = 0;
-            $Individual->reason = ' ';
+            $Individual->status = 'inactive';
+
         }
 
         $Individual->save();
@@ -117,7 +116,7 @@ class IndividualController extends Controller
         $Individual = User::findOrFail($id);
 
         if ($Individual) {
-            $Individual->is_active = 1;
+            $Individual->status = 'active';
         }
 
         $Individual->save();
@@ -212,8 +211,7 @@ class IndividualController extends Controller
             $individual = User::findOrFail($id);
 
             if ($individual) {
-                // $individual->type = 2;
-                // $individual->is_active = 1;
+                
                 $individual->first_name = $request->first_name;
                 $individual->last_name = $request->last_name;
                 $individual->full_name = $request->first_name . " " . $request->last_name;

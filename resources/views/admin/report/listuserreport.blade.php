@@ -35,10 +35,10 @@
 
                         <div class="col-lg-2 input-group input-group-merge">
                             <select name="user_type" class="form-select" value="{{ request()->get('user_type') }}">
-                                <option value=""> Select type</option>
-                                <option value="1" {{ request()->get('user_type') == '1' ? 'selected' : '' }}>Individual
+                                <option value=""> Select Type</option>
+                                <option value="2" {{ request()->get('user_type') == '2' ? 'selected' : '' }}>Individual
                                 </option>
-                                <option value="2" {{ request()->get('user_type') == '2' ? 'selected' : '' }}>Store
+                                <option value="1" {{ request()->get('user_type') == '1' ? 'selected' : '' }}>Store
                                 </option>
                             </select>
                         </div>
@@ -48,7 +48,9 @@
                                 <option value="">Select Status</option>
                                 <option value="pending" {{ request()->get('status') == 'pending' ? 'selected' : '' }}>
                                     Pending</option>
-                                <option value="accept" {{ request()->get('status') == 'accept' ? 'selected' : '' }}>Accept
+                                <option value="active" {{ request()->get('status') == 'active' ? 'selected' : '' }}>Active
+                                </option>
+                                 <option value="inactive" {{ request()->get('status') == 'inactive' ? 'selected' : '' }}>Inactive
                                 </option>
                                 <option value="rejected" {{ request()->get('status') == 'rejected' ? 'selected' : '' }}>
                                     Rejected</option>
@@ -56,25 +58,8 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-2 input-group input-group-merge">
-                            <select name="user_active" class="form-select" value="{{ request()->get('user_active') }}">
-                                <option value=""> Select Activate</option>
-                                <option value="1" {{ request()->get('user_active') == '1' ? 'selected' : '' }}>Active
-                                </option>
-                                <option value="0" {{ request()->get('user_active') == '0' ? 'selected' : '' }}>
-                                    Inactive</option>
-                            </select>
-                        </div>
 
-                        {{-- <div class="col-lg-2 input-group input-group-merge">
-                            <select name="user_ban" class="form-select" value="{{ request()->get('user_ban') }}">
-                                <option value=""> Select banned</option>
-                                <option value="1" {{ request()->get('user_ban') == '1' ? 'selected' : '' }}>Banned
-                                </option>
-                                <option value="0" {{ request()->get('user_ban') == '0' ? 'selected' : '' }}>
-                                    Not Banned</option>
-                            </select>
-                        </div> --}}
+
 
 
                     </div>
@@ -144,19 +129,6 @@
                                 @endif
                             </a></th>
 
-
-                        {{-- <th><a class="text-dark"
-                                href="{{ route('admin.report.listuserreport', ['sort' => 'store_name', 'direction' => $sortColumn == 'store_name' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">Store
-                                Name @if ($sortColumn == 'store_name')
-                                    @if ($sortDirection == 'asc')
-                                        <i class="fas fa-arrow-up"></i>
-                                    @else
-                                        <i class="fas fa-arrow-down"></i>
-                                    @endif
-                                @endif
-                            </a>
-                        </th> --}}
-
                         <th>F_Name</th>
                         <th>L_Name</th>
                         <th><a class="text-dark"
@@ -195,11 +167,7 @@
                                 @endif
                             </a>
                         </th>
-
-
-
                         <th>type</th>
-                        <th>Is Active</th>
                         <th>status</th>
                     </tr>
                 </thead>
@@ -214,16 +182,10 @@
                             <td>{{ $user->phone }} </td>
 
                             @if ($user->type == 1)
-                                <td><span class="btn btn-sm btn-warning">Individual</span></td>
+                                <td>Store</td>
                             @else
-                                <td><span class="btn btn-sm btn-info">Store</span></td>
+                                <td>Individual</td>
                             @endif
-                            @if ($user->is_active == 1)
-                            <td><span class="btn btn-sm btn-dark">Active</span></td>
-                        @elseif($user->is_active == 0)
-                            <td><span class="btn btn-sm btn-dark">Inactive</span></td>
-                        @endif
-
                             <td>{{ ucfirst($user->status) }} </td>
                         </tr>
                     @endforeach

@@ -135,11 +135,11 @@
                             <td>{{ $admin->phone }} </td>
 
                             <td>
-                                @if ($admin->is_active == 1)
+                                @if ($admin->status == 'active')
                                     <button type="button" value="{{ $admin->id }}"
                                         data-value1="{{ $admin->first_name . ' ' . $admin->last_name }}"
                                         class=" active_admin btn btn-success  btn-sm ">Active</button>
-                                @else
+                                @elseif($admin->status == 'inactive')
                                     <button type="button" value="{{ $admin->id }}"
                                         data-value1="{{ $admin->first_name . ' ' . $admin->last_name }}"
                                         class="inactive_admin  btn btn-danger  btn-sm ">Inactive</button>

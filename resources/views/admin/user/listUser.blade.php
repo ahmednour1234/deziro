@@ -118,13 +118,12 @@
                             <td>{{ $user->phone }} </td>
                             <td><a href="/userDetail/{{ $user->id }}" class="btn btn-info btn-sm">View More
                                 Details</a></td>
-
                             <td>
-                                @if ($user->is_active == 1)
+                                @if ($user->status == 'active')
                                     <button type="button" value="{{ $user->id }}"
                                         data-value1="{{ $user->first_name . ' ' . $user->last_name }}"
                                         class=" active_user btn btn-success  btn-sm ">Active</button>
-                                @else
+                                @elseif($user->status == 'inactive')
                                     <button type="button" value="{{ $user->id }}"
                                         data-value1="{{ $user->first_name . ' ' . $user->last_name }}"
                                         class="inactive_user  btn btn-danger  btn-sm ">Inactive</button>

@@ -206,6 +206,15 @@ Route::get('/listproductreport', [ReportController::class, 'listproductreport'])
 Route::get('/listuserreport', [ReportController::class, 'listuserreport'])->name('admin.report.listuserreport');
 Route::get('/listorderreport', [ReportController::class, 'listorderreport'])->name('admin.report.listorderreport');
 
+Route::get('/listtop10users', [ReportController::class, 'listtop10users'])->name('admin.report.listtop10users');
+
+
+Route::get('/listbestseller', [ReportController::class, 'listbestseller'])->name('admin.report.listbestseller');
+
+Route::get('/liststockinout', [ReportController::class, 'liststockinout'])->name('admin.report.liststockinout');
+
+
+
 
 // //excel route
 // Route::get('product/export/', [ReportController::class, 'productexport'])->name('productexport');

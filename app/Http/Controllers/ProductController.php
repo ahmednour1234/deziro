@@ -29,6 +29,7 @@ class ProductController extends Controller
             ->whereHas('user', function ($query) {
                 $query->where('type', 1);
             })
+            ->withoutGlobalScope('inactive')
             ->where(function ($query) use ($request) {
                 return $query->where('id', 'like', '%' . $request->search . '%')
                     ->orWhere('name', 'like', '%' . $request->search . '%')
@@ -70,42 +71,37 @@ class ProductController extends Controller
 
         $perPage = $request->limit ?: default_limit();
         $search = $request->search ?: null;
-        $listFeaturedProducts = FeaturedProducts::orderBy($sortColumn, $sortDirection)
+        $listFeaturedProducts = Product::withoutGlobalScope('inactive')
+            ->whereHas('featuredProducts')
+            ->orderBy($sortColumn, $sortDirection)
             ->where(function ($query) use ($request) {
                 return $query->where('id', 'like', '%' . $request->search . '%')
-                    ->orWhere('product_id', 'like', '%' . $request->search . '%')
+                    ->orWhere('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('quantity', 'like', '%' . $request->search . '%')
+                    ->orWhere('price', 'like', '%' . $request->search . '%')
+                    ->orWhere('special_price', 'like', '%' . $request->search . '%')
+                    ->orWhere('created_at', 'like', '%' . $request->search . '%')
+                    ->orWhere('status', 'like', '%' . $request->status . '%')
+                    ->orWhere('user_id', 'like', '%' . $request->search . '%')
+                    ->orWhere('type', 'like', '%' . $request->search . '%')
                     ->orWhereHas(
-                        'product',
+                        'category',
                         function ($query) use ($request) {
-                            $query->where('name', 'like', '%' . $request->search . '%')
-                                ->orWhere('quantity', 'like', '%' . $request->search . '%')
-                                ->orWhere('price', 'like', '%' . $request->search . '%')
-                                ->orWhere('special_price', 'like', '%' . $request->search . '%')
-                                ->orWhere('created_at', 'like', '%' . $request->search . '%')
-                                ->orWhere('status', 'like', '%' . $request->status . '%')
-                                ->orWhere('user_id', 'like', '%' . $request->search . '%')
-                                ->orWhere('type', 'like', '%' . $request->search . '%')
-                                ->orWhereHas(
-                                    'category',
-                                    function ($query) use ($request) {
-                                        $query->where('name', 'like', '%' . $request->search . '%');
-                                    }
-                                )
-                                ->orWhereHas(
-                                    'brand',
-                                    function ($query) use ($request) {
-                                        $query->where('name', 'like', '%' . $request->search . '%');
-                                    }
-                                );
+                            $query->where('name', 'like', '%' . $request->search . '%');
                         }
-
+                    )
+                    ->orWhereHas(
+                        'brand',
+                        function ($query) use ($request) {
+                            $query->where('name', 'like', '%' . $request->search . '%');
+                        }
                     );
             })->paginate($perPage);
 
-        $listProducts =Product::whereNull('parent_id')->where('status', 'active')->whereNotIn('id', function ($query) {
+        $listProducts = Product::whereNull('parent_id')->where('status', 'active')->whereNotIn('id', function ($query) {
             $query->select('product_id')->from('featured_products');
         })
-        ->get();
+            ->get();
 
         $listFeaturedProducts->appends(request()->query());
         return view('admin.product.listFeaturedProducts', compact('listFeaturedProducts', 'listProducts', 'sortColumn', 'sortDirection'));
@@ -195,22 +191,21 @@ class ProductController extends Controller
     public function reject_product(Request $request, $id)
     {
 
-            $product = Product::findOrFail($id);
-            if ($product) {
-                $product->status = 'rejected';
+        $product = Product::findOrFail($id);
+        if ($product) {
+            $product->status = 'rejected';
 
-                $product->save();
-                return response()->json([
-                    'status' => 200,
-                    'product' => $product->id,
-                    'message' => 'Product Rejected Successfully',
-                ]);
-            } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => "Product Not Found",
-                ]);
-
+            $product->save();
+            return response()->json([
+                'status' => 200,
+                'product' => $product->id,
+                'message' => 'Product Rejected Successfully',
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => "Product Not Found",
+            ]);
         }
     }
 
@@ -228,5 +223,4 @@ class ProductController extends Controller
             ]);
         }
     }
-
 }

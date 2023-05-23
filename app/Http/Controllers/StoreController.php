@@ -73,7 +73,7 @@ class StoreController extends Controller
         $perPage = $request->limit ?: default_limit();
         // $search = $request->search ?: null;
         // $listCategorys = Category::all();
-        $listStore = User::where('type', 1)->where('status', 'accept')
+        $listStore = User::where('type', 1)->where('status', 'active')
             ->orderBy($sortColumn, $sortDirection)
             ->where(function ($query) use ($request) {
                 return $query->where('store_name', 'like', '%' . $request->search . '%')
@@ -139,8 +139,8 @@ class StoreController extends Controller
                 }
                 $store = new User();
                 $store->type = 1;
-                $store->is_active = 1;
-                $store->status = 'accept';
+
+                $store->status = 'active';
                 $store->first_name = $request->first_name;
                 $store->last_name = $request->last_name;
                 $store->phone = $request->phone;
@@ -216,8 +216,7 @@ class StoreController extends Controller
                         $uploadFile1 = '';
                     }
                     $store->type = 1;
-                    $store->is_active = 1;
-                    $store->status = 'accept';
+                    $store->status = 'active';
                     $store->first_name = $request->first_name;
                     $store->last_name = $request->last_name;
                     $store->phone = $request->phone;
@@ -251,5 +250,5 @@ class StoreController extends Controller
     }
 
 
-    
+
 }

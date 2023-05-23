@@ -27,8 +27,8 @@ class CategoryController extends Controller
             })->paginate($perPage);
         $listCategorie->appends(request()->query());
 
-        $listBrands = Brand::where('is_active','1')->get();
-        return view('admin.category.listCategory', compact('listCategorie','listBrands', 'sortColumn', 'sortDirection'));
+        $listBrands = Brand::where('is_active', '1')->get();
+        return view('admin.category.listCategory', compact('listCategorie', 'listBrands', 'sortColumn', 'sortDirection'));
     }
 
     public function addNewCategory(Request $request)
@@ -53,7 +53,7 @@ class CategoryController extends Controller
             if ($request->hasFile('image')) {
 
                 $img = $request->image;
-                $uploadFile1 = $img->store('category_images') ;
+                $uploadFile1 = $img->store('category_images');
             } else {
                 $size1 = '';
                 $uploadFile1 = '';
@@ -106,13 +106,14 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function editCategory(Request $request,$id){
+    public function editCategory(Request $request, $id)
+    {
 
         $category = Category::with('brands')->find($id);
 
 
 
-        if($category){
+        if ($category) {
 
             return response()->json([
                 'category' => $category,
@@ -120,9 +121,7 @@ class CategoryController extends Controller
                 'allBrands' => Brand::all(),
 
             ]);
-
         }
-
     }
 
     public function updateCategory(Request $request, $id)
@@ -150,31 +149,30 @@ class CategoryController extends Controller
                 if ($request->hasFile('image')) {
 
                     $img = $request->image;
-                    $uploadFile1 = $img->store('category_images') ;
+                    $uploadFile1 = $img->store('category_images');
                 } else {
                     $size1 = '';
                     $uploadFile1 = $category->image;
                 }
-                    $category->image = $uploadFile1;
-                    $category->name = $request->name;
-                    $category->save();
+                $category->image = $uploadFile1;
+                $category->name = $request->name;
+                $category->save();
 
-                    $brands = $request->brand;
+                $brands = $request->brand;
 
-                    $category->brands()->sync($brands);
+                $category->brands()->sync($brands);
 
-                    return response()->json([
-                        'status' => 200,
-                        'category' => $category,
-                        'message' => 'category Updated Successfully',
-                    ]);
-                }
-
-
+                return response()->json([
+                    'status' => 200,
+                    'category' => $category,
+                    'message' => 'category Updated Successfully',
+                ]);
+            }
         }
     }
 
-    public function listrequesttochangecategories(Request $request){
+    public function listrequesttochangecategories(Request $request)
+    {
         $sortColumn = $request->input('sort', 'created_at');
         $sortDirection = $request->input('direction', 'desc');
 
@@ -188,7 +186,7 @@ class CategoryController extends Controller
         $listRequestCategorie = RequestCategorie::orderBy($sortColumn, $sortDirection)
             ->where(function ($query) use ($search) {
                 return $query->where('created_at', 'like', '%' . $search . '%')
-                 ->orWhereHas('user', function ($query) use($search) {
+                    ->orWhereHas('user', function ($query) use ($search) {
                         $query->where('store_name', 'like', '%' . $search . '%');
                     });
             })->paginate($perPage);
@@ -196,10 +194,11 @@ class CategoryController extends Controller
         // if($request->ajax()){
         //     return datatables()->of(Category::all())->toJson();
         // }
-        return view('admin.category.listrequesttochangecategories', compact('listRequestCategorie','listCategorys', 'sortColumn', 'sortDirection'));
+        return view('admin.category.listrequesttochangecategories', compact('listRequestCategorie', 'listCategorys', 'sortColumn', 'sortDirection'));
     }
 
-    public function rejectRequest(Request $request,$id) {
+    public function rejectRequest(Request $request, $id)
+    {
 
         $reject = RequestCategorie::find($id);
 
@@ -208,16 +207,16 @@ class CategoryController extends Controller
         return response()->json([
             'message' => 'Request Rejected '
         ]);
-
     }
 
-    public function approveRequest(Request $request,$id) {
+    public function approveRequest(Request $request, $id)
+    {
 
-        $requestCategorie = RequestCategorie::where('id',$id)->first();
+        $requestCategorie = RequestCategorie::where('id', $id)->first();
 
 
-        $user = User::where('id',$requestCategorie->user_id)->first();
-        if($user){
+        $user = User::where('id', $requestCategorie->user_id)->first();
+        if ($user) {
             $user->categories = $requestCategorie->new_categories;
             $user->save();
             $requestCategorie->delete();
@@ -225,8 +224,6 @@ class CategoryController extends Controller
             return response()->json([
                 'message' => 'Request Approved '
             ]);
-
         }
-
     }
 }

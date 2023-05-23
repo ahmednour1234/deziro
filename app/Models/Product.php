@@ -70,17 +70,23 @@ class Product extends Model
     {
         parent::boot();
 
-        static::updating(function ($product) {
-            if ($product->quantity === 0) {
-                $product->status = 'sold';
-                $product->save();
-            }
+        static::addGlobalScope('inactive', function (Builder $builder) {
+            $builder->where('products.status', '<>', 'inactive');
         });
     }
-
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id', 'id');
+    }
+
+    public function featuredProducts()
+    {
+        return $this->hasMany(FeaturedProducts::class, 'product_id', 'id');
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(\App\Models\OrderItem::class);
     }
 
     public function user()
@@ -252,11 +258,7 @@ class Product extends Model
         return $query->whereExists(function ($query) {
             $query->from('users')
                 ->whereRaw('users.id = products.user_id')
-                ->where(function ($query) {
-                    $query->where('users.status', 'accept')
-                        ->orWhere('users.status', 'active');
-                })
-                ->where('users.is_active', 1);
+                ->where('users.status', 'active');
         });
     }
 
