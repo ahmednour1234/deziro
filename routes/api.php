@@ -89,6 +89,7 @@ Route::group(['prefix' => 'checkout', 'middleware' => 'auth:api'], function ($ro
     // Route::get('cart', [CartController::class, 'get']);
     // Route::post('cart/add/{id}', [CartController::class, 'store']);
     Route::post('cart/add-items', [CartController::class, 'storeItems']);
+    Route::post('cart/apply-coupon', [CartController::class, 'applyCoupon']);
     Route::post('save-order', [CheckoutController::class, 'saveOrder']);
 });
 

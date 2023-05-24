@@ -116,6 +116,11 @@ class CartController extends Controller
     //     }
     // }
 
+    public function applyCoupon(Request $request)
+    {
+        return Cart::applyCoupon($request['coupon']);
+    }
+
     /**
      * Update the specified resource in storage.
      *

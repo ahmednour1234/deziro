@@ -29,6 +29,7 @@ class Cart extends JsonResource
             'grand_total' => number_format($this->grand_total, 4, '.', ''),
             // 'base_grand_total' => number_format($this->base_grand_total, 4, '.', ''),
             'sub_total' => number_format($this->sub_total, 4, '.', ''),
+            'discount_amount' => number_format($this->discount_amount, 4, '.', ''),
             // 'base_sub_total' => number_format($this->base_sub_total, 4, '.', ''),
             'fees_amount' => number_format($this->fees_amount, 4, '.', ''),
             // 'base_fees_amount' => number_format($this->base_fees_amount, 4, '.', ''),

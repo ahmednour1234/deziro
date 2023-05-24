@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers\Mobile;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ConfirmOrderForm;
 use Cart;
 use Exception;
+use ResponseException;
 use Illuminate\Support\Str;
-use App\Repositories\OrderRepository;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Repositories\CartRepository;
-use App\Repositories\CartItemRepository;
-use App\Http\Resources\Order as OrderResource;
-use App\Http\Resources\Cart as CartResource;
 use Illuminate\Support\Facades\Auth;
+use App\Repositories\OrderRepository;
+use App\Http\Requests\ConfirmOrderForm;
+use App\Repositories\CartItemRepository;
+use App\Http\Resources\Cart as CartResource;
+use App\Http\Resources\Order as OrderResource;
 
 class CheckoutController extends Controller
 {
@@ -72,7 +74,7 @@ class CheckoutController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function saveOrder()
+    public function saveOrder(Request $request)
     {
         if (Cart::hasError()) {
             return response()->json([
@@ -91,16 +93,20 @@ class CheckoutController extends Controller
         }
 
         try {
-            Cart::collectTotals();
-
-            $this->validateOrder();
-
+            // dd(1);
+            Cart::collectTotals(null, $request->has('forceNoCoupon') && $request->input('forceNoCoupon') == 1);
             $dataArray = Cart::prepareDataForOrder();
+            // dd($dataArray[0]);
+            // dd(json_encode($dataArray[0]));
             $orders = array();
 
             foreach ($dataArray as $data) {
+                // dd($data);
+
                 $orders[] = $this->orderRepository->create(array_merge($data, ['payment' => request()->get('payment')]));
+                // dd(1);
             }
+            // dd(1);
 
             Cart::deActivateCart();
 
@@ -108,6 +114,8 @@ class CheckoutController extends Controller
                 'success' => true,
                 'orders'   => OrderResource::collection($orders),
             ]);
+        } catch (\App\Exceptions\ResponseException $e) {
+            return $e->getResponse();
         } catch (Exception $e) {
             \Log::error($e);
             return response()->json([

@@ -33,10 +33,9 @@ class OrderItemRepository extends Repository
         ) {
             $data['product_id'] = $data['product']->id;
             $data['product_type'] = get_class($data['product']);
-
             unset($data['product']);
         }
-
+        // dd(parent::create($data));
         return parent::create($data);
     }
 }

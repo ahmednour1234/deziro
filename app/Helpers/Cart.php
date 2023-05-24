@@ -2,20 +2,25 @@
 
 namespace App\Helpers;
 
-use App\Http\Resources\User as ResourcesUser;
 use Exception;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Event;
-use App\Models\Address;
-use App\Models\Cart as CartModel;
-use App\Models\CartPayment;
 use App\Models\User;
-use App\Repositories\CartItemRepository;
-use App\Repositories\CartRepository;
+use App\Models\Order;
+use App\Models\Coupon;
+use ResponseException;
+use App\Models\Address;
+use App\Models\Product;
 use App\Traits\CartTools;
+use App\Models\CartPayment;
+use Illuminate\Support\Arr;
 use App\Traits\CartValidators;
+use App\Models\Cart as CartModel;
+use App\Repositories\CartRepository;
+use Illuminate\Support\Facades\Event;
 use App\Repositories\AddressRepository;
 use App\Repositories\ProductRepository;
+use App\Repositories\CartItemRepository;
+use App\Http\Resources\Cart as CartResource;
+use App\Http\Resources\User as ResourcesUser;
 
 class Cart
 {
@@ -126,6 +131,63 @@ class Cart
         // }
     }
 
+    public function validateCoupon($couponCode, $assignPromoCodeToCart = false, $flagToReturnWhenFails = null, $takeCouponFromSelfInstance = false)
+    {
+        // dd($flagToReturnWhenFails);
+        if (!$couponCode && !$takeCouponFromSelfInstance) {
+            return $flagToReturnWhenFails ?? [
+                'success' => false,
+                'error' =>  __('Promocode is Required')
+            ];
+        }
+        $cart = $this->getCart();
+        if (!$cart) {
+            return $flagToReturnWhenFails ?? ['success' => false, 'error' =>  __('Sorry! This Promocode cannot be applied to cart')];
+        }
+        $coupon = $takeCouponFromSelfInstance ? Coupon::where('id', $cart->coupon_id)->get()->first() : Coupon::where('code', $couponCode)->get()->first();
+        if (!$coupon || !$coupon->isActive()) {
+            return $flagToReturnWhenFails ?? ['success' => false, 'error' =>  __(!$coupon ? 'Sorry! This Promocode is not available' : 'Sorry! This Promocode is expired')];
+        }
+
+        $usedPromocodes = Order::where('coupon_id', $coupon->id)->count();
+
+        if ($coupon->usage_limit_per_coupon && $coupon->usage_limit_per_coupon <= $usedPromocodes) {
+            return $flagToReturnWhenFails ?? ['success' => false, 'error' =>  __('Sorry! This Promocode reached its maximum')];
+        }
+
+        $usedPromocodesPerUser = Order::where('user_id', auth()->user()->id)->where('coupon_id', $coupon->id)->count();
+
+        if ($coupon->usage_limit_per_user && $coupon->usage_limit_per_user <= $usedPromocodesPerUser) {
+            return $flagToReturnWhenFails ?? ['success' => false, 'error' =>  __('Sorry! You have used this Promocode many times')];
+        }
+
+        if ($coupon->min_order_amount && $coupon->min_order_amount > $cart->sub_total) {
+            return $flagToReturnWhenFails ?? ['success' => false, 'error' =>  __('Sorry! the minimum amount for this Promocode is $' . $coupon->min_order_amount)];
+        }
+
+        if ($assignPromoCodeToCart) {
+            $cart->coupon_id = $coupon->id;
+            $cart->save();
+        }
+
+        return $flagToReturnWhenFails ? !$flagToReturnWhenFails : ['success' => true, 'error' => null, 'message' => 'Promocode Successfully Applied :)'];
+    }
+
+
+    public function applyCoupon($couponCode)
+    {
+        $response = $this->validateCoupon($couponCode, true);
+
+        if (!$response['success']) {
+            return $response;
+        }
+
+        $this->collectTotals(true);
+        $response['data'] = new CartResource($this->getCart());
+        return $response;
+        // return 
+    }
+
     /**
      * Add items in a cart with some cart and item details.
      *
@@ -146,9 +208,7 @@ class Cart
             return ['warning' => __('Item cannot be added to cart.')];
         }
 
-        // dd($cart);
         $product = $this->productRepository->active()->activeUser()->where('products.id', $productId)->first();
-        // dd($this->productRepository->active()->activeUser()->where('products.id', $productId)->first());
         if (!$product) {
             return ['warning' => "-1"];
         }
@@ -160,7 +220,6 @@ class Cart
             else
                 return ['warning' => __('"' . $product->name . '" is not available.')];
         }
-
         if ($product->status != 'active') {
             return ['warning' => __('Inactive item cannot be added to cart.')];
         }
@@ -244,7 +303,6 @@ class Cart
         $this->setCart($cart);
 
         $this->putCart($cart);
-        // dd($cart);
         return $cart;
     }
 
@@ -448,7 +506,7 @@ class Cart
      *
      * @return void
      */
-    public function collectTotals(): void
+    public function collectTotals($skipCouponValidation = null, $forceNoCoupon = null)
     {
         if (!$this->validateItems()) {
             return;
@@ -470,16 +528,45 @@ class Cart
         $quantities = 0;
 
         foreach ($cart->items as $item) {
-            $cart->discount_amount += $item->discount_amount;
-            $cart->base_discount_amount += $item->base_discount_amount;
+            // $cart->discount_amount += $item->discount_amount;
+            // $cart->base_discount_amount += $item->base_discount_amount;
 
             $cart->sub_total = (float) $cart->sub_total + $item->total;
             $cart->base_sub_total = (float) $cart->base_sub_total + $item->base_total;
 
             $quantities += $item->quantity;
         }
+        if ($cart->coupon_id) {
+            $coupon_valid = true;
+            if (!$skipCouponValidation) {
+                // dd(!$forceNoCoupon ? null : false);
+                $coupon_valid = $this->validateCoupon(null, null, !$forceNoCoupon ? null : false, true);
+                // dd($coupon_valid);
+                if (!$forceNoCoupon && !$coupon_valid['success']) {
+                    // dd($coupon_valid);
+                    throw new \App\Exceptions\ResponseException($coupon_valid);
+                    // return response($coupon_valid, 200);
+                }
+            }
+            if ($coupon_valid) {
+                $coupon = Coupon::find($cart->coupon_id);
+                if ($coupon) {
+                    if ($coupon->is_percentage) {
+                        $cart->discount_amount = (float) $cart->sub_total * $coupon->discount_value / 100;
+                        $cart->base_discount_amount = (float) $cart->base_sub_total * $coupon->discount_value / 100;
+                        // $cart->discount_percentage = (float) $coupon->discount_value;
+                    } else {
+                        $cart->discount_amount = (float) $cart->sub_total - $coupon->discount_value;
+                        $cart->base_discount_amount = (float) $cart->base_sub_total - $coupon->discount_value;
+                        // $cart->discount_percentage = (float) $cart->discount_amount / $cart->sub_total * 100;
+                    }
+                }
+            }
+        }
 
-        $cart->items_qty = $quantities;
+        if ($cart)
+
+            $cart->items_qty = $quantities;
 
         $cart->items_count = $cart->items->count();
 
@@ -527,18 +614,44 @@ class Cart
         $data['grand_total'] = $data['base_grand_total'] = 0;
         $data['discount_amount'] = $data['base_discount_amount'] = 0;
         $data['fees_amount'] = $data['base_fees_amount'] = 0;
+        $data['discount_percent'] = 0;
+        $data['coupon_id'] = null;
 
         $quantities = 0;
 
         foreach ($items as $item) {
-            $data['discount_amount'] += $item['discount_amount'];
-            $data['base_discount_amount'] += $item['base_discount_amount'];
+            // $data['discount_amount'] += $item['discount_amount'];
+            // $data['base_discount_amount'] += $item['base_discount_amount'];
 
             $data['sub_total'] = (float) $data['sub_total'] + $item['total'];
             $data['base_sub_total'] = (float) $data['base_sub_total'] + $item['base_total'];
 
             $quantities += $item['quantity'];
         }
+
+        if ($cart->coupon_id) {
+            //KEEP IMPORTANT
+            //EVEN IF REMOVED TO NOT SPLIT ORDER
+            //MOVE TO THE INNER CODE OF THE MAIN FUNCTION
+            if ($this->validateCoupon(null, null, false, true)) {
+
+                $coupon = Coupon::find($cart->coupon_id);
+                if ($coupon) {
+                    if ($coupon->is_percentage) {
+                        $data['discount_amount'] = (float) $data['sub_total'] * $coupon->discount_value / 100;
+                        $data['base_discount_amount'] = (float) $data['base_sub_total'] * $coupon->discount_value / 100;
+                        $data['discount_percent'] = (float) $coupon->discount_value;
+                    } else {
+                        $data['discount_amount'] = (float)$coupon->discount_value;
+                        $data['base_discount_amount'] = (float)$coupon->discount_value;
+                        $data['discount_percent'] = (float) $coupon->discount_value / $data['sub_total'] * 100;
+                    }
+                    $data['coupon_id'] = $cart->coupon_id;
+                }
+            }
+        }
+
+
         $data['items_qty'] = $quantities;
 
         $data['items_count'] = count($items);
@@ -551,6 +664,7 @@ class Cart
 
         $data['discount_amount'] = round($data['discount_amount'], 2);
         $data['base_discount_amount'] = round($data['base_discount_amount'], 2);
+        $data['discount_percent'] = round($data['discount_percent'], 2);
 
         $data['sub_total'] = round($data['sub_total'], 2);
         $data['base_sub_total'] = round($data['base_sub_total'], 2);
@@ -626,6 +740,7 @@ class Cart
                 'user_first_name'       => $result['user_first_name'],
                 'user_last_name'        => $result['user_last_name'],
                 'user'                  => auth()->guard('api')->check() ? auth()->guard('api')->user() : null,
+                'coupon_id'             => $data['coupon_id'],
                 'total_item_count'      => $data['items_count'],
                 'total_qty_ordered'     => $data['items_qty'],
                 'total_qty_ordered'     => $data['items_qty'],
@@ -635,6 +750,7 @@ class Cart
                 'sub_total'             => $data['sub_total'],
                 'base_sub_total'        => $data['base_sub_total'],
                 'discount_amount'       => $data['discount_amount'],
+                'discount_percent'      => $data['discount_percent'],
                 'base_discount_amount'  => $data['base_discount_amount'],
                 'fees_percent'          => getFeesPercent(),
                 'fees_amount'           => $data['fees_amount'],
@@ -677,7 +793,6 @@ class Cart
             'base_discount_amount' => $data['base_discount_amount'],
             // 'additional'           => is_array($data['additional']) ? $data['additional'] : [],
         ];
-
 
         return $finalData;
     }
