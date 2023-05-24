@@ -26,6 +26,7 @@ class Order extends JsonResource
             'status' => $this->status,
             'status_label' => $this->status_label,
             // 'shipping_method' => $this->shipping_method,
+            'coupon_id' => $this->coupon_id,
             'total_item_count' => number_format($this->total_item_count),
             'total_qty_ordered' => number_format($this->total_qty_ordered),
             'exchange_rate' => $this->exchange_rate,
