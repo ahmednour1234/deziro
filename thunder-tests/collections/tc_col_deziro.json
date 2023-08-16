@@ -92,7 +92,7 @@
             "method": "POST",
             "sortNum": 20000,
             "created": "2023-08-16T11:02:44.621Z",
-            "modified": "2023-08-16T13:56:54.545Z",
+            "modified": "2023-08-16T16:43:46.105Z",
             "headers": [],
             "params": [],
             "body": {
@@ -105,7 +105,7 @@
                     },
                     {
                         "name": "password",
-                        "value": "asdasd"
+                        "value": "newpass"
                     }
                 ]
             },
@@ -254,11 +254,11 @@
             "colId": "92e6b80d-8038-45a6-89d1-e69347850e40",
             "containerId": "3ed30270-038c-4e58-808a-88c93a33c806",
             "name": "resetPassword",
-            "url": "{{host}}/resetPassword",
+            "url": "{{host1}}/resetPassword",
             "method": "POST",
             "sortNum": 100000,
             "created": "2023-08-16T13:51:14.818Z",
-            "modified": "2023-08-16T14:37:24.093Z",
+            "modified": "2023-08-16T16:30:13.577Z",
             "headers": [],
             "params": [
                 {
@@ -292,6 +292,72 @@
             "modified": "2023-08-16T14:05:30.368Z",
             "headers": [],
             "params": [],
+            "tests": []
+        },
+        {
+            "_id": "eec3df18-b64a-41ae-b88c-ceafbd8762c6",
+            "colId": "92e6b80d-8038-45a6-89d1-e69347850e40",
+            "containerId": "3ed30270-038c-4e58-808a-88c93a33c806",
+            "name": "checkcode",
+            "url": "{{host1}}/checkcode?code=72BM780",
+            "method": "POST",
+            "sortNum": 130000,
+            "created": "2023-08-16T16:31:37.442Z",
+            "modified": "2023-08-16T16:36:02.233Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "code",
+                    "value": "72BM780",
+                    "isPath": false
+                }
+            ],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "code",
+                        "value": "T4FR5380"
+                    },
+                    {
+                        "name": "email",
+                        "value": "alialmalla2082020@gmail.com"
+                    }
+                ]
+            },
+            "tests": []
+        },
+        {
+            "_id": "d8890346-cd62-4726-aed5-3add13acbaad",
+            "colId": "92e6b80d-8038-45a6-89d1-e69347850e40",
+            "containerId": "3ed30270-038c-4e58-808a-88c93a33c806",
+            "name": "changePassword",
+            "url": "{{host}}/changePassword",
+            "method": "POST",
+            "sortNum": 140000,
+            "created": "2023-08-16T16:37:08.526Z",
+            "modified": "2023-08-16T16:43:27.566Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "reset",
+                        "value": "1"
+                    },
+                    {
+                        "name": "password",
+                        "value": "newpass"
+                    },
+                    {
+                        "name": "password_confirmation",
+                        "value": "newpass"
+                    }
+                ]
+            },
             "tests": []
         }
     ],
