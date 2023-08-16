@@ -32,7 +32,10 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/login', 'login');
     Route::post('/register', 'register');
     Route::post('/logout', 'logout');
+    Route::post('/resetPassword','resetPassword');
+    Route::post('/checkcode','checkcode');
 });
+
 Route::get('/profile', [AuthController::class, 'profile']);
 Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
 Route::post('/changePassword', [AuthController::class, 'changePassword']);
@@ -98,6 +101,7 @@ Route::group(['prefix' => 'orders', 'middleware' => 'auth:api'], function ($rout
     // Route::post('save-payment/{id}', [OrderController::class, 'savePayment']);
     // Route::post('rate/{id}', [OrderController::class, 'rateOrder']);
     // Route::get('/{status}', [OrderController::class, 'getOrdersByStatus']);
+    Route::post('/cancel/{id}',[OrderController::class, 'cancel']);
 });
 
 // Route::get('/getCategory', 'App\Http\Controllers\Mobile\MobileController@getCategory');
