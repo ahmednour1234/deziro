@@ -57,7 +57,7 @@ class OrderRepository extends Repository
         $order->save();
         // dd($data['payment']);
         $order->payment()->create($data['payment']);
-
+        $data['address']['type'] = 'order';
         $order->addresses()->create($data['address']);
 
         unset($data['address']['user_id']);

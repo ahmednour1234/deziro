@@ -1,0 +1,310 @@
+{
+    "_id": "92e6b80d-8038-45a6-89d1-e69347850e40",
+    "colName": "deziro",
+    "created": "2023-08-16T11:01:46.048Z",
+    "sortNum": 10000,
+    "folders": [
+        {
+            "_id": "3ed30270-038c-4e58-808a-88c93a33c806",
+            "name": "authentication",
+            "containerId": "",
+            "created": "2023-08-16T11:02:32.868Z",
+            "sortNum": 10000
+        },
+        {
+            "_id": "17602ad9-b48a-4247-8fed-cf5ba6e37ee0",
+            "name": "address",
+            "containerId": "",
+            "created": "2023-08-16T12:08:46.378Z",
+            "sortNum": 20000
+        },
+        {
+            "_id": "367ac88e-d0d7-4bfb-9435-9aef8e8a074d",
+            "name": "order",
+            "containerId": "",
+            "created": "2023-08-16T12:18:31.678Z",
+            "sortNum": 30000
+        }
+    ],
+    "requests": [
+        {
+            "_id": "e142a594-8410-436c-a3e7-6c49a0873418",
+            "colId": "92e6b80d-8038-45a6-89d1-e69347850e40",
+            "containerId": "3ed30270-038c-4e58-808a-88c93a33c806",
+            "name": "register",
+            "url": "{{host}}/register",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2023-08-16T11:02:39.804Z",
+            "modified": "2023-08-16T11:55:51.502Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "type",
+                        "value": "2"
+                    },
+                    {
+                        "name": "first_name",
+                        "value": "al"
+                    },
+                    {
+                        "name": "last_name",
+                        "value": "malla"
+                    },
+                    {
+                        "name": "email",
+                        "value": "a@a.q"
+                    },
+                    {
+                        "name": "phone",
+                        "value": "76600500"
+                    },
+                    {
+                        "name": "password",
+                        "value": "asdasd"
+                    },
+                    {
+                        "name": "confirm_password",
+                        "value": "asdasd"
+                    },
+                    {
+                        "name": "countryCode",
+                        "value": "+961"
+                    },
+                    {
+                        "name": "countryISOCode",
+                        "value": "LB"
+                    }
+                ]
+            },
+            "tests": []
+        },
+        {
+            "_id": "40e88c93-adce-4166-851c-8e4ce34a25ea",
+            "colId": "92e6b80d-8038-45a6-89d1-e69347850e40",
+            "containerId": "3ed30270-038c-4e58-808a-88c93a33c806",
+            "name": "login",
+            "url": "{{host}}/login",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2023-08-16T11:02:44.621Z",
+            "modified": "2023-08-16T13:56:54.545Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "email",
+                        "value": "alialmalla2082020@gmail.com"
+                    },
+                    {
+                        "name": "password",
+                        "value": "asdasd"
+                    }
+                ]
+            },
+            "tests": []
+        },
+        {
+            "_id": "b584cab9-949e-4d09-b0f8-710bb97d7c0e",
+            "colId": "92e6b80d-8038-45a6-89d1-e69347850e40",
+            "containerId": "17602ad9-b48a-4247-8fed-cf5ba6e37ee0",
+            "name": "getAddress",
+            "url": "{{host}}/getAddress",
+            "method": "GET",
+            "sortNum": 30000,
+            "created": "2023-08-16T12:08:50.777Z",
+            "modified": "2023-08-16T12:14:52.851Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "7a11b369-98b3-4574-a574-158a34789267",
+            "colId": "92e6b80d-8038-45a6-89d1-e69347850e40",
+            "containerId": "17602ad9-b48a-4247-8fed-cf5ba6e37ee0",
+            "name": "updateAddress",
+            "url": "{{host}}/updateAddress",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2023-08-16T12:09:14.272Z",
+            "modified": "2023-08-16T12:12:42.602Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "name",
+                        "value": "my homess"
+                    },
+                    {
+                        "name": "city",
+                        "value": "beirut"
+                    },
+                    {
+                        "name": "address_details",
+                        "value": "verdun street"
+                    },
+                    {
+                        "name": "is_default",
+                        "value": "1"
+                    },
+                    {
+                        "name": "id",
+                        "value": "173"
+                    }
+                ]
+            },
+            "tests": []
+        },
+        {
+            "_id": "030fad4c-78c7-47d7-ba19-2a09deaa4281",
+            "colId": "92e6b80d-8038-45a6-89d1-e69347850e40",
+            "containerId": "17602ad9-b48a-4247-8fed-cf5ba6e37ee0",
+            "name": "addAddress",
+            "url": "{{host}}/addAddress",
+            "method": "POST",
+            "sortNum": 60000,
+            "created": "2023-08-16T12:09:37.918Z",
+            "modified": "2023-08-16T12:11:26.629Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "name",
+                        "value": "my home"
+                    },
+                    {
+                        "name": "city",
+                        "value": "beirut"
+                    },
+                    {
+                        "name": "address_details",
+                        "value": "al hamra street"
+                    },
+                    {
+                        "name": "location",
+                        "value": "33.688,35.586"
+                    },
+                    {
+                        "name": "is_default",
+                        "value": "0"
+                    }
+                ]
+            },
+            "tests": []
+        },
+        {
+            "_id": "fb757493-854b-4cb7-8435-5290cd15c195",
+            "colId": "92e6b80d-8038-45a6-89d1-e69347850e40",
+            "containerId": "17602ad9-b48a-4247-8fed-cf5ba6e37ee0",
+            "name": "getSingleAddress",
+            "url": "{{host}}/getSingleAddress?id=173",
+            "method": "GET",
+            "sortNum": 70000,
+            "created": "2023-08-16T12:13:10.985Z",
+            "modified": "2023-08-16T12:16:19.056Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "id",
+                    "value": "173",
+                    "isPath": false
+                }
+            ],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "id",
+                        "value": "173"
+                    }
+                ]
+            },
+            "tests": []
+        },
+        {
+            "_id": "1c9beb93-0ab6-418f-b6c4-13809b5f9cda",
+            "colId": "92e6b80d-8038-45a6-89d1-e69347850e40",
+            "containerId": "367ac88e-d0d7-4bfb-9435-9aef8e8a074d",
+            "name": "orders",
+            "url": "{{host}}/orders",
+            "method": "GET",
+            "sortNum": 80000,
+            "created": "2023-08-16T12:18:45.537Z",
+            "modified": "2023-08-16T12:18:51.304Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "49b698b3-45bc-430f-a551-aaa9e0cac6ea",
+            "colId": "92e6b80d-8038-45a6-89d1-e69347850e40",
+            "containerId": "3ed30270-038c-4e58-808a-88c93a33c806",
+            "name": "resetPassword",
+            "url": "{{host}}/resetPassword",
+            "method": "POST",
+            "sortNum": 100000,
+            "created": "2023-08-16T13:51:14.818Z",
+            "modified": "2023-08-16T14:37:24.093Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "email",
+                    "value": "alialmalla2082020@gmail.com",
+                    "isDisabled": true,
+                    "isPath": false
+                }
+            ],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "email",
+                        "value": "alialmalla2082020@gmail.com"
+                    }
+                ]
+            },
+            "tests": []
+        },
+        {
+            "_id": "df1d2435-bbe8-4ed7-9927-c2f15d1e51e3",
+            "colId": "92e6b80d-8038-45a6-89d1-e69347850e40",
+            "containerId": "367ac88e-d0d7-4bfb-9435-9aef8e8a074d",
+            "name": "cancelOrders",
+            "url": "{{host}}/orders/cancel/159",
+            "method": "POST",
+            "sortNum": 120000,
+            "created": "2023-08-16T14:03:31.795Z",
+            "modified": "2023-08-16T14:05:30.368Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        }
+    ],
+    "settings": {
+        "headers": [
+            {
+                "name": "Accept",
+                "value": "application/json"
+            }
+        ],
+        "auth": {
+            "type": "bearer",
+            "bearer": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL3JlZ2lzdGVyIiwiaWF0IjoxNjkyMTg2OTUxLCJuYmYiOjE2OTIxODY5NTEsImp0aSI6ImJhdzVvTjNzWmxHSjVjYWQiLCJzdWIiOiI3NiIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.kJ61IhBUR43sJOcv76etL_gEsH5Nk2DyMg26rTuzAvE"
+        }
+    }
+}

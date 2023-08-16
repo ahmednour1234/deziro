@@ -3,13 +3,19 @@
 namespace App\Http\Controllers\Mobile;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PasswordResetMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\Mail\Message;
+
 
 class AuthController extends Controller
 {
@@ -206,7 +212,6 @@ class AuthController extends Controller
         ]);
     }
 
-
     public function updateProfile(Request $request)
     {
 
@@ -296,19 +301,159 @@ class AuthController extends Controller
         }
     }
 
+
+    // public function resetPassword(Request $request)
+    // {
+    //     $request->validate([
+    //         'email' => 'required|string|email|max:255|exists:users',
+    //     ]);
+
+    //     try {
+    //         $otp = rand(1000, 9999);
+
+    //         DB::transaction(function () use ($request, $otp) {
+    //             User::where('email', $request->email)->update(['otp' => $otp]);
+    //             Mail::send([], [], function (Message $message) use ($otp, $request) {
+    //                 $message->to($request->email)
+    //                     ->subject('OTP Code')
+    //                     ->text('Your OTP is : ' . $otp); // for HTML rich messages
+    //             });
+    //         });
+
+    //         return response()->json([
+    //             'status' => 200,
+    //             'message' => 'OTP sent successfully'
+    //         ]);
+    //     } catch (Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => $e->getMessage()
+    //         ], 200);
+    //     }
+    // }
+
+
+    public function resetPassword(Request $request)
+    {
+        $email = $request->email;
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User with the given email does not exist.'
+            ]);
+        } else {
+            // Generate a random code
+            $code = strtoupper(Str::random(4) . rand(1000, 9999));
+
+            // Save the code to the user's record (you might need a 'password_reset_code' column in the users table)
+            $user->code = $code;
+            $user->save();
+
+            // Send the code to the user's email
+            try {
+                Mail::to($user->email)->send(new PasswordResetMail($code));
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while sending the email.'
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password reset code has been sent to your email.'
+            ]);
+        }
+    }
+
+    public function verifyResetCode(Request $request)
+    {
+        $email = $request->email;
+        $enteredCode = $request->code;
+
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User with the given email does not exist.'
+            ]);
+        }
+
+        if ($user->password_reset_code !== $enteredCode) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Entered code does not match the stored code.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Code matches.'
+        ]);
+    }
+
+    // public function changePassword(Request $request)
+    // {
+    //     $user = Auth::user();
+    //     $data = $request->all();
+
+    //     $rest = $request->reset;
+
+    //     $validator = Validator::make(
+    //         $request->all(),
+    //         [
+    //             'oldpassword' => 'required',
+    //             'password' => 'required|confirmed|min:6|string',
+    //             'password_confirmation' => 'required',
+    //         ]
+    //     );
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'errors' => $validator->messages(),
+    //         ], 200);
+    //     } else {
+
+    //         if (Hash::check($data['oldpassword'], $user->password)) {
+    //             $isPasswordChanged = true;
+
+    //             $user->password = bcrypt($data['password']);
+    //             $user->save();
+
+    //             return response()->json([
+    //                 'success' => true,
+    //                 'message' => 'Password has been changed successfully.',
+    //             ], 200);
+    //         } else {
+
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'The old Password does not match.',
+    //             ], 200);
+    //         }
+    //     }
+    // }
+
     public function changePassword(Request $request)
     {
         $user = Auth::user();
         $data = $request->all();
+        $reset = $request->reset;
 
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'oldpassword' => 'required',
-                'password' => 'required|confirmed|min:6|string',
-                'password_confirmation' => 'required',
-            ]
-        );
+        $validatorRules = [
+            'password' => 'required|confirmed|min:6|string',
+            'password_confirmation' => 'required',
+        ];
+
+        if (!$reset) {
+            $validatorRules['oldpassword'] = 'required';
+        }
+
+        $validator = Validator::make($data, $validatorRules);
 
         if ($validator->fails()) {
             return response()->json([
@@ -316,10 +461,7 @@ class AuthController extends Controller
                 'errors' => $validator->messages(),
             ], 200);
         } else {
-
-            if (Hash::check($data['oldpassword'], $user->password)) {
-                $isPasswordChanged = true;
-
+            if ($reset || Hash::check($data['oldpassword'], $user->password)) {
                 $user->password = bcrypt($data['password']);
                 $user->save();
 
@@ -328,10 +470,9 @@ class AuthController extends Controller
                     'message' => 'Password has been changed successfully.',
                 ], 200);
             } else {
-
                 return response()->json([
                     'success' => false,
-                    'message' => 'The old Password does not match.',
+                    'message' => 'The old password does not match.',
                 ], 200);
             }
         }

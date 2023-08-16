@@ -144,6 +144,7 @@ class MobileController extends Controller
     public function addAddress(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'name'=> 'required|string|min:3',
             'city' => 'required|string|min:3',
             'address_details' => 'required|min:3|string',
 
@@ -166,6 +167,7 @@ class MobileController extends Controller
             }
 
             $address->user_id = auth()->user()->id;
+            $address->name = $request->name;
             $address->city = $request->city;
             $address->address_details = $request->address_details;
             $address->location = $request->location;
@@ -191,6 +193,7 @@ class MobileController extends Controller
                 $addresses->save();
             }
         }
+        $address->name = $request->name;
         $address->city = $request->city;
         $address->address_details = $request->address_details;
         $address->location = $request->location;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mobile;
 use App\Http\Controllers\Controller;
 use App\Repositories\OrderItemRepository;
 use App\Repositories\OrderRepository;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\Order as OrderResource;
 use App\Http\Resources\GroupedOrder as GroupedOrderResource;
@@ -228,7 +229,7 @@ class OrderController extends Controller
             //             'success' => false,
             //             'message'   => 'LTN is required.',
             //         ]);
-            // } else 
+            // } else
             {
                 return response()->json([
                     'success' => false,
@@ -292,6 +293,40 @@ class OrderController extends Controller
             return response()->json([
                 'success' => false,
                 'message'    => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    public function cancel($id)
+    {
+        $user_id = Auth::user()->id;
+        $order = Order::where('id', $id)->where('user_id', $user_id)->first();
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found for this user.',
+            ]);
+        }
+
+        $currentTime = Carbon::now('Asia/Beirut');
+        $orderUpdatedAt = Carbon::createFromTimeString($order->updated_at);
+        $timeDifference = $orderUpdatedAt->diffInMinutes($currentTime);
+       dd($timeDifference);
+        if ($timeDifference < 1) {
+
+            $order->status = Order::STATUS_CANCELED;
+            // Cancel the order
+            // You can implement your cancellation logic here
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order has been canceled.',
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order cannot be canceled as it has been more than 1 minute since the last update.',
             ]);
         }
     }

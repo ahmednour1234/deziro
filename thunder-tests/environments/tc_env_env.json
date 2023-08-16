@@ -1,0 +1,14 @@
+{
+    "_id": "13beb178-7464-4b29-9678-b69c3aecc99f",
+    "name": "env",
+    "default": true,
+    "sortNum": 10000,
+    "created": "2023-08-16T11:01:50.572Z",
+    "modified": "2023-08-16T11:01:50.572Z",
+    "data": [
+        {
+            "name": "host",
+            "value": "http://127.0.0.1:8000/api"
+        }
+    ]
+}
