@@ -9,6 +9,10 @@
         {
             "name": "host",
             "value": "http://127.0.0.1:8000/api"
+        },
+        {
+            "name": "host1",
+            "value": "https://deziro.syscomdemos.com/api"
         }
     ]
 }

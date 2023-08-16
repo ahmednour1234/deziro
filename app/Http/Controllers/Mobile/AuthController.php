@@ -368,8 +368,10 @@ class AuthController extends Controller
         }
     }
 
-    public function verifyResetCode(Request $request)
+    public function checkcode(Request $request)
     {
+
+
         $email = $request->email;
         $enteredCode = $request->code;
 
@@ -382,7 +384,7 @@ class AuthController extends Controller
             ]);
         }
 
-        if ($user->password_reset_code !== $enteredCode) {
+        if ($user->code !== $enteredCode) {
             return response()->json([
                 'success' => false,
                 'message' => 'Entered code does not match the stored code.'
@@ -440,9 +442,11 @@ class AuthController extends Controller
 
     public function changePassword(Request $request)
     {
+
         $user = Auth::user();
         $data = $request->all();
         $reset = $request->reset;
+
 
         $validatorRules = [
             'password' => 'required|confirmed|min:6|string',
