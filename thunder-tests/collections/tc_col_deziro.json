@@ -92,7 +92,7 @@
             "method": "POST",
             "sortNum": 20000,
             "created": "2023-08-16T11:02:44.621Z",
-            "modified": "2023-08-16T16:43:46.105Z",
+            "modified": "2023-08-17T08:51:56.100Z",
             "headers": [],
             "params": [],
             "body": {
@@ -105,7 +105,7 @@
                     },
                     {
                         "name": "password",
-                        "value": "newpass"
+                        "value": "newPass"
                     }
                 ]
             },
@@ -258,7 +258,7 @@
             "method": "POST",
             "sortNum": 100000,
             "created": "2023-08-16T13:51:14.818Z",
-            "modified": "2023-08-16T16:30:13.577Z",
+            "modified": "2023-08-17T06:35:30.553Z",
             "headers": [],
             "params": [
                 {
@@ -303,7 +303,7 @@
             "method": "POST",
             "sortNum": 130000,
             "created": "2023-08-16T16:31:37.442Z",
-            "modified": "2023-08-16T16:36:02.233Z",
+            "modified": "2023-08-17T06:38:51.073Z",
             "headers": [],
             "params": [
                 {
@@ -318,7 +318,7 @@
                 "form": [
                     {
                         "name": "code",
-                        "value": "T4FR5380"
+                        "value": "LBB63742"
                     },
                     {
                         "name": "email",
@@ -337,8 +337,19 @@
             "method": "POST",
             "sortNum": 140000,
             "created": "2023-08-16T16:37:08.526Z",
-            "modified": "2023-08-16T16:43:27.566Z",
-            "headers": [],
+            "modified": "2023-08-17T08:35:34.830Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                }
+            ],
             "params": [],
             "body": {
                 "type": "formdata",
@@ -350,11 +361,45 @@
                     },
                     {
                         "name": "password",
-                        "value": "newpass"
+                        "value": "newpass",
+                        "isDisabled": true
                     },
                     {
                         "name": "password_confirmation",
-                        "value": "newpass"
+                        "value": "newpass",
+                        "isDisabled": true
+                    }
+                ]
+            },
+            "tests": []
+        },
+        {
+            "_id": "79e37399-9ead-404e-89d6-67303e8a1d08",
+            "colId": "92e6b80d-8038-45a6-89d1-e69347850e40",
+            "containerId": "3ed30270-038c-4e58-808a-88c93a33c806",
+            "name": "newPassword",
+            "url": "{{host}}/newPassword",
+            "method": "POST",
+            "sortNum": 150000,
+            "created": "2023-08-17T08:48:50.103Z",
+            "modified": "2023-08-17T08:50:31.475Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "email",
+                        "value": "alialmalla2082020@gmail.com"
+                    },
+                    {
+                        "name": "code",
+                        "value": "254G7535"
+                    },
+                    {
+                        "name": "password",
+                        "value": "newPass"
                     }
                 ]
             },
@@ -367,10 +412,6 @@
                 "name": "Accept",
                 "value": "application/json"
             }
-        ],
-        "auth": {
-            "type": "bearer",
-            "bearer": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL3JlZ2lzdGVyIiwiaWF0IjoxNjkyMTg2OTUxLCJuYmYiOjE2OTIxODY5NTEsImp0aSI6ImJhdzVvTjNzWmxHSjVjYWQiLCJzdWIiOiI3NiIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.kJ61IhBUR43sJOcv76etL_gEsH5Nk2DyMg26rTuzAvE"
-        }
+        ]
     }
 }

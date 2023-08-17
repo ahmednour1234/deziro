@@ -34,6 +34,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/logout', 'logout');
     Route::post('/resetPassword','resetPassword');
     Route::post('/checkcode','checkcode');
+    Route::post('/newPassword','newPassword');
 });
 
 Route::get('/profile', [AuthController::class, 'profile']);
