@@ -23,7 +23,7 @@ class AuthController extends Controller
     public function __construct()
     {
 
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'changepassword']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'resetPassword', 'checkcode','newPassword']]);
         auth()->setDefaultDriver('api');
     }
 
@@ -302,36 +302,6 @@ class AuthController extends Controller
     }
 
 
-    // public function resetPassword(Request $request)
-    // {
-    //     $request->validate([
-    //         'email' => 'required|string|email|max:255|exists:users',
-    //     ]);
-
-    //     try {
-    //         $otp = rand(1000, 9999);
-
-    //         DB::transaction(function () use ($request, $otp) {
-    //             User::where('email', $request->email)->update(['otp' => $otp]);
-    //             Mail::send([], [], function (Message $message) use ($otp, $request) {
-    //                 $message->to($request->email)
-    //                     ->subject('OTP Code')
-    //                     ->text('Your OTP is : ' . $otp); // for HTML rich messages
-    //             });
-    //         });
-
-    //         return response()->json([
-    //             'status' => 200,
-    //             'message' => 'OTP sent successfully'
-    //         ]);
-    //     } catch (Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => $e->getMessage()
-    //         ], 200);
-    //     }
-    // }
-
 
     public function resetPassword(Request $request)
     {
@@ -371,7 +341,6 @@ class AuthController extends Controller
     public function checkcode(Request $request)
     {
 
-
         $email = $request->email;
         $enteredCode = $request->code;
 
@@ -391,73 +360,33 @@ class AuthController extends Controller
             ]);
         }
 
+        
+
         return response()->json([
             'success' => true,
             'message' => 'Code matches.'
         ]);
     }
 
-    // public function changePassword(Request $request)
-    // {
-    //     $user = Auth::user();
-    //     $data = $request->all();
-
-    //     $rest = $request->reset;
-
-    //     $validator = Validator::make(
-    //         $request->all(),
-    //         [
-    //             'oldpassword' => 'required',
-    //             'password' => 'required|confirmed|min:6|string',
-    //             'password_confirmation' => 'required',
-    //         ]
-    //     );
-
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'errors' => $validator->messages(),
-    //         ], 200);
-    //     } else {
-
-    //         if (Hash::check($data['oldpassword'], $user->password)) {
-    //             $isPasswordChanged = true;
-
-    //             $user->password = bcrypt($data['password']);
-    //             $user->save();
-
-    //             return response()->json([
-    //                 'success' => true,
-    //                 'message' => 'Password has been changed successfully.',
-    //             ], 200);
-    //         } else {
-
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'The old Password does not match.',
-    //             ], 200);
-    //         }
-    //     }
-    // }
-
-    public function changePassword(Request $request)
+    public function newPassword(Request $request)
     {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'email' => 'required|string|email|max:255|exists:users',
+                'code' => 'required',
+                'password' => 'required|min:6|string',
+            ]
+        );
 
-        $user = Auth::user();
-        $data = $request->all();
-        $reset = $request->reset;
+        $user  = User::where([['email', '=', $request->email], ['code', '=', $request->code]])->first();
 
-
-        $validatorRules = [
-            'password' => 'required|confirmed|min:6|string',
-            'password_confirmation' => 'required',
-        ];
-
-        if (!$reset) {
-            $validatorRules['oldpassword'] = 'required';
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid Email or code.',
+            ], 200);
         }
-
-        $validator = Validator::make($data, $validatorRules);
 
         if ($validator->fails()) {
             return response()->json([
@@ -465,7 +394,52 @@ class AuthController extends Controller
                 'errors' => $validator->messages(),
             ], 200);
         } else {
-            if ($reset || Hash::check($data['oldpassword'], $user->password)) {
+
+            if ($user->code != $request->code) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid code.',
+                ], 200);
+            }
+
+            $user->code = null;
+            $user->password = Hash::make($request->password);
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password has been changed successfully.',
+            ], 200);
+        }
+    }
+
+
+    public function changePassword(Request $request)
+    {
+        $user = Auth::user();
+        $data = $request->all();
+
+        $rest = $request->reset;
+
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'oldpassword' => 'required',
+                'password' => 'required|confirmed|min:6|string',
+                'password_confirmation' => 'required',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->messages(),
+            ], 200);
+        } else {
+
+            if (Hash::check($data['oldpassword'], $user->password)) {
+                $isPasswordChanged = true;
+
                 $user->password = bcrypt($data['password']);
                 $user->save();
 
@@ -474,11 +448,14 @@ class AuthController extends Controller
                     'message' => 'Password has been changed successfully.',
                 ], 200);
             } else {
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'The old password does not match.',
+                    'message' => 'The old Password does not match.',
                 ], 200);
             }
         }
     }
+
+ 
 }
