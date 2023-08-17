@@ -299,6 +299,7 @@ class OrderController extends Controller
 
     public function cancel($id)
     {
+
         $user_id = Auth::user()->id;
         $order = Order::where('id', $id)->where('user_id', $user_id)->first();
 
@@ -308,14 +309,14 @@ class OrderController extends Controller
                 'message' => 'Order not found for this user.',
             ]);
         }
-
-        $currentTime = Carbon::now('Asia/Beirut');
+        $currentTime = Carbon::now();
         $orderUpdatedAt = Carbon::createFromTimeString($order->updated_at);
-        $timeDifference = $orderUpdatedAt->diffInMinutes($currentTime);
-       dd($timeDifference);
-        if ($timeDifference < 1) {
+        $timeDifference = $orderUpdatedAt->diffInSeconds($currentTime);
+        // dd($timeDifference);
+        if ($timeDifference <= 60) {
 
             $order->status = Order::STATUS_CANCELED;
+            $order->save();
             // Cancel the order
             // You can implement your cancellation logic here
 
