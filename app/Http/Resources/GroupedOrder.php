@@ -35,7 +35,7 @@ class GroupedOrder extends JsonResource
             'fees_percent'  => getFeesPercent(),
             'fees_amount' => number_format($cart->fees_amount, 4, '.', ''),
             'items' => CartItem::collection($cart->items),
-            'address' => $this->address,
+            'address' => new Address($this->getAddressAttribute()),
             'payment' => new OrderPayment($this->payment),
             'rate' => number_format($this->rate),
             'created_at' => $this->created_at,
