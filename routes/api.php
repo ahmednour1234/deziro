@@ -129,3 +129,9 @@ Route::group(['prefix' => 'orders', 'middleware' => 'auth:api'], function ($rout
 // Route::post('/uploadproduct', 'App\Http\Controllers\Mobile\MobileController@uploadproduct');
 
 // Route::get('/getStore', 'App\Http\Controllers\Mobile\MobileController@getStore');
+
+
+Route::get('getNotifications', [MobileController::class, 'getNotifications']);
+Route::post('seeNotification', [MobileController::class, 'seeNotification']);
+Route::get('getUnSeenNotificationsCount', [MobileController::class, 'getUnSeenNotificationsCount']);
+

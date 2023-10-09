@@ -113,11 +113,11 @@ Route::post('brand_inactive/{id}', [BrandController::class, 'is_inactive'])->nam
 //End Brand
 
 
-//Notification
-Route::get('notification', [NotificationController::class, 'listNotification'])->name('admin.notification.listNotification');
-Route::post('addNewNotification', [NotificationController::class, 'addNewNotification'])->name('admin.notification.addNewNotification');
-//End Notification
-
+Route::get('/notification', [NotificationController::class, 'listNotification'])->name('admin.notification.listNotification');
+Route::get('/addNotification', [NotificationController::class, 'addNotification'])->name('admin.notification.addNotification');
+Route::post('/addNewNotification', [NotificationController::class, 'addNewNotification'])->name('admin.notification.addNewNotification');
+Route::get('/editNotification/{id}', [NotificationController::class, 'editNotification'])->name('admin.notification.editNotification');
+Route::post('/updateNotification/{id}', [NotificationController::class, 'updateNotification'])->name('admin.notification.updateNotification');
 
 Route::get('banner', [BannerController::class, 'listBanner'])->name('admin.banner.listBanner');
 

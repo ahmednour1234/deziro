@@ -95,6 +95,12 @@ class User extends  Authenticatable implements JWTSubject
         'reason'
     ];
 
+
+    public function getuserFullNameAttribute(): string
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
     public function address()
     {
         return $this->hasMany(Address::class, 'user_id', 'id');

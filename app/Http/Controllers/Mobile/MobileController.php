@@ -5,14 +5,18 @@ namespace App\Http\Controllers\Mobile;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BannerResource;
 use App\Http\Resources\CategoryeResource;
+use App\Http\Resources\NotificationResource;
 use App\Models\Address;
+use App\Models\Notification;
 use App\Models\Product;
 use App\Models\Banner;
 use App\Models\Category;
 use App\Models\RequestCategorie;
+use App\Models\SeeNotification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Mockery\Undefined;
 
@@ -251,4 +255,181 @@ class MobileController extends Controller
             ]);
         }
     }
+
+    public function getNotifications()
+    {
+        $user_id = auth()->user()->id;
+        $user_type = auth()->user()->type;
+        $user_created_at = auth()->user()->created_at;
+
+        $notifications = Notification::where(function ($query) use ($user_type, $user_id) {
+            $query->where('user_id', $user_id)->orWhere('topic', 'all');
+            if ($user_type == 2) {
+                $query->orWhere('topic', 'individual');
+            } elseif ($user_type == 1) {
+                $query->orWhere('topic', 'stores');
+            }
+        })
+            ->where('created_at', '>=', $user_created_at)
+            ->orderByDesc('created_at')
+            ->paginate(15);
+
+        if ($notifications->count() > 0) {
+            return response()->json([
+                'success' => true,
+                'notifications' => NotificationResource::collection($notifications),
+            ], 200);
+        } else {
+            return response()->json([
+                'success' => false,
+                'notifications' => null,
+            ], 200);
+        }
+    }
+    // public function seeNotification(Request $request)
+    // {
+    //     $notification_id = $request->notification_id;
+    //     $user_id = auth()->user()->id;
+    //     $user_type = auth()->user()->type;
+
+    //     if ($user_type == 1) {
+    //         $user_type = 'individual';
+    //     } elseif ($user_type == 2) {
+    //         $user_type = 'stores';
+    //     }
+
+    //     $notification = Notification::where('id', $notification_id)->first();
+    //     if ($notification) {
+
+
+    //         if ($notification->user_id == $user_id || $notification->topic == 'all' || $notification->topic == $user_type) {
+
+    //             $existingRecord = SeeNotification::where('notification_id', $notification_id)
+    //                 ->where('user_id', $user_id)
+    //                 ->first();
+
+    //             if (!$existingRecord) {
+    //                 $seeNotification = new SeeNotification();
+    //                 $seeNotification->notification_id = $notification_id;
+    //                 $seeNotification->user_id = $user_id;
+    //                 $seeNotification->see = 1;
+    //                 $seeNotification->save();
+
+    //                 return response()->json([
+    //                     'success' =>  true,
+    //                     'message' => 'Notification seen successfully'
+    //                 ], 200);
+    //             }
+
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Notification already seen'
+    //             ], 200);
+    //         } else {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => "We're sorry, but this notification ID does not pertain to you. Please verify the ID and try again."
+    //             ], 200);
+    //         }
+    //     } else {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => "We're sorry, but we couldn't find a notification with the provided ID. Please double-check the ID and try again"
+    //         ], 200);
+    //     }
+    // }
+
+    public function seeNotification(Request $request)
+{
+    $notification_id = $request->notification_id;
+    $user_id = auth()->user()->id;
+    $user_type = auth()->user()->type == 2 ? 'individual' : 'stores';
+
+    $notification = Notification::find($notification_id);
+
+    if ($notification) {
+        if ($notification->user_id == $user_id || $notification->topic == 'all' || $notification->topic == $user_type) {
+            try {
+                DB::beginTransaction();
+
+                // Check if the record already exists
+                $existingRecord = SeeNotification::where('notification_id', $notification_id)
+                    ->where('user_id', $user_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$existingRecord) {
+                    // Create a new record
+                    $seeNotification = new SeeNotification();
+                    $seeNotification->notification_id = $notification_id;
+                    $seeNotification->user_id = $user_id;
+                    $seeNotification->see = 1;
+                    $seeNotification->save();
+
+                    DB::commit();
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Notification seen successfully'
+                    ], 200);
+                }
+
+                DB::commit();
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Notification already seen'
+                ], 200);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while processing the request.'
+                ], 200);
+            }
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => "We're sorry, but this notification ID does not pertain to you. Please verify the ID and try again."
+            ], 200);
+        }
+    } else {
+        return response()->json([
+            'success' => false,
+            'message' => "We're sorry, but we couldn't find a notification with the provided ID. Please double-check the ID and try again."
+        ], 200);
+    }
+}
+
+
+
+    public function getUnSeenNotificationsCount()
+    {
+        $user_id = auth()->user()->id;
+        $user_type = auth()->user()->type;
+        $user_created_at = auth()->user()->created_at;
+
+        $userNotification = Notification::where(function ($query) use ($user_type, $user_id) {
+            $query->where('user_id', $user_id)->orWhere('topic', 'all');
+            if ($user_type == 2) {
+                $query->orWhere('topic', 'individual');
+            } elseif ($user_type == 1) {
+                $query->orWhere('topic', 'stores');
+            }
+        })
+            ->where('created_at', '>=', $user_created_at)->count();
+
+        $userNotificationSeen = seeNotification::where('user_id', $user_id)->count();
+
+
+        $unSeenNotificationsCount = $userNotification - $userNotificationSeen;
+
+
+        return response()->json([
+            'success' => true,
+            'unSeenNotificationsCount' => $unSeenNotificationsCount
+        ], 200);
+    }
+
+
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
@@ -50,6 +51,7 @@ class OrderController extends Controller
             $order->status = Order::STATUS_SHIPPED;
         }
         $order->save();
+        Event::dispatch('order.shipped.after', $order);
         return response()->json([
             'status' => 200,
             'message' => 'Order Shipped Successfully',
@@ -64,6 +66,9 @@ class OrderController extends Controller
             $order->status = Order::STATUS_DELIVERED;
         }
         $order->save();
+
+        Event::dispatch('order.delivered.after', $order);
+
         return response()->json([
             'status' => 200,
             'message' => 'Order Delivered Successfully',
@@ -87,6 +92,7 @@ class OrderController extends Controller
                 $order->status = Order::STATUS_CANCELED;
 
                 $order->save();
+                Event::dispatch('order.canceled.after', $order);
                 return response()->json([
                     'status' => 200,
                     'order' => $order,
