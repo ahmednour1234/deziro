@@ -57,7 +57,7 @@ class ProductForm extends FormRequest
             'type'               => ['required', 'in:sell,bid,swap'],
             'product_type'       => ['required', 'in:simple,configurable'],
             'images.*'           => ['nullable', 'mimes:bmp,jpeg,jpg,png,webp'],
-            'price'              => ['required', new Decimal],
+            'price'              => ['required_if:product_type,simple', new Decimal],
             'special_price'      => ['nullable', new Decimal, 'exclude_if:price,0', 'lt:price'],
             'brand_id'          => ['sometimes', 'integer', 'exists:brands,id'],
         ]);

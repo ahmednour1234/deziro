@@ -195,25 +195,25 @@ class OrderController extends Controller
             return response()->json([
                 'success' => false,
                 'message'   => 'Cart not found.',
-            ]);
+            ],200);
         foreach ($orders as $order) {
             if (!$order)
                 return response()->json([
                     'success' => false,
                     'message'   => 'Order not found.',
-                ]);
+                ],200);
 
             if ($order->user_id != auth()->user()->id || $order->status != Order::STATUS_PENDING_PAYMENT)
                 return response()->json([
                     'success' => false,
                     'message'   => 'You cannot pay this order.',
-                ]);
+                ],200);
             $payment = $order->payment;
             if (!$payment)
                 return response()->json([
                     'success' => false,
                     'message'   => 'Payment method is not specified.',
-                ]);
+                ],200);
 
             // if ($payment->method == OrderPayment::METHOD_WHISH_MONEY) {
 
@@ -234,7 +234,7 @@ class OrderController extends Controller
                 return response()->json([
                     'success' => false,
                     'message'   => 'Invalid Payment Method.',
-                ]);
+                ],200);
             }
         }
 
@@ -259,7 +259,7 @@ class OrderController extends Controller
         return response()->json([
             'success' => true,
             'message'   => 'Order has been successfully paid.',
-        ]);
+        ],200);
     }
 
     public function rateOrder($id)
@@ -273,13 +273,13 @@ class OrderController extends Controller
                 return response()->json([
                     'success' => false,
                     'message'   => 'Order not found.',
-                ]);
+                ],200);
 
             if ($order->rate)
                 return response()->json([
                     'success' => false,
                     'message'   => 'Order has already been rated.',
-                ]);
+                ],200);
 
 
             $order->rate = request()->get('rate');
@@ -288,12 +288,12 @@ class OrderController extends Controller
             return response()->json([
                 'success' => true,
                 'message'   => 'Order has been successfully rated.',
-            ]);
+            ],200);
         } catch (ValidationException $exception) {
             return response()->json([
                 'success' => false,
                 'message'    => $exception->getMessage(),
-            ]);
+            ],200);
         }
     }
 
@@ -307,13 +307,19 @@ class OrderController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Order not found for this user.',
+            ],200);
+        }
+        if($order->status !='pending'){
+            return response()->json([
+                'success' => false,
+                'message' => 'Order cannot be canceled because it is not in a pending status.',
             ]);
         }
         $currentTime = Carbon::now();
         $orderUpdatedAt = Carbon::createFromTimeString($order->updated_at);
         $timeDifference = $orderUpdatedAt->diffInSeconds($currentTime);
         // dd($timeDifference);
-        if ($timeDifference <= 60) {
+        if ($timeDifference >= 0 && $timeDifference <= 60) {
 
             $order->status = Order::STATUS_CANCELED;
             $order->save();
@@ -323,12 +329,12 @@ class OrderController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Order has been canceled.',
-            ]);
+            ],200);
         } else {
             return response()->json([
                 'success' => false,
                 'message' => 'Order cannot be canceled as it has been more than 1 minute since the last update.',
-            ]);
+            ],200);
         }
     }
 }
