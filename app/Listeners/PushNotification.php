@@ -71,14 +71,14 @@ class PushNotification
 
         if ($user) {
             $data = [
-                'notifiable_type' => 'SellOrder',
+                'notifiable_type' => 'Order',
                 'notifiable_id' => $order->id,
-                'notifiable' => new GroupedOrder($order) ,
+                'notifiable' => new GroupedOrder($order),
                 'action' => 'CanceledOrder',
                 'user_id' => $user->id,
                 'fcm_token' => $user->fcm_token,
-                'title' => 'Pending Payment Orders',
-                'description' => 'Order Canceled',
+                'title' => 'Order Canceled',
+                'description' => 'Your order has been successfully canceled. If you have any questions or need assistance, please feel free to contact our support team.',
             ];
 
             $data['id'] = $this->storeNotification($data);
