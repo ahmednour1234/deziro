@@ -79,7 +79,7 @@ class PushNotification
             $data = [
                 'notifiable_type' => 'Order',
                 'notifiable_id' => $order->id,
-                'notifiable' => new GroupedOrder($order),
+                'notifiable' => new Order($order),
                 'action' => 'CanceledOrder',
                 'user_id' => $user->id,
                 'fcm_token' => $user->fcm_token,
