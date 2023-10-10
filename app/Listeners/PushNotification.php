@@ -12,6 +12,8 @@ use App\Models\Order as ModelsOrder;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+
 
 class PushNotification
 {
@@ -37,6 +39,9 @@ class PushNotification
             if ($user->fcm_token) {
                 $this->send($data);
             }
+
+            Log::info('1.1');
+
         }
     }
 
@@ -60,6 +65,7 @@ class PushNotification
         if ($user->fcm_token) {
             $this->send($data);
         }
+        Log::info('1.2');
     }
 }
 
@@ -85,6 +91,7 @@ class PushNotification
             if ($user->fcm_token ) {
                 $this->send($data);
             }
+            Log::info('1.3');
         }
 
     }
@@ -102,7 +109,9 @@ class PushNotification
                     'user_id' => isset($data['user_id']) ? $data['user_id'] : null,
                 ])
             ]
+
         );
+        Log::info('Notification sended');
     }
 
     public function afterNotificationAdded($request)
@@ -134,7 +143,7 @@ class PushNotification
 
 
         if ($user_id == 'all' || $user_id == 'stores' || $user_id == 'individual') {
-;
+
             $this->pushNotificationByTopic(
                 $user_id,
                 $data['title'],
