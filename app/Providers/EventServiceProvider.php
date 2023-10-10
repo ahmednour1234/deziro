@@ -28,11 +28,8 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         Event::listen('notification.add.after', 'App\Listeners\PushNotification@afterNotificationAdded');
-
         Event::listen('order.shipped.after', 'App\Listeners\PushNotification@afterShippedOrder');
-
         Event::listen('order.delivered.after', 'App\Listeners\PushNotification@afterDeliveredOrder');
-
         Event::listen('order.canceled.after', 'App\Listeners\PushNotification@afterCanceledOrder');
 
 

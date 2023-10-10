@@ -20,7 +20,7 @@ class PushNotification
 
     public function afterShippedOrder($order)
     {
-        $user = $order->customer;
+        $user = $order->user;
 
         if ($user) {
             $data = [
@@ -47,7 +47,7 @@ class PushNotification
 
     public function afterDeliveredOrder($order)
 {
-    $user = $order->customer;
+    $user = $order->user;
 
     if ($user) {
         $data = [
@@ -71,8 +71,9 @@ class PushNotification
 
 
 
-    public function afterCanceledOrder($order,$type)
+    public function afterCanceledOrder($order)
     {
+
         $user = $order->user;
 
         if ($user) {
