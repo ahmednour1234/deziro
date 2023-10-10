@@ -86,7 +86,9 @@ class OrderController extends Controller
                 'errors' => $validator->messages(),
             ]);
         } else {
+
             $order = Order::findOrFail($id);
+            // dd($order);
             if ($order) {
                 $order->reason = $request->reason;
                 $order->status = Order::STATUS_CANCELED;
@@ -95,7 +97,6 @@ class OrderController extends Controller
                 Event::dispatch('order.canceled.after', $order);
                 return response()->json([
                     'status' => 200,
-                    'order' => $order,
                     'message' => 'Order Canceled Successfully',
                 ]);
             } else {
