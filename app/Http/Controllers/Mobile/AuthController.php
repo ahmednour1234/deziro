@@ -195,12 +195,18 @@ class AuthController extends Controller
 
     public function logout()
     {
+        $user = Auth::user();
+        if ($user) {
+            $user->update(['fcm_token' => null]);
+        }
+
         Auth::logout();
         return response()->json([
             'success' => true,
             'message' => 'Successfully logged out',
         ]);
     }
+
 
     public function profile()
     {
@@ -360,7 +366,7 @@ class AuthController extends Controller
             ]);
         }
 
-        
+
 
         return response()->json([
             'success' => true,
@@ -457,5 +463,5 @@ class AuthController extends Controller
         }
     }
 
- 
+
 }
