@@ -196,9 +196,8 @@ class AuthController extends Controller
     public function logout()
     {
         $user = Auth::user();
-        if ($user) {
-            $user->update(['fcm_token' => null]);
-        }
+       $user->fcm_token = null;
+       $user->save();
 
         Auth::logout();
         return response()->json([
