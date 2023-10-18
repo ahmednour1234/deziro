@@ -92,6 +92,8 @@ Route::get('/getProductsByIds', [ProductController::class, 'getProductsByIds']);
 Route::group(['prefix' => 'checkout', 'middleware' => 'auth:api'], function ($router) {
     // Route::get('cart', [CartController::class, 'get']);
     // Route::post('cart/add/{id}', [CartController::class, 'store']);
+    Route::post('cart/wrap-as-gift', [CartController::class, 'wrapAsGift']);
+    Route::post('cart/rate-feedback', [CartController::class, 'rateAndFeedback']);
     Route::post('cart/add-items', [CartController::class, 'storeItems']);
     Route::post('cart/apply-coupon', [CartController::class, 'applyCoupon']);
     Route::post('save-order', [CheckoutController::class, 'saveOrder']);

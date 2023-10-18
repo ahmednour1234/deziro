@@ -78,6 +78,7 @@ class ProductController extends Controller
         DB::beginTransaction();
 
         try {
+           
             $product = $this->productRepository->create($request->all());
         } catch (\Exception $e) {
             /* rolling back first */

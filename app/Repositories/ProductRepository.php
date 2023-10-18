@@ -262,7 +262,9 @@ class ProductRepository extends Repository
             $category->brands()->attach($brand->id);
             $data['brand_id'] = $brand->id;
         }
+
         $product = $this->model->create($data);
+
         $attributes = isset($data['attributes']) ? $data['attributes'] : [];
         foreach ($attributes as $attributeData) {
 
@@ -399,6 +401,7 @@ class ProductRepository extends Repository
                 'parent_id'             => $product->id,
                 'user_id'               => $data['user_id'],
                 'type'                  => $product->type,
+                'wrap_as_gift_price'                  => $product->wrap_as_gift_price,
                 'category_id'           => $product->category_id,
                 'brand_id'              => $product->brand_id,
                 'product_type'          => 'simple',
@@ -506,6 +509,7 @@ class ProductRepository extends Repository
             $category->brands()->attach($brand->id);
             $data['brand_id'] = $brand->id;
         }
+
         $product->update($data);
 
         $attributes = isset($data['attributes']) ? $data['attributes'] : [];
@@ -651,6 +655,7 @@ class ProductRepository extends Repository
                 'parent_id'             => $product->id,
                 'user_id'               => $data['user_id'],
                 'type'                  => $product->type,
+                'wrap_as_gift_price'                  => $product->wrap_as_gift_price,
                 'category_id'           => $product->category_id,
                 'brand_id'              => $product->brand_id,
                 'product_type'          => 'simple',
@@ -756,7 +761,7 @@ class ProductRepository extends Repository
                 ->distinct()
                 ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
                 products.special_price,
-                products.price), 
+                products.price),
                 (SELECT MIN(
                     IF(
                         p.special_price < p.price AND p.special_price > 0,
@@ -764,7 +769,7 @@ class ProductRepository extends Repository
                         p.price
                     )
                     ) FROM products p WHERE p.parent_id = products.id)) AS min_price
-                
+
                 '))
                 ->whereNull('products.parent_id');
             $qb
@@ -857,7 +862,7 @@ class ProductRepository extends Repository
                 ->distinct()
                 ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
                 products.special_price,
-                products.price), 
+                products.price),
                 (SELECT MIN(
                     IF(
                         p.special_price < p.price AND p.special_price > 0,
@@ -978,7 +983,7 @@ class ProductRepository extends Repository
                 ->distinct()
                 ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
                 products.special_price,
-                products.price), 
+                products.price),
                 (SELECT MIN(
                     IF(
                         p.special_price < p.price AND p.special_price > 0,
@@ -1119,7 +1124,7 @@ class ProductRepository extends Repository
                 ->distinct()
                 ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
                 products.special_price,
-                products.price), 
+                products.price),
                 (SELECT MIN(
                     IF(
                         p.special_price < p.price AND p.special_price > 0,
@@ -1220,7 +1225,7 @@ class ProductRepository extends Repository
                 ->distinct()
                 ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
                 products.special_price,
-                products.price), 
+                products.price),
                 (SELECT MIN(
                     IF(
                         p.special_price < p.price AND p.special_price > 0,
@@ -1320,7 +1325,7 @@ class ProductRepository extends Repository
                 ->distinct()
                 ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
                 products.special_price,
-                products.price), 
+                products.price),
                 (SELECT MIN(
                     IF(
                         p.special_price < p.price AND p.special_price > 0,
@@ -1419,7 +1424,7 @@ class ProductRepository extends Repository
                 ->distinct()
                 ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
                 products.special_price,
-                products.price), 
+                products.price),
                 (SELECT MIN(
                     IF(
                         p.special_price < p.price AND p.special_price > 0,
@@ -1519,7 +1524,7 @@ class ProductRepository extends Repository
                 ->distinct()
                 ->select('products.*', DB::raw('IF(products.product_type = "simple" AND products.parent_id IS NULL, IF( products.special_price < products.price AND products.special_price > 0,
                 products.special_price,
-                products.price), 
+                products.price),
                 (SELECT MIN(
                     IF(
                         p.special_price < p.price AND p.special_price > 0,
