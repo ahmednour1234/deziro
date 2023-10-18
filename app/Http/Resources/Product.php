@@ -47,6 +47,7 @@ class Product extends JsonResource
             // 'lbp_formated_price' => currency($this->getMinimalPrice(), 'LBP', $exchange_rate),
             'special_price' => $this->getMinimalPrice(),
             'formated_special_price' => currency($this->getMinimalPrice()),
+            'wrap_as_gift_price' => $this->wrap_as_gift_price,
             'description' => $this->description,
             'status' => $this->status,
             $this->mergeWhen($this->product_type == 'simple', [

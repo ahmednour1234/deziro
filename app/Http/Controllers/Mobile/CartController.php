@@ -121,6 +121,14 @@ class CartController extends Controller
         return Cart::applyCoupon($request['coupon']);
     }
 
+    public function wrapAsGift(Request $request){
+
+    }
+
+    public function rateAndFeedback(Request $request){
+        
+    }
+
     /**
      * Update the specified resource in storage.
      *

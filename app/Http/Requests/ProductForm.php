@@ -59,6 +59,7 @@ class ProductForm extends FormRequest
             'images.*'           => ['nullable', 'mimes:bmp,jpeg,jpg,png,webp'],
             'price'              => ['required_if:product_type,simple', new Decimal],
             'special_price'      => ['nullable', new Decimal, 'exclude_if:price,0', 'lt:price'],
+            'wrap_as_gift_price' => ['sometimes', 'nullable', new Decimal], // Use 'sometimes' and 'nullable' to make it optional
             'brand_id'          => ['sometimes', 'integer', 'exists:brands,id'],
         ]);
 
