@@ -76,6 +76,7 @@ class CheckoutController extends Controller
      */
     public function saveOrder(Request $request)
     {
+      
         if (Cart::hasError()) {
             return response()->json([
                 'success' => false,
