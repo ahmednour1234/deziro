@@ -25,6 +25,7 @@ class OrderItem extends JsonResource
             'product_id' => $this->product?->id,
             'name' => $this->name,
             'price' => number_format($this->price, 4, '.', ''),
+            'can_rate' =>  ($this->rate === null && $this->feedback === null) ? 1 : 0,
             // 'base_price' => number_format($this->base_price, 4, '.', ''),
             'total' => number_format($this->total, 4, '.', ''),
             // 'base_total' => number_format($this->base_total, 4, '.', ''),
