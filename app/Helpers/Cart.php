@@ -185,7 +185,7 @@ class Cart
         $this->collectTotals(true);
         $response['data'] = new CartResource($this->getCart());
         return $response;
-        // return 
+        // return
     }
 
     /**
@@ -611,6 +611,7 @@ class Cart
 
         $data = array();
         $data['sub_total'] = $data['base_sub_total'] = 0;
+        $data['total_wrap_as_gift_price'] = 0;
         $data['grand_total'] = $data['base_grand_total'] = 0;
         $data['discount_amount'] = $data['base_discount_amount'] = 0;
         $data['fees_amount'] = $data['base_fees_amount'] = 0;
@@ -620,9 +621,10 @@ class Cart
         $quantities = 0;
 
         foreach ($items as $item) {
+            // dd($item);
             // $data['discount_amount'] += $item['discount_amount'];
             // $data['base_discount_amount'] += $item['base_discount_amount'];
-
+            $data['total_wrap_as_gift_price'] = (float) $data['total_wrap_as_gift_price'] + $item['wrap_as_gift_price'];
             $data['sub_total'] = (float) $data['sub_total'] + $item['total'];
             $data['base_sub_total'] = (float) $data['base_sub_total'] + $item['base_total'];
 
@@ -727,6 +729,7 @@ class Cart
             $itemsByUser[$item['user_id']][] = $item;
         }
         $dataArray = array();
+
         foreach ($itemsByUser as $user_id => $items) {
             $dataArray[$user_id] = $this->collectTotalsByUser($items, $user_id);
         }
@@ -743,9 +746,9 @@ class Cart
                 'coupon_id'             => $data['coupon_id'],
                 'total_item_count'      => $data['items_count'],
                 'total_qty_ordered'     => $data['items_qty'],
-                'total_qty_ordered'     => $data['items_qty'],
                 'order_currency_code'   => $result['cart_currency_code'],
                 'grand_total'           => $data['grand_total'],
+                'total_wrap_as_gift_price'           => $result['total_wrap_as_gift_price'],
                 'base_grand_total'      => $data['base_grand_total'],
                 'sub_total'             => $data['sub_total'],
                 'base_sub_total'        => $data['base_sub_total'],
@@ -760,12 +763,14 @@ class Cart
                 // 'payment'               => Arr::except($result['payment'], ['id', 'cart_id']),
             ];
 
+
             foreach ($data['items'] as $item) {
                 $finalData['items'][] = $this->prepareDataForOrderItem($item);
             }
 
             $finalDataArray[] = $finalData;
         }
+       
         return $finalDataArray;
     }
 
@@ -777,6 +782,7 @@ class Cart
      */
     public function prepareDataForOrderItem($data): array
     {
+
         $finalData = [
             'product'              => $this->productRepository->find($data['product_id']),
             'sku'                  => $data['sku'],
@@ -787,6 +793,8 @@ class Cart
             'price'                => $data['price'],
             'base_price'           => $data['base_price'],
             'total'                => $data['total'],
+            'wrap_as_gift_price'                => $data['wrap_as_gift_price'],
+            'wrap_as_gift'                => $data['wrap_as_gift'],
             'base_total'           => $data['base_total'],
             'discount_percent'     => $data['discount_percent'],
             'discount_amount'      => $data['discount_amount'],

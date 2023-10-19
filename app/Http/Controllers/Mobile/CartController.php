@@ -125,80 +125,104 @@ class CartController extends Controller
     public function wrapAsGift(Request $request)
     {
         $cartItemIds = $request->input('cart_item_ids');
-        $cart_id = $request->input('cart_id');
+        $cart = Cart::getCart();
 
-        // Fetch all cart items that need to be wrapped as gifts
-        $cartItems = CartItem::whereIn('id', $cartItemIds)->get();
+        if ($cartItemIds) {
+            // Fetch all cart items that need to be wrapped as gifts
+            $cartItems = CartItem::whereIn('id', $cartItemIds)->get();
 
-        // Initialize variables to keep track of the total price changes
-        $totalWrapAsGiftPriceToSubtract = 0;
-        $totalWrapAsGiftPriceToAdd = 0;
+            // Initialize variables to keep track of the total price changes
+            $totalWrapAsGiftPriceToSubtract = 0;
+            $totalWrapAsGiftPriceToAdd = 0;
 
-        // Fetch all cart items that are not part of the update but have wrap_as_gift set to 1
-        $cartItemsToReset = CartItem::where('cart_id', $cart_id)
-            ->whereNotIn('id', $cartItemIds)
-            ->where('wrap_as_gift', 1)
-            ->get();
+            // Fetch all cart items that are not part of the update but have wrap_as_gift set to 1
+            $cartItemsToReset = CartItem::where('cart_id', $cart->id)
+                ->whereNotIn('id', $cartItemIds)
+                ->where('wrap_as_gift', 1)
+                ->get();
 
-        // Check if cart_item_ids is empty and reset wrap_as_gift for all items in the cart
+            // Check if cart_item_ids is empty and reset wrap_as_gift for all items in the cart
 
             foreach ($cartItems as $cartItem) {
                 // Subtract the wrap_as_gift_price from the total
-                $totalWrapAsGiftPriceToSubtract += $cartItem->wrap_as_gift_price;
+                $totalWrapAsGiftPriceToSubtract += $cartItem->wrap_as_gift_price ;
 
                 // Update the cart item to set wrap_as_gift to 0 and the price to 0
                 $cartItem->wrap_as_gift = 0;
-                $cartItem->total -= $cartItem->wrap_as_gift_price;
+                $cartItem->total -= $cartItem->wrap_as_gift_price ;
                 $cartItem->wrap_as_gift_price = 0;
                 $cartItem->save();
             }
 
 
-        foreach ($cartItems as $cartItem) {
-            if ($cartItem && $cartItem->wrap_as_gift == 0) {
-                $product = $cartItem->product;
+            foreach ($cartItems as $cartItem) {
+                if ($cartItem && $cartItem->wrap_as_gift == 0) {
+                    $product = $cartItem->product;
 
-                if ($product && $product->status == 'active') {
-                    // Update the cart item to set wrap_as_gift to 1 and set the wrap_as_gift_price from the product
-                    $cartItem->wrap_as_gift = 1;
-                    $cartItem->wrap_as_gift_price = $product->wrap_as_gift_price;
-                    $cartItem->total += $product->wrap_as_gift_price;
-                    $cartItem->save();
+                    if ($product && $product->status == 'active') {
+                        // Update the cart item to set wrap_as_gift to 1 and set the wrap_as_gift_price from the product
+                        $cartItem->wrap_as_gift = 1;
+                        $cartItem->wrap_as_gift_price = $product->wrap_as_gift_price * $cartItem->quantity;
+                        $cartItem->total += $product->wrap_as_gift_price * $cartItem->quantity;
+                        $cartItem->save();
 
-                    // Add the wrap_as_gift_price to the total
-                    $totalWrapAsGiftPriceToAdd += $product->wrap_as_gift_price;
+                        // Add the wrap_as_gift_price to the total
+                        $totalWrapAsGiftPriceToAdd += $cartItem->wrap_as_gift_price;
+                    }
                 }
             }
+
+            foreach ($cartItemsToReset as $cartItem) {
+                // Subtract the wrap_as_gift_price from the total
+                $totalWrapAsGiftPriceToSubtract += $cartItem->wrap_as_gift_price ;
+
+                // Update the cart item to set wrap_as_gift to 0 and the price to 0
+                $cartItem->wrap_as_gift = 0;
+                $cartItem->total -= $cartItem->wrap_as_gift_price ;
+                $cartItem->wrap_as_gift_price = 0;
+                $cartItem->save();
+            }
+
+            // Get the cart that these items belong to (assuming there is a relationship between cart_items and carts)
+
+
+            // Calculate the updated grand_total as the sum of the total of all cart_items
+            $updatedTotalWrapAsGiftPrice = $cart->all_items->sum('wrap_as_gift_price');
+            $updatedGrandTotal = $cart->grand_total - $totalWrapAsGiftPriceToSubtract + $totalWrapAsGiftPriceToAdd;
+
+            // Update the cart's grand_total and total_wrap_as_gift_price
+            $cart->grand_total = $updatedGrandTotal;
+            $cart->total_wrap_as_gift_price = $updatedTotalWrapAsGiftPrice;
+            $cart->save();
+        } else {
+            // Initialize variables to keep track of the total price changes
+            $totalWrapAsGiftPriceToSubtract = 0;
+
+            // Iterate through the cart items
+            foreach ($cart->items as $cartItem) {
+                // Subtract the wrap_as_gift_price from the total
+                $totalWrapAsGiftPriceToSubtract += $cartItem->wrap_as_gift_price ;
+
+                // Update the cart item to set wrap_as_gift to 0 and the price to 0
+                $cartItem->wrap_as_gift = 0;
+                $cartItem->total -= $cartItem->wrap_as_gift_price ;
+                $cartItem->wrap_as_gift_price = 0;
+
+                $cartItem->save();
+            }
+
+            // Update the cart's total_wrap_as_gift_price to 0 and deduct the sum from the grand_total
+            $cart->total_wrap_as_gift_price = 0;
+            $cart->grand_total -= $totalWrapAsGiftPriceToSubtract;
+            $cart->save();
         }
 
-        foreach ($cartItemsToReset as $cartItem) {
-            // Subtract the wrap_as_gift_price from the total
-            $totalWrapAsGiftPriceToSubtract += $cartItem->wrap_as_gift_price;
-
-            // Update the cart item to set wrap_as_gift to 0 and the price to 0
-            $cartItem->wrap_as_gift = 0;
-            $cartItem->total -= $cartItem->wrap_as_gift_price;
-            $cartItem->wrap_as_gift_price = 0;
-            $cartItem->save();
-        }
-
-        // Get the cart that these items belong to (assuming there is a relationship between cart_items and carts)
-        $cart = \App\Models\Cart::find($cart_id);
-
-        // Calculate the updated grand_total as the sum of the total of all cart_items
-        $updatedTotalWrapAsGiftPrice = $cart->items->sum('wrap_as_gift_price');
-        $updatedGrandTotal = $cart->grand_total - $totalWrapAsGiftPriceToSubtract + $totalWrapAsGiftPriceToAdd;
-
-        // Update the cart's grand_total and total_wrap_as_gift_price
-        $cart->grand_total = $updatedGrandTotal;
-        $cart->total_wrap_as_gift_price = $updatedTotalWrapAsGiftPrice;
-        $cart->save();
-
+        $cartresource = \App\Models\Cart::find($cart->id);
         return response()->json([
             'success' => true,
-            'cart' => new CartResource($cart),
+            'cart' => new CartResource($cartresource),
 
-        ],200);
+        ], 200);
     }
 
 
