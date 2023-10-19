@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Mobile;
 
 use App\Http\Controllers\Controller;
+use App\Models\OrderItem;
 use App\Repositories\OrderItemRepository;
 use App\Repositories\OrderRepository;
 use Carbon\Carbon;
@@ -12,6 +13,7 @@ use App\Http\Resources\GroupedOrder as GroupedOrderResource;
 use App\Models\Order;
 use App\Models\OrderPayment;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
@@ -337,4 +339,51 @@ class OrderController extends Controller
             ],200);
         }
     }
+
+    public function rateAndFeedback()
+    {
+        $orderItems = request()->input('order_item');
+        $userId = auth()->user()->id; // Get the authenticated user's ID
+
+        foreach ($orderItems as $orderItem) {
+
+            $order_item = OrderItem::find($orderItem['id']);
+
+            if (!$order_item) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Order item not found'
+                ], 200);
+            }
+
+            // Retrieve the associated order
+            $order = $order_item->order;
+
+            if ($order->user_id !== $userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized: This order does not belong to you'
+                ], 200);
+            }
+
+            // Check if the order has a status of "delivered"
+            if ($order->status !== 'delivered') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Order is not delivered'
+                ], 200);
+            }
+
+            // Update the order item with the received rate and feedback
+            $order_item->rate = $orderItem['rate'];
+            $order_item->feedback = $orderItem['feedback'];
+            $order_item->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Ratings and feedback saved successfully'
+        ]);
+    }
+
 }

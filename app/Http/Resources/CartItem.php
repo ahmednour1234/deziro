@@ -27,6 +27,8 @@ class CartItem extends JsonResource
             'price' => number_format($this->price, 4, '.', ''),
             // 'base_price' => number_format($this->base_price, 4, '.', ''),
             'total' => number_format($this->total, 4, '.', ''),
+            'wrap_as_gift' => $this->wrap_as_gift,
+            'wrap_as_gift_price' => number_format($this->wrap_as_gift_price, 4, '.', ''),
             // 'base_total' => number_format($this->base_total, 4, '.', ''),
             'image' => $base_image ? url('storage/' . $base_image) : null,
             'attributes' => count($attributes) ? $attributes : null,
