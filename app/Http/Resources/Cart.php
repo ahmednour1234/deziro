@@ -27,6 +27,7 @@ class Cart extends JsonResource
             'exchange_rate' => $this->exchange_rate,
             'cart_currency_code' => $this->cart_currency_code,
             'grand_total' => number_format($this->grand_total, 4, '.', ''),
+            'total_wrap_as_gift_price' => number_format($this->total_wrap_as_gift_price, 4, '.', ''),
             // 'base_grand_total' => number_format($this->base_grand_total, 4, '.', ''),
             'sub_total' => number_format($this->sub_total, 4, '.', ''),
             'discount_amount' => number_format($this->discount_amount, 4, '.', ''),
