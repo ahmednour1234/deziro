@@ -34,6 +34,7 @@ class Cart extends JsonResource
             // 'base_sub_total' => number_format($this->base_sub_total, 4, '.', ''),
             'fees_amount' => number_format($this->fees_amount, 4, '.', ''),
             // 'base_fees_amount' => number_format($this->base_fees_amount, 4, '.', ''),
+            'vat' => number_format(($this->grand_total * 0.11), 4 , '.' , ''),
             'items' => CartItem::collection($this->items),
             'address' => new Address($this->address),
             'payment' => new CartPayment($this->payment),
