@@ -39,7 +39,7 @@ class Order extends JsonResource
             'fees_percent'  => getFeesPercent(),
             'fees_amount' => number_format($this->fees_amount, 4, '.', ''),
             // 'base_fees_amount' => number_format($this->base_fees_amount, 4, '.', ''),
-            'vat' => (($this->sub_total - $this->discount_amount) * 0.11),
+            'vat' => number_format((($this->grand_total - $this->shipping_amount ) * 0.11),4,'.', ''),
             'items' => OrderItem::collection($this->items),
             'address' => new Address($this->getAddressAttribute()),
             'payment' => new OrderPayment($this->payment),
