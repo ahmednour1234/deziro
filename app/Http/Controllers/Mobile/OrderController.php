@@ -346,7 +346,9 @@ class OrderController extends Controller
         $userId = auth()->user()->id; // Get the authenticated user's ID
 
         foreach ($orderItems as $orderItem) {
+
             $order_item = OrderItem::find($orderItem['id']);
+           
             if (!$order_item) {
                 return response()->json([
                     'success' => false,
@@ -362,12 +364,12 @@ class OrderController extends Controller
         }
             // Retrieve the associated order
             $order = $order_item->order;
-            // if ($order->user_id !== $userId) {
-            //     return response()->json([
-            //         'success' => false,
-            //         'message' => 'Unauthorized: This order does not belong to you'
-            //     ], 200);
-            // }
+            if ($order->user_id !== $userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized: This order does not belong to you'
+                ], 200);
+            }
             // Check if the order has a status of "delivered"
             if ($order->status !== 'delivered') {
                 return response()->json([
