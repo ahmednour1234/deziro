@@ -100,9 +100,10 @@ class GiftPaymentController extends Controller
 
     public function giftPaymentDetail(Request $request, $id)
     {
-        $giftpayment = GiftPayment::where('id', $id)->first();
+        $giftPayment = GiftPayment::where('id', $id)->first();
+     
 
 
-        return view('admin.giftpayment.viewGiftPaymentDetail', compact('giftpayment'));
+        return view('admin.giftpayment.viewGiftPaymentDetail', compact('giftPayment'));
     }
 }

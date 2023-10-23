@@ -99,7 +99,7 @@
                             <td>{{$giftpayment->amount }}</td>
                          <td>{{$giftpayment->payment_method }}</td>
                             <td>{{$giftpayment->status }}</td>
-                            <td><a href="/orderDetail/{{$giftpayment->id }}" class="btn btn-sm btn-info"> View More
+                            <td><a href="/giftPaymentDetail/{{$giftpayment->id }}" class="btn btn-sm btn-info"> View More
                                     Details</a></td>
                             <td>
                                 @if ($giftpayment->status == 'pending')

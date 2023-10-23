@@ -206,6 +206,7 @@ Route::post('payment_info', [PaymentInfoController::class, 'updatePaymentInfo'])
 Route::get('giftpayments', [GiftPaymentController::class, 'listGifPayments'])->name('admin.gift_payments.listGiftPayments');
 Route::post('/be_accept/{id}', [GiftPaymentController::class, 'accept'])->name('admin.giftpayment.accept');
 Route::post('/reject/{id}', [GiftPaymentController::class, 'reject'])->name('admin.giftpayment.reject');
+Route::get('/giftPaymentDetail/{id}', [GiftPaymentController::class, 'giftPaymentDetail'])->name('admin.order.giftPaymentDetail');
 
 //Report
 Route::get('/listproductreport', [ReportController::class, 'listproductreport'])->name('admin.report.listproductreport');

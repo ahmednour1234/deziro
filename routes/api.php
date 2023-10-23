@@ -127,6 +127,7 @@ Route::group(['prefix' => 'gift-payment', 'middleware' => 'auth:api'], function 
     Route::post('/send-gift', [GiftPaymentController::class, 'sendGift']);
 
     Route::get('/',[GiftPaymentController::class,'getGiftPayments']);
+    Route::get('/info',[GiftPaymentController::class,'getPaymentInfo']);
 
 
 });
