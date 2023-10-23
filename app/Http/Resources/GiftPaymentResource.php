@@ -27,6 +27,7 @@ class GiftPaymentResource extends JsonResource
             'receipt' => $canShow == 1 ? $this->receipt ? url('storage/' . $this->receipt) : null : null,
             'status' => $this->status,
             'reason' => $this->reason,
+            'amount' => $this->amount,
             'i_am_the_sender' => $canShow ,
         ];
     }

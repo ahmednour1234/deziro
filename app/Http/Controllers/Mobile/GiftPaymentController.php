@@ -294,11 +294,16 @@ class GiftPaymentController extends Controller
         }
 
         $gift_payments = GiftPayment::where(function ($query) use ($user) {
-            $query->where('sender_id', $user->id)
-                ->orWhere('receiver_id', $user->id);
+            $query->where(function ($query) use ($user) {
+                $query->where('sender_id', $user->id)
+                      ->orWhere('receiver_id', $user->id);
+            })->orWhere(function ($query) use ($user) {
+                $query->where('status', 'accept')
+                      ->where('receiver_id', $user->id);
+            });
         })
-            ->orderByDesc('created_at')
-            ->paginate(10);
+        ->orderByDesc('created_at')
+        ->paginate(10);
 
 
         if (!$gift_payments) {
