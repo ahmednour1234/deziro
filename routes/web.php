@@ -6,8 +6,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\BannerImageController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\GiftPaymentController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentInfoController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StoreController;
 use Illuminate\Support\Facades\Route;
@@ -198,7 +200,13 @@ Route::post('coupon_inactive/{id}', [CouponController::class, 'is_inactive'])->n
 
 
 
+Route::get('payment_info', [PaymentInfoController::class, 'editPaymentInfo'])->name('admin.payment_info.editPaymentInfo');
+Route::post('payment_info', [PaymentInfoController::class, 'updatePaymentInfo'])->name('admin.payment_info.updatePaymentInfo');
 
+Route::get('giftpayments', [GiftPaymentController::class, 'listGifPayments'])->name('admin.gift_payments.listGiftPayments');
+Route::post('/be_accept/{id}', [GiftPaymentController::class, 'accept'])->name('admin.giftpayment.accept');
+Route::post('/reject/{id}', [GiftPaymentController::class, 'reject'])->name('admin.giftpayment.reject');
+Route::get('/giftPaymentDetail/{id}', [GiftPaymentController::class, 'giftPaymentDetail'])->name('admin.order.giftPaymentDetail');
 
 //Report
 Route::get('/listproductreport', [ReportController::class, 'listproductreport'])->name('admin.report.listproductreport');

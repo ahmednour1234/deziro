@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Mobile\AuthController;
+use App\Http\Controllers\Mobile\GiftPaymentController;
 use App\Http\Controllers\Mobile\MobileController;
 use App\Http\Controllers\Mobile\ProductController;
 use App\Http\Controllers\Mobile\HomeController;
@@ -109,6 +110,26 @@ Route::group(['prefix' => 'orders', 'middleware' => 'auth:api'], function ($rout
     // Route::get('/{status}', [OrderController::class, 'getOrdersByStatus']);
     Route::post('rateAndFeedback',[OrderController::class,'rateAndFeedback']);
     Route::post('/cancel/{id}',[OrderController::class, 'cancel']);
+});
+
+Route::group(['prefix' => 'orders', 'middleware' => 'auth:api'], function ($router) {
+    Route::get('/', [OrderController::class, 'index']);
+    // Route::post('save-payment/{id}', [OrderController::class, 'savePayment']);
+    // Route::post('rate/{id}', [OrderController::class, 'rateOrder']);
+    // Route::get('/{status}', [OrderController::class, 'getOrdersByStatus']);
+    Route::post('rateAndFeedback',[OrderController::class,'rateAndFeedback']);
+    Route::post('/cancel/{id}',[OrderController::class, 'cancel']);
+});
+
+Route::group(['prefix' => 'gift-payment', 'middleware' => 'auth:api'], function ($router) {
+    Route::post('/send-email', [GiftPaymentController::class, 'sendEmail']);
+    Route::post('/send-amount', [GiftPaymentController::class, 'sendAmount']);
+    Route::post('/send-gift', [GiftPaymentController::class, 'sendGift']);
+
+    Route::get('/',[GiftPaymentController::class,'getGiftPayments']);
+    Route::get('/info',[GiftPaymentController::class,'getPaymentInfo']);
+
+
 });
 
 // Route::get('/getCategory', 'App\Http\Controllers\Mobile\MobileController@getCategory');
