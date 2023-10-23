@@ -32,7 +32,9 @@ class EventServiceProvider extends ServiceProvider
         Event::listen('order.delivered.after', 'App\Listeners\PushNotification@afterDeliveredOrder');
         Event::listen('order.canceled.after', 'App\Listeners\PushNotification@afterCanceledOrder');
 
-        Event::listen('giftpayment.accept.after', 'App\Listeners\PushNotification@afterAcceptGiftPayment');
+        Event::listen('giftpayment.senderaccept.after', 'App\Listeners\PushNotification@afterSenderAcceptGiftPayment');
+        Event::listen('giftpayment.receiveraccept.after', 'App\Listeners\PushNotification@afterReceiverAcceptGiftPayment');
+
         Event::listen('giftpayment.reject.after', 'App\Listeners\PushNotification@afterRejectGiftPayment');
     }
 

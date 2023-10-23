@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Http\Resources\Boost;
 use App\Http\Resources\Cart;
+use App\Http\Resources\GiftPaymentResource;
 use App\Http\Resources\GroupedOrder;
 use App\Http\Resources\Order;
 use App\Http\Resources\Product;
@@ -41,33 +42,32 @@ class PushNotification
             }
 
             Log::info('1.1');
-
         }
     }
 
     public function afterDeliveredOrder($order)
-{
-    $user = $order->user;
+    {
+        $user = $order->user;
 
-    if ($user) {
-        $data = [
-            'notifiable_type' => 'Order',
-            'notifiable_id' => $order->id,
-            'notifiable' => new Order($order),
-            'action' => 'DeliveredOrder', // You may want to create a 'DeliveredOrder' action
-            'user_id' => $user->id,
-            'fcm_token' => $user->fcm_token,
-            'title' => 'Order Delivered',
-            'description' => 'Your order has been successfully delivered. Enjoy your meal!',
-        ];
+        if ($user) {
+            $data = [
+                'notifiable_type' => 'Order',
+                'notifiable_id' => $order->id,
+                'notifiable' => new Order($order),
+                'action' => 'DeliveredOrder', // You may want to create a 'DeliveredOrder' action
+                'user_id' => $user->id,
+                'fcm_token' => $user->fcm_token,
+                'title' => 'Order Delivered',
+                'description' => 'Your order has been successfully delivered. Enjoy your meal!',
+            ];
 
-        $data['id'] = $this->storeNotification($data);
-        if ($user->fcm_token) {
-            $this->send($data);
+            $data['id'] = $this->storeNotification($data);
+            if ($user->fcm_token) {
+                $this->send($data);
+            }
+            Log::info('1.2');
         }
-        Log::info('1.2');
     }
-}
 
 
 
@@ -89,12 +89,87 @@ class PushNotification
             ];
 
             $data['id'] = $this->storeNotification($data);
-            if ($user->fcm_token ) {
+            if ($user->fcm_token) {
+                $this->send($data);
+            }
+            Log::info('reject gift payment');
+        }
+    }
+
+    public function afterSenderAcceptGiftPayment($gift_payment)
+    {
+
+        $sender = $gift_payment->sender;
+
+        if ($sender) {
+            $data = [
+                'notifiable_type' => 'GiftPayment',
+                'notifiable_id' => $gift_payment->id,
+                'notifiable' => new GiftPaymentResource($gift_payment),
+                'action' => 'SenderAcceptedGiftPayment',
+                'user_id' => $sender->id,
+                'fcm_token' => $sender->fcm_token,
+                'title' => 'Gift Payment Rejected',
+                'description' => 'Gift Payment accepted successfully.',
+
+            ];
+
+            $data['id'] = $this->storeNotification($data);
+            if ($sender->fcm_token) {
+                $this->send($data);
+            }
+            Log::info('sender accept gift payment');
+        }
+    }
+    public function afterReceiverAcceptGiftPayment($gift_payment)
+    {
+
+        $receiver = $gift_payment->receiver;
+
+        if ($receiver) {
+            $data = [
+                'notifiable_type' => 'GiftPayment',
+                'notifiable_id' => $gift_payment->id,
+                'notifiable' => new GiftPaymentResource($gift_payment),
+                'action' => 'ReceiverAcceptedGiftPayment',
+                'user_id' => $receiver->id,
+                'fcm_token' => $receiver->fcm_token,
+                'title' => 'Gift Payment Rejected',
+                'description' => 'Gift received successfully from ' . $gift_payment->sender->getuserFullNameAttribute(),
+
+            ];
+
+            $data['id'] = $this->storeNotification($data);
+            if ($receiver->fcm_token) {
+                $this->send($data);
+            }
+            Log::info('receiver accept gift payment');
+        }
+    }
+    public function afterRejectGiftPayment($gift_payment)
+    {
+
+        $sender = $gift_payment->sender;
+
+        if ($sender) {
+            $data = [
+                'notifiable_type' => 'GiftPayment',
+                'notifiable_id' => $gift_payment->id,
+                'notifiable' => new GiftPaymentResource($gift_payment),
+                'action' => 'RejectedGiftPayment',
+                'user_id' => $sender->id,
+                'fcm_token' => $sender->fcm_token,
+                'title' => 'Gift Payment Rejected',
+                'description' => 'Gift Payment rejected because ' . $gift_payment->reason . '. If you have any questions or need assistance, please feel free to contact our support team.',
+
+            ];
+
+            $data['id'] = $this->storeNotification($data);
+            if ($sender->fcm_token) {
                 $this->send($data);
             }
             Log::info('1.3');
         }
-
     }
     public function send($data)
     {
@@ -165,18 +240,18 @@ class PushNotification
             //     ->where('users.id', $user_id)
             //     ->first();
             // if ($user) {
-                $user = User::where('id',$user_id)->first();
-                $this->pushNotification(
-                    [$user->fcm_token],
-                    $data['title'],
-                    $data['description'],
-                    [
-                        'data' => json_encode([
-                            'notifiable_type' => $data['notifiable_type'],
-                            'notifiable' => $data['notifiable'],
-                        ])
-                    ]
-                );
+            $user = User::where('id', $user_id)->first();
+            $this->pushNotification(
+                [$user->fcm_token],
+                $data['title'],
+                $data['description'],
+                [
+                    'data' => json_encode([
+                        'notifiable_type' => $data['notifiable_type'],
+                        'notifiable' => $data['notifiable'],
+                    ])
+                ]
+            );
             // }
         }
     }

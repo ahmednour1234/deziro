@@ -57,7 +57,8 @@ class GiftPaymentController extends Controller
         $user->balance += $gift_payment->amount;
         $user->save();
         $gift_payment->save();
-        // Event::dispatch('gift_payment.shipped.after', $gift_payment);
+        Event::dispatch('giftpayment.senderaccept.after', $gift_payment);
+        Event::dispatch('giftpayment.receiveraccept.after', $gift_payment);
         return response()->json([
             'status' => 200,
             'message' => 'Gift Payment Accepted',
@@ -84,7 +85,7 @@ class GiftPaymentController extends Controller
                 $gift_payment->status = 'reject';
 
                 $gift_payment->save();
-                // Event::dispatch('order.canceled.after', $order);
+                Event::dispatch('giftpayment.reject.after', $gift_payment);
                 return response()->json([
                     'status' => 200,
                     'message' => 'Gift Payment Rejected Successfully',
@@ -101,7 +102,7 @@ class GiftPaymentController extends Controller
     public function giftPaymentDetail(Request $request, $id)
     {
         $giftPayment = GiftPayment::where('id', $id)->first();
-     
+
 
 
         return view('admin.giftpayment.viewGiftPaymentDetail', compact('giftPayment'));
