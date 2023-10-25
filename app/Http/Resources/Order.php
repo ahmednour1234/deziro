@@ -17,6 +17,7 @@ class Order extends JsonResource
     {
         return [
             'id' => $this->id,
+            'can_rate' => $this->items()->first()->feedback == null &&  $this->items()->first()->rate == null ? 1 : 0,
             'cart_id' => $this->cart_id,
             'user_id' => $this->user_id,
             'is_sold' => $this->user_id == auth()->user()->id,
@@ -25,6 +26,7 @@ class Order extends JsonResource
             'user_last_name' => $this->user_last_name,
             'status' => $this->status,
             'status_label' => $this->status_label,
+
             'coupon_id' => $this->coupon_id,
             'total_item_count' => number_format($this->total_item_count),
             'total_qty_ordered' => number_format($this->total_qty_ordered),
@@ -44,6 +46,7 @@ class Order extends JsonResource
             'address' => new Address($this->getAddressAttribute()),
             'payment' => new OrderPayment($this->payment),
             'rate' => number_format($this->rate),
+
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
