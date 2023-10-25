@@ -277,11 +277,11 @@ class OrderController extends Controller
                     'message'   => 'Order not found.',
                 ],200);
 
-            if ($order->rate)
-                return response()->json([
-                    'success' => false,
-                    'message'   => 'Order has already been rated.',
-                ],200);
+            // if ($order->rate)
+            //     return response()->json([
+            //         'success' => false,
+            //         'message'   => 'Order has already been rated.',
+            //     ],200);
 
 
             $order->rate = request()->get('rate');
@@ -348,7 +348,7 @@ class OrderController extends Controller
         foreach ($orderItems as $orderItem) {
 
             $order_item = OrderItem::find($orderItem['id']);
-           
+
             if (!$order_item) {
                 return response()->json([
                     'success' => false,
