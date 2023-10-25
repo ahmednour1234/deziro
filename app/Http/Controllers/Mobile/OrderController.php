@@ -277,11 +277,11 @@ class OrderController extends Controller
                     'message'   => 'Order not found.',
                 ],200);
 
-            // if ($order->rate)
-            //     return response()->json([
-            //         'success' => false,
-            //         'message'   => 'Order has already been rated.',
-            //     ],200);
+            if ($order->rate)
+                return response()->json([
+                    'success' => false,
+                    'message'   => 'Order has already been rated.',
+                ],200);
 
 
             $order->rate = request()->get('rate');
@@ -356,12 +356,12 @@ class OrderController extends Controller
                 ], 200);
             }
           // Check if the user has already rated or provided feedback for this order item
-        if ($order_item->rate !== null || $order_item->feedback !== null) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You have already rated or provided feedback for this order item'
-            ], 200);
-        }
+        // if ($order_item->rate !== null || $order_item->feedback !== null) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'You have already rated or provided feedback for this order item'
+        //     ], 200);
+        // }
             // Retrieve the associated order
             $order = $order_item->order;
             if ($order->user_id !== $userId) {
