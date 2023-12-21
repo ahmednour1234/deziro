@@ -43,15 +43,22 @@
 
                     <div class="col-6 mb-0">
                         <label for="password" class="form-label"> Password <span class="text-error"></span></label>
-                        <input type="password" id="password" name="password" class="form-control password">
+                        <div class="input-group input-group-merge">
+                            <input type="password" id="password" class="form-control  password " name="password" value="{{ old('password') }}"  autocomplete="current-password" required/>
+                            <span class="input-group-text cursor-pointer" id="toggle-password"><i class="bx bx-hide"></i></span>
+                        </div>
+
                         <span class="text-danger" id="error_password"></span>
                     </div>
 
                     <div class="col-6 mb-0">
                         <label for="confirm_password" class="form-label"> confirm_password <span
                                 class="text-error"></span></label>
-                        <input type="password" id="confirm_password" name="confirm_password"
-                            class="form-control confirm_password">
+                                <div class="input-group input-group-merge">
+                                    <input type="password" id="confirm_password" class="form-control   confirm_password" name="confirm_password" value="{{ old('confirm_password') }}"  autocomplete="current-password" required/>
+                                    <span class="input-group-text cursor-pointer" id="confirm-toggle-password"><i class="bx bx-hide"></i></span>
+                                </div>
+                       
                         <span class="text-danger" id="error_confirm_password"></span>
                     </div>
 

@@ -218,6 +218,8 @@
                                 <th>Brand</th>
                                 <th>Quantity</th>
                                 <th>Price</th>
+                                <th>Rate</th>
+                                <th>Feedback</th>
                             </tr>
                         </thead>
                         <tbody class="text-center">
@@ -236,6 +238,8 @@
                                     <td>{{ $item->product->brand->name }}</td>
                                     <td>{{ $item->qty_ordered }}</td>
                                     <td>{{ formatPrice($item->price) }}</td>
+                                    <td>{{ $item->rate ?? 'N/a' }}</td>
+                                    <td>{{ $item->feedback ?? 'N/A' }}</td>
                                 </tr>
                             @endforeach
                             <tr>

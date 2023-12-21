@@ -13,6 +13,7 @@ use App\Models\Banner;
 use App\Models\Category;
 use App\Models\RequestCategorie;
 use App\Models\SeeNotification;
+use App\Models\PaymentInfo;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -431,5 +432,20 @@ class MobileController extends Controller
         ], 200);
     }
 
+
+    public function getContact()
+    {
+        $contact = PaymentInfo::select('call_number', 'wats_number')->first();
+
+        if ($contact) {
+            return response()->json([
+                'success'=>true,
+                'call_number' => $contact->call_number,
+                'wats_number' => $contact->wats_number,
+            ],200);
+        } else {
+            return response()->json(['error' => 'Contact information not found.'], 404);
+        }
+    }
 
 }

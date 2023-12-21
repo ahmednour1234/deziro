@@ -35,6 +35,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/logout', 'logout');
     Route::post('/resetPassword','resetPassword');
     Route::post('/checkcode','checkcode');
+    Route::post('/verificationCode','verificationCode');
     Route::post('/newPassword','newPassword');
 });
 
@@ -157,8 +158,13 @@ Route::group(['prefix' => 'gift-payment', 'middleware' => 'auth:api'], function 
 
 // Route::get('/getStore', 'App\Http\Controllers\Mobile\MobileController@getStore');
 
+Route::post('/request_otp', 'App\Http\Controllers\App\AuthController@requestOtp');
+
+Route::post('/verify_otp', 'App\Http\Controllers\App\AuthController@verifyOtp');
 
 Route::get('getNotifications', [MobileController::class, 'getNotifications']);
 Route::post('seeNotification', [MobileController::class, 'seeNotification']);
 Route::get('getUnSeenNotificationsCount', [MobileController::class, 'getUnSeenNotificationsCount']);
+
+Route::get('getContact', [MobileController::class, 'getContact']);
 

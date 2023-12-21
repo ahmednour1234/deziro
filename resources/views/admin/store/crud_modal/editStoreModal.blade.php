@@ -41,21 +41,7 @@
                         <span class="text-danger" id="error_email"></span>
                     </div>
 
-                    <div class="col-6 mb-0">
-                        <label for="password" class="form-label"> Password <span class="text-error"></span></label>
-                        <input type="password" id="password" name="password" class="form-control password" value=""
-                            required>
-                        <span class="text-danger" id="error_password"></span>
-                    </div>
 
-
-                    <div class="col-6 mb-0">
-                        <label for="confirm_password" class="form-label"> confirm_password <span
-                                class="text-error"></span></label>
-                        <input type="password" id="confirm_password" name="confirm_password"
-                            class="form-control confirm_password" required>
-                        <span class="text-danger" id="error_confirm_password"></span>
-                    </div>
 
 
                     <div class="col-12 mb-0">
@@ -183,8 +169,6 @@
                             response.errors.last_name) : $('#error_last_name').html('')
                         response.errors.email != undefined ? $('#error_email').html(response
                             .errors.email) : $('#error_email').html('')
-                        response.errors.password != undefined ? $('#error_password').html(
-                            response.errors.password) : $('#error_password').html('')
                         response.errors.username != undefined ? $('#error_username').html(
                             response.errors.username) : $('#error_username').html('')
                         response.errors.store_name != undefined ? $('#error_store_name')
@@ -205,16 +189,12 @@
                         response.errors.certificate != undefined ? $('#error_certificate')
                             .html(response.errors.certificate) : $('#error_certificate')
                             .html('')
-                        response.errors.confirm_password != undefined ? $(
-                            '#error_confirm_password').html(
-                            response.errors.confirm_password) : $(
-                            '#error_confirm_password').html('')
+
 
 
 
                     } else if (response.status == 404) {
-                        response.message != undefined ? $('#error_confirm_password').html(response
-                            .message) : $('#error_confirm_password').html('')
+                   
                         $('#update_error_message').html('');
                         $('#update_error_message').addClass('alert alert-danger');
                         $('#update_error_message').text('response.message');

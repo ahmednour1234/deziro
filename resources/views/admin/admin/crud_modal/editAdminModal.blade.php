@@ -42,18 +42,22 @@
                             <span class="text-danger" id="error_edit_email"></span>
                         </div>
 
-                        <div class="col-6 mb-0">
+                        <div class="col-12 mb-0">
                             <label for="edit_password" class="form-label"> Password <span class="text-error"></span></label>
-                            <input type="password" id="edit_password" name="password" class="form-control edit_password">
+                            {{-- <input type="password" id="edit_password" name="password" class="form-control edit_password"> --}}
+                            <div class="input-group input-group-merge">
+                                <input type="password" id="edit_password" class="form-control   edit_password" name="password" value="{{ old('password') }}"  autocomplete="current-password" required/>
+                                <span class="input-group-text cursor-pointer" id="edit-toggle-password"><i class="bx bx-hide"></i></span>
+                            </div>
                             <span class="text-danger" id="error_edit_password"></span>
                         </div>
 
-                        
-                        <div class="col-6 mb-0">
+
+                        {{-- <div class="col-6 mb-0">
                             <label for="edit_confirm_password" class="form-label">Confirm Password <span class="text-error"></span></label>
                             <input type="password" id="edit_confirm_password" name="confirm_password" class="form-control edit_confirm_password">
                             <span class="text-danger" id="error_edit_confirm_password"></span>
-                        </div>
+                        </div> --}}
 
 
                     </div>

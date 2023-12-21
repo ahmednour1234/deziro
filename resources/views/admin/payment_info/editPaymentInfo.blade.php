@@ -49,6 +49,18 @@
 
                 </div>
 
+                <div class="col-6 mb-0">
+                    <label for="call_number" class="form-label">Call Number <span class="text-error"></span></label>
+                    <input type="text" id="call_number" name="call_number" class="form-control call_number" value="{{ $payment_info->call_number }}" required>
+
+                </div>
+
+                <div class="col-6 mb-0">
+                    <label for="wats_number" class="form-label">Whats Number <span class="text-error"></span></label>
+                    <input type="text" id="wats_number" name="wats_number" class="form-control wats_number" value="{{ $payment_info->wats_number }}" required>
+
+                </div>
+
             </div>
 
         </div>

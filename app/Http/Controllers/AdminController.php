@@ -106,8 +106,8 @@ class AdminController extends Controller
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|unique:users,id,' . $id,
-            'password' => 'required|min:6',
-            'confirm_password' => 'required|min:6',
+            // 'password' => 'required|min:6',
+            // 'confirm_password' => 'required|min:6',
             'phone' => 'required|min:8|max:8|unique:users,id,' . $id,
         ]);
 
@@ -121,14 +121,15 @@ class AdminController extends Controller
 
             if ($admin) {
 
-                if ($request->password == $request->confirm_password) {
+                // if ($request->password == $request->confirm_password) {
                     $admin->type = 0;
                     $admin->status = 'active';
                     $admin->first_name = $request->first_name;
                     $admin->last_name = $request->last_name;
                     $admin->email = $request->email;
+                    if($request->password){
                     $admin->password = Hash::make($request->password);
-
+                    }
                     $admin->save();
 
                     return response()->json([
@@ -136,12 +137,12 @@ class AdminController extends Controller
                         'admin' => $admin,
                         'message' => 'Admin Added Successfully',
                     ]);
-                } else {
-                    return response()->json([
-                        'status' => 404,
-                        'message' => 'password # confirm password',
-                    ]);
-                }
+                // } else {
+                //     return response()->json([
+                //         'status' => 404,
+                //         'message' => 'password # confirm password',
+                //     ]);
+                // }
             } else {
                 return response()->json([
                     'status' => 404,
