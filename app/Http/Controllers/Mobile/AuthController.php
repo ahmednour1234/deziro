@@ -23,7 +23,7 @@ class AuthController extends Controller
     public function __construct()
     {
 
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'resetPassword', 'checkcode','newPassword']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'resetPassword', 'checkcode', 'newPassword']]);
         auth()->setDefaultDriver('api');
     }
 
@@ -89,11 +89,12 @@ class AuthController extends Controller
             $validator = Validator::make($request->all(), [
                 'first_name' => 'required|min:2',
                 'last_name' => 'required|min:2',
-                'email' => 'required|unique:users',
+                'email' => 'required' . ($request->status != 'active' && $request->status != 'pending' ? '' : '|unique:users') . '|email',
                 'password' => 'required|min:6',
-                'confirm_password' => 'required|min:6',
-                'phone' => 'required|unique:users',
+                'confirm_password' => 'required|min:6|same:password',
+                'phone' => 'required' . ($request->status != 'active' && $request->status != 'pending' ? '' : '|unique:users'),
             ]);
+
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -103,7 +104,7 @@ class AuthController extends Controller
                 if ($request->password == $request->confirm_password) {
                     $user = new User();
                     $user->type = 2;
-                    $user->status = 'active';
+                    $user->status = 'verification';
                     $user->first_name = $request->first_name;
                     $user->last_name = $request->last_name;
                     $user->email = $request->email;
@@ -113,14 +114,27 @@ class AuthController extends Controller
                     $user->countryISOCode = $request->countryISOCode;
                     $user->fcm_token = $request->fcm_token;
                     $user->save();
-                    $token = Auth::login($user);
+                    // $token = Auth::login($user);
+
+                    // Generate a random code
+                    $code = strtoupper(Str::random(4) . rand(1000, 9999));
+
+                    // Save the code to the user's record (you might need a 'password_reset_code' column in the users table)
+                    $user->code = $code;
+                    $user->save();
+
+
+
+                    Mail::to($user->email)->send(new PasswordResetMail($code));
+
+
 
                     return response()->json([
                         'success' => true,
-                        'message' => 'User Registered Successfully',
+                        'message' => 'A verification code has been sent to your email address. Please check your email and enter the OTP code to complete the registration process.',
                         'user' => $user,
-                        'token' => $token
-                    ]);
+                        // 'token' => $token
+                    ], 200);
                 } else {
                     return response()->json([
                         'status' => false,
@@ -133,8 +147,8 @@ class AuthController extends Controller
                 'store_name' => 'required|string|min:3',
                 'first_name' => 'required|min:2|string',
                 'last_name' => 'required|min:2|string',
-                'phone' => 'required|unique:users',
-                'email' => 'required|unique:users',
+                'phone' => 'required' . ($request->status != 'active' && $request->status != 'pending' ? '' : '|unique:users'),
+                'email' => 'required' . ($request->status != 'active' && $request->status != 'pending' ? '' : '|unique:users') . '|email',
                 'password' => 'required|min:6',
                 'confirm_password' => 'required|min:6',
                 'categories' => 'required',
@@ -160,7 +174,7 @@ class AuthController extends Controller
                     }
                     $store = new User();
                     $store->type = 1;
-                    $store->status = 'pending';
+                    $store->status = 'verification';
                     $store->first_name = $request->first_name;
                     $store->last_name = $request->last_name;
                     $store->phone = $request->phone;
@@ -171,17 +185,31 @@ class AuthController extends Controller
                     $store->store_name = $request->store_name;
                     $store->position = $request->position;
                     $store->tax_number = $request->tax_number;
-                    $store->categories = implode(',',  $request->categories);
+                    // dd($request->categories);
+                    $store->categories = $request->categories;
                     // $store->categories = json_encode($request->category, JSON_NUMERIC_CHECK);
                     $store->certificate = $uploadFile1;
                     $store->save();
-                    $token = Auth::login($store);
+                    // $token = Auth::login($store);
+
+                    // Generate a random code
+                    $code = strtoupper(Str::random(4) . rand(1000, 9999));
+
+                    // Save the code to the user's record (you might need a 'password_reset_code' column in the users table)
+                    $store->code = $code;
+                    $store->save();
+
+
+
+                    Mail::to($store->email)->send(new PasswordResetMail($code));
+
+
 
                     return response()->json([
                         'success' => true,
-                        'message' => 'your account is sumbitted to the admin, and waiting for approval',
+                        'message' => 'A verification code has been sent to your email address. Please check your email and enter the OTP code to complete the registration process.',
                         'store' => $store,
-                        'token' => $token
+                        // 'token' => $token
                     ]);
                 } else {
                     return response()->json([
@@ -196,8 +224,8 @@ class AuthController extends Controller
     public function logout()
     {
         $user = Auth::user();
-       $user->fcm_token = null;
-       $user->save();
+        $user->fcm_token = null;
+        $user->save();
 
         Auth::logout();
         return response()->json([
@@ -342,6 +370,53 @@ class AuthController extends Controller
             ]);
         }
     }
+    public function verificationCode(Request $request)
+    {
+
+        $email = $request->email;
+        $enteredCode = $request->code;
+
+        $user = User::where('email', $email)->where('code', $enteredCode)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid verification code or email address. Please double-check your information and try again.',
+            ]);
+        } else {
+            if ($user->type == 2) {
+                User::where('email', $email)
+                ->where('code', '!=', $enteredCode)
+                ->delete();
+                $user->status = 'active';
+                $token = Auth::login($user);
+                $user->code = Null;
+                $user->save();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Registration completed successfully. Your account is now active.',
+                    'user' => $user,
+                    'token' => $token
+                ], 200);
+            }
+            if ($user->type == 1) {
+                User::where('email', $email)
+                ->where('code', '!=', $enteredCode)
+                ->delete();
+                $user->status = 'pending';
+                $user->code = Null;
+                $user->save();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Registration completed successfully. Your account has been sent to the administrator for approval. Please wait for the approval process to be completed.',
+                    'user' => $user,
+                ], 200);
+            }
+        }
+
+
+    }
+
 
     public function checkcode(Request $request)
     {
@@ -461,6 +536,4 @@ class AuthController extends Controller
             }
         }
     }
-
-
 }

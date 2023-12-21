@@ -173,8 +173,8 @@ class StoreController extends Controller
 
         $store = User::findOrFail($id);
         $categoryIds = explode(',', $store->categories);
-        $allCategories =Category::where('is_active',1)->get();
-        return view('admin.store.crud_modal.editStoreModal', compact('store', 'allCategories','categoryIds'));
+        $allCategories = Category::where('is_active', 1)->get();
+        return view('admin.store.crud_modal.editStoreModal', compact('store', 'allCategories', 'categoryIds'));
     }
 
 
@@ -187,8 +187,8 @@ class StoreController extends Controller
             'last_name' => 'required',
             'phone' => 'required|min:8|max:8|unique:users,id,' . $id,
             'email' => 'required|unique:users,id,' . $id,
-            'password' => 'required|min:6',
-            'confirm_password' => 'required|min:6',
+            // 'password' => 'required|min:6',
+            // 'confirm_password' => 'required|min:6',
             'store_name' => 'required',
             'category_type' => 'required'
             // 'certificate' => 'required',
@@ -204,7 +204,7 @@ class StoreController extends Controller
             $store =  User::findOrFail($id);
 
             if ($store) {
-                if ($request->password == $request->confirm_password) {
+
                     if ($request->hasFile('certificate')) {
 
                         $certificate = $request->certificate;
@@ -232,14 +232,9 @@ class StoreController extends Controller
 
                     return response()->json([
                         'status' => 200,
-                        'message' => 'Store Added Successfully',
+                        'message' => 'Store updated Successfully',
                     ]);
-                } else {
-                    return response()->json([
-                        'status' => 404,
-                        'message' => 'password # confirm password',
-                    ]);
-                }
+
             } else {
                 return response()->json([
                     'status' => 404,
@@ -248,7 +243,4 @@ class StoreController extends Controller
             }
         }
     }
-
-
-
 }

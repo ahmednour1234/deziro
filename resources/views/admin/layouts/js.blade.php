@@ -59,5 +59,56 @@
 <script src="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js') }}"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('toggle-password');
 
+    if (passwordInput && togglePassword) {
+        togglePassword.addEventListener('click', function() {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                togglePassword.innerHTML = '<i class="bx bx-show"></i>';
+            } else {
+                passwordInput.type = 'password';
+                togglePassword.innerHTML = '<i class="bx bx-hide"></i>';
+            }
+        });
+    }
+});
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const togglePassword = document.getElementById('confirm-toggle-password');
+
+    if (confirmPasswordInput && togglePassword) {
+        togglePassword.addEventListener('click', function() {
+            if (confirmPasswordInput.type === 'password') {
+                confirmPasswordInput.type = 'text';
+                togglePassword.innerHTML = '<i class="bx bx-show"></i>';
+            } else {
+                confirmPasswordInput.type = 'password';
+                togglePassword.innerHTML = '<i class="bx bx-hide"></i>';
+            }
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const editPasswordInput = document.getElementById('edit_password');
+    const togglePassword = document.getElementById('edit-toggle-password');
+
+    if (editPasswordInput && togglePassword) {
+        togglePassword.addEventListener('click', function() {
+            if (editPasswordInput.type === 'password') {
+                editPasswordInput.type = 'text';
+                togglePassword.innerHTML = '<i class="bx bx-show"></i>';
+            } else {
+                editPasswordInput.type = 'password';
+                togglePassword.innerHTML = '<i class="bx bx-hide"></i>';
+            }
+        });
+    }
+});
+
+</script>
 @yield('scripts')

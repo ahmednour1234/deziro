@@ -185,13 +185,13 @@
             <li class="menu-item   {{ request()->is('payment_info') ? 'active' : '' }}">
                 <a href="{{ route('admin.payment_info.editPaymentInfo') }}" class="menu-link ">
                     <i class="menu-icon bx bxs-credit-card"></i>
-                    <div data-i18n="Analytics">Payment Info</div>
+                    <div data-i18n="Analytics"> Info</div>
                 </a>
             </li>
 
             <li class="menu-item   {{ request()->is('giftpayments') ? 'active' : '' }}">
                 <a href="{{ route('admin.gift_payments.listGiftPayments') }}" class="menu-link ">
-                    <i class="menu-icon bx bxs-gift"></i> 
+                    <i class="menu-icon bx bxs-gift"></i>
                     <div data-i18n="Analytics">Gift Payments</div>
                 </a>
             </li>

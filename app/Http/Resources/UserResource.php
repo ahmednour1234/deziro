@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'full_name' => $this->getuserFullNameAttribute(),
             'email' => $this->email,
             'phone' => $this->phone,
+            'balance'=> $this->balance
         ];
     }
 }

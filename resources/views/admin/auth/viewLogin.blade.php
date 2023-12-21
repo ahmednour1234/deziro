@@ -35,16 +35,19 @@
                                     </span>
                             </div>
 
-                            <div class="form-outline mb-4">
-                                <label class="form-label" for="password">Password</label>
-                                <input type="password" name="password" id="password" value="{{ old('password') }}"
-                                    class="form-control form-control-lg password " />
-                                    <span class="text-danger">
-                                        @error('password')
-                                        {{$message}}
-                                        @enderror
-                                    </span>
+                            <div class="mb-3 form-password-toggle">
+                                <div class="d-flex justify-content-between">
+                                    <label class="form-label" for="password">Password</label>
+                                </div>
+                                <div class="input-group input-group-merge">
+                                    <input type="password" id="password" class="form-control  form-control-lg " name="password" value="{{ old('password') }}"  autocomplete="current-password" required/>
+                                    <span class="input-group-text cursor-pointer" id="toggle-password"><i class="bx bx-hide"></i></span>
+                                </div>
+                                @error('password')
+                                <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
+
                             <div class="text-center">
                                 <button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
                             </div>
@@ -57,3 +60,7 @@
         </div>
     </div>
 </section>
+
+<script>
+
+</script>
