@@ -10,6 +10,7 @@ use App\Http\Controllers\Mobile\CheckoutController;
 use App\Http\Controllers\Mobile\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EmailVerificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,14 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/verificationCode','verificationCode');
     Route::post('/newPassword','newPassword');
 });
+
+
+
+Route::controller(EmailVerificationController::class)->group(function () {
+    Route::post('/send-verification-code', 'sendCode');
+    Route::post('/verify-email-code', 'verifyCode');
+});
+
 
 Route::get('/profile', [AuthController::class, 'profile']);
 Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
