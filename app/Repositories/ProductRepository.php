@@ -271,6 +271,10 @@ class ProductRepository extends Repository
         $product = $this->model->create($data);
 
         $attributes = isset($data['attributes']) ? $data['attributes'] : [];
+        if (is_string($attributes)) {
+            $decodedAttributes = json_decode($attributes, true);
+            $attributes = is_array($decodedAttributes) ? $decodedAttributes : [];
+        }
         foreach ($attributes as $attributeData) {
 
             $attribute = $this->attributeRepository->findOrFail($attributeData['attribute_id']);
@@ -353,6 +357,10 @@ class ProductRepository extends Repository
         }
 
         if (isset($data['variants'])) {
+            if (is_string($data['variants'])) {
+                $decodedVariants = json_decode($data['variants'], true);
+                $data['variants'] = is_array($decodedVariants) ? $decodedVariants : [];
+            }
             foreach ($data['variants'] as $variantData) {
                 $variantId = isset($variantData['id']) ? $variantData['id'] : 'variant_';
                 if (isset($variantData['super_attributes'])) {
@@ -524,6 +532,10 @@ class ProductRepository extends Repository
         $product->update($data);
 
         $attributes = isset($data['attributes']) ? $data['attributes'] : [];
+        if (is_string($attributes)) {
+            $decodedAttributes = json_decode($attributes, true);
+            $attributes = is_array($decodedAttributes) ? $decodedAttributes : [];
+        }
         foreach ($attributes as $attributeData) {
 
             $attribute = $this->attributeRepository->findOrFail($attributeData['attribute_id']);
