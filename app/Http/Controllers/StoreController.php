@@ -116,7 +116,8 @@ class StoreController extends Controller
             'password' => 'required|min:6',
             'confirm_password' => 'required|min:6',
             'store_name' => 'required',
-            'category_type' => 'required'
+            'category_type' => 'required',
+            'vat'=>'required'
 
         ]);
 
@@ -152,6 +153,7 @@ class StoreController extends Controller
                 $store->categories = implode(',',  $request->category_type);
                 // $store->categories = json_encode($request->category, JSON_NUMERIC_CHECK);
                 $store->certificate = $uploadFile1;
+                $store->vat=$request->vat;
                 $store->save();
 
                 return response()->json([
@@ -228,6 +230,7 @@ class StoreController extends Controller
                     $store->categories = implode(',',  $request->category_type);
                     // $store->categories = json_encode($request->category, JSON_NUMERIC_CHECK);
                     $store->certificate = $uploadFile1;
+                                    $store->vat=$request->vat;
                     $store->save();
 
                     return response()->json([

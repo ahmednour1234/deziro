@@ -15,6 +15,7 @@ class Cart extends Model
         'id',
         'created_at',
         'updated_at',
+        'vat'
     ];
 
     /**

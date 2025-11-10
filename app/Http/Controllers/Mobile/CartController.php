@@ -4,236 +4,174 @@ namespace App\Http\Controllers\Mobile;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CheckoutForm;
+use App\Http\Resources\Cart as CartResource;
+use App\Models\Address;
 use App\Models\CartItem;
 use App\Repositories\CartItemRepository;
 use App\Repositories\CartRepository;
 use Cart;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Event;
-use App\Http\Resources\Cart as CartResource;
-use App\Models\Address;
-use App\Models\CartPayment;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
     /**
-     * Contains current guard
+     * Guard used for API auth.
      *
-     * @var array
+     * @var string
      */
-    protected $guard;
+    protected $guard = 'api';
 
     /**
-     * CartRepository object
-     *
      * @var \App\Repositories\CartRepository
      */
     protected $cartRepository;
 
     /**
-     * CartItemRepository object
-     *
      * @var \App\Repositories\CartItemRepository
      */
     protected $cartItemRepository;
 
     /**
-     * Controller instance
-     *
-     * @param \App\Repositories\CartRepository     $cartRepository
-     * @param \App\Repositories\CartItemRepository $cartItemRepository
+     * CartController constructor.
      */
     public function __construct(
         CartRepository $cartRepository,
         CartItemRepository $cartItemRepository,
     ) {
-        $this->guard = 'api';
+        $this->cartRepository    = $cartRepository;
+        $this->cartItemRepository = $cartItemRepository;
 
         Auth::setDefaultDriver($this->guard);
-
-        $this->cartRepository = $cartRepository;
-
-        $this->cartItemRepository = $cartItemRepository;
     }
 
     /**
-     * Get user cart.
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * Apply coupon on cart.
+     * بعد تطبيق الكوبون نعيد حساب الـ VAT.
      */
-    // public function get()
-    // {
-    //     $cart = Cart::getCart();
-
-    //     return response()->json([
-    //         'data' => $cart ? new CartResource($cart) : null,
-    //     ]);
-    // }
-
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    // public function store($id)
-    // {
-    //     // session()->put('cart', 1212);
-    //     // return session()->get('cart');
-    //     try {
-    //         $result = Cart::addProduct($id, request()->except('_token'));
-
-    //         if (is_array($result) && isset($result['warning'])) {
-    //             return response()->json([
-    //                 'error' => $result['warning'],
-    //             ], 400);
-    //         }
-
-    //         Cart::collectTotals();
-
-    //         $cart = Cart::getCart();
-
-    //         return response()->json([
-    //             'message' => __('Item is successfully added to cart.'),
-    //             'data'    => $cart ? new CartResource($cart) : null,
-    //         ]);
-    //     } catch (Exception $e) {
-    //         Log::error($e);
-
-    //         return response()->json([
-    //             'error' => [
-    //                 'message' => $e->getMessage(),
-    //                 'code'    => $e->getCode()
-    //             ]
-    //         ]);
-    //     }
-    // }
-
-    public function applyCoupon(Request $request)
+    public function applyCoupon(Request $request): JsonResponse
     {
-        return Cart::applyCoupon($request['coupon']);
-    }
+        $response = Cart::applyCoupon($request->input('coupon'));
 
-    public function wrapAsGift(Request $request)
-    {
-        $cartItemIds = $request->input('cart_item_ids');
         $cart = Cart::getCart();
 
+        if ($cart) {
+            $this->applyVat($cart);
+        }
+
+        return response()->json([
+            'success' => true,
+            'cart'    => $cart ? new CartResource($cart->fresh()) : null,
+            'raw'     => $response,
+        ]);
+    }
+
+    /**
+     * Wrap selected items as gift and recalculate totals + VAT.
+     */
+    public function wrapAsGift(Request $request): JsonResponse
+    {
+        $cart         = Cart::getCart();
+        $cartItemIds  = $request->input('cart_item_ids');
+
+        if (! $cart) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cart not found.',
+            ], 404);
+        }
+
         if ($cartItemIds) {
-            // Fetch all cart items that need to be wrapped as gifts
-            $cartItems = CartItem::whereIn('id', $cartItemIds)->get();
-
-            // Initialize variables to keep track of the total price changes
-            $totalWrapAsGiftPriceToSubtract = 0;
-            $totalWrapAsGiftPriceToAdd = 0;
-
-            // Fetch all cart items that are not part of the update but have wrap_as_gift set to 1
+            $cartItems        = CartItem::whereIn('id', $cartItemIds)->get();
             $cartItemsToReset = CartItem::where('cart_id', $cart->id)
                 ->whereNotIn('id', $cartItemIds)
                 ->where('wrap_as_gift', 1)
                 ->get();
 
-            // Check if cart_item_ids is empty and reset wrap_as_gift for all items in the cart
+            $totalWrapAsGiftPriceToSubtract = 0;
+            $totalWrapAsGiftPriceToAdd      = 0;
 
+            // Reset wrap for selected items first
             foreach ($cartItems as $cartItem) {
-                // Subtract the wrap_as_gift_price from the total
-                $totalWrapAsGiftPriceToSubtract += $cartItem->wrap_as_gift_price ;
+                $totalWrapAsGiftPriceToSubtract += $cartItem->wrap_as_gift_price;
 
-                // Update the cart item to set wrap_as_gift to 0 and the price to 0
-                $cartItem->wrap_as_gift = 0;
-                $cartItem->total -= $cartItem->wrap_as_gift_price ;
+                $cartItem->total             -= $cartItem->wrap_as_gift_price;
+                $cartItem->wrap_as_gift      = 0;
                 $cartItem->wrap_as_gift_price = 0;
                 $cartItem->save();
             }
 
-
+            // Apply wrap for selected items
             foreach ($cartItems as $cartItem) {
-                if ($cartItem && $cartItem->wrap_as_gift == 0) {
-                    $product = $cartItem->product;
+                if ($cartItem->wrap_as_gift == 0 && $cartItem->product && $cartItem->product->status === 'active') {
+                    $wrapPrice = $cartItem->product->wrap_as_gift_price * $cartItem->quantity;
 
-                    if ($product && $product->status == 'active') {
-                        // Update the cart item to set wrap_as_gift to 1 and set the wrap_as_gift_price from the product
-                        $cartItem->wrap_as_gift = 1;
-                        $cartItem->wrap_as_gift_price = $product->wrap_as_gift_price * $cartItem->quantity;
-                        $cartItem->total += $product->wrap_as_gift_price * $cartItem->quantity;
-                        $cartItem->save();
+                    $cartItem->wrap_as_gift       = 1;
+                    $cartItem->wrap_as_gift_price = $wrapPrice;
+                    $cartItem->total              += $wrapPrice;
+                    $cartItem->save();
 
-                        // Add the wrap_as_gift_price to the total
-                        $totalWrapAsGiftPriceToAdd += $cartItem->wrap_as_gift_price;
-                    }
+                    $totalWrapAsGiftPriceToAdd += $wrapPrice;
                 }
             }
 
+            // Reset wrap for other items not selected
             foreach ($cartItemsToReset as $cartItem) {
-                // Subtract the wrap_as_gift_price from the total
-                $totalWrapAsGiftPriceToSubtract += $cartItem->wrap_as_gift_price ;
+                $totalWrapAsGiftPriceToSubtract += $cartItem->wrap_as_gift_price;
 
-                // Update the cart item to set wrap_as_gift to 0 and the price to 0
-                $cartItem->wrap_as_gift = 0;
-                $cartItem->total -= $cartItem->wrap_as_gift_price ;
+                $cartItem->total             -= $cartItem->wrap_as_gift_price;
+                $cartItem->wrap_as_gift      = 0;
                 $cartItem->wrap_as_gift_price = 0;
                 $cartItem->save();
             }
 
-            // Get the cart that these items belong to (assuming there is a relationship between cart_items and carts)
-
-
-            // Calculate the updated grand_total as the sum of the total of all cart_items
+            // Update cart totals based on changes
             $updatedTotalWrapAsGiftPrice = $cart->all_items->sum('wrap_as_gift_price');
             $updatedGrandTotal = $cart->grand_total - $totalWrapAsGiftPriceToSubtract + $totalWrapAsGiftPriceToAdd;
 
-            // Update the cart's grand_total and total_wrap_as_gift_price
-            $cart->grand_total = $updatedGrandTotal;
+            $cart->grand_total              = $updatedGrandTotal;
             $cart->total_wrap_as_gift_price = $updatedTotalWrapAsGiftPrice;
             $cart->save();
         } else {
-            // Initialize variables to keep track of the total price changes
+            // No IDs => reset all wrap_as_gift
             $totalWrapAsGiftPriceToSubtract = 0;
 
-            // Iterate through the cart items
             foreach ($cart->items as $cartItem) {
-                // Subtract the wrap_as_gift_price from the total
-                $totalWrapAsGiftPriceToSubtract += $cartItem->wrap_as_gift_price ;
+                $totalWrapAsGiftPriceToSubtract += $cartItem->wrap_as_gift_price;
 
-                // Update the cart item to set wrap_as_gift to 0 and the price to 0
-                $cartItem->wrap_as_gift = 0;
-                $cartItem->total -= $cartItem->wrap_as_gift_price ;
+                $cartItem->total             -= $cartItem->wrap_as_gift_price;
+                $cartItem->wrap_as_gift      = 0;
                 $cartItem->wrap_as_gift_price = 0;
-
                 $cartItem->save();
             }
 
-            // Update the cart's total_wrap_as_gift_price to 0 and deduct the sum from the grand_total
             $cart->total_wrap_as_gift_price = 0;
-            $cart->grand_total -= $totalWrapAsGiftPriceToSubtract;
+            $cart->grand_total              -= $totalWrapAsGiftPriceToSubtract;
             $cart->save();
         }
 
-        $cartresource = \App\Models\Cart::find($cart->id);
+        // بعد تعديل التوتال، طبّق VAT
+        $this->applyVat($cart);
+
+        $cart = $cart->fresh();
+
         return response()->json([
             'success' => true,
-            'cart' => new CartResource($cartresource),
-
+            'cart'    => new CartResource($cart),
         ], 200);
     }
 
-
     /**
-     * Update the specified resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * Update cart quantities and recalc totals + VAT.
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
-
         $this->validate($request, [
             'qty' => 'required|array',
         ]);
@@ -262,19 +200,21 @@ class CartController extends Controller
 
         $cart = Cart::getCart();
 
+        if ($cart) {
+            $this->applyVat($cart);
+        }
+
         return response()->json([
             'message' => __('shop::app.checkout.cart.quantity.success'),
-            'data'    => $cart ? new CartResource($cart) : null,
-            'html'    => view('shop::checkout.cart.mini-cart', compact('cart'))->render()
+            'data'    => $cart ? new CartResource($cart->fresh()) : null,
+            'html'    => view('shop::checkout.cart.mini-cart', ['cart' => $cart])->render(),
         ]);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * Clear cart (no VAT needed if no cart).
      */
-    public function destroy()
+    public function destroy(): JsonResponse
     {
         Event::dispatch('checkout.cart.delete.before');
 
@@ -287,18 +227,14 @@ class CartController extends Controller
         return response()->json([
             'message' => __('shop::app.checkout.cart.item.success-remove'),
             'data'    => $cart ? new CartResource($cart) : null,
-            'html'    => view('shop::checkout.cart.mini-cart', compact('cart'))->render()
+            'html'    => view('shop::checkout.cart.mini-cart', compact('cart'))->render(),
         ]);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * Remove single item, recalc totals + VAT.
      */
-    public function destroyItem($id)
+    public function destroyItem($id): JsonResponse
     {
         Event::dispatch('checkout.cart.item.delete.before', $id);
 
@@ -310,42 +246,50 @@ class CartController extends Controller
 
         $cart = Cart::getCart();
 
+        if ($cart) {
+            $this->applyVat($cart);
+        }
+
         return response()->json([
             'message' => __('shop::app.checkout.cart.item.success-remove'),
-            'data'    => $cart ? new CartResource($cart) : null,
-            'html'    => view('shop::checkout.cart.mini-cart', compact('cart'))->render()
+            'data'    => $cart ? new CartResource($cart->fresh()) : null,
+            'html'    => view('shop::checkout.cart.mini-cart', ['cart' => $cart])->render(),
         ]);
     }
 
+    /**
+     * Store selected items as cart, attach address, recalc VAT.
+     */
     public function storeItems(CheckoutForm $checkoutRequest): ?JsonResponse
     {
-        // dd(1);
         Cart::deActivateCartAndDelete();
 
-        $ids = [];
+        $ids = request()->get('items') ?? [];
 
-        if (request()->get('items'))
-            $ids = request()->get('items');
-        else
+        if (! count($ids)) {
             return response()->json([
+                'success' => false,
                 'message' => 'Something went wrong!',
                 'data'    => null,
-                'errors'  => null
+                'errors'  => null,
             ]);
-        $errors = [];
+        }
 
+        $errors = [];
 
         foreach ($ids as $id => $quantity) {
             request()->request->add(['product_id' => $id]);
             request()->request->add(['quantity' => $quantity]);
 
             try {
-                if (!intval($quantity) || $quantity < 1) {
+                if (! intval($quantity) || $quantity < 1) {
                     $errors[$id] = 'Invalid Quantity';
                     continue;
                 }
+
                 $result = Cart::addProduct($id, request()->except('_token'));
-                $e = isset($result['errors']) ? $result['errors'] : [];
+
+                $e = $result['errors'] ?? [];
                 foreach ($e as $key => $value) {
                     $errors[$key] = $value;
                 }
@@ -355,11 +299,11 @@ class CartController extends Controller
                     continue;
                 }
             } catch (Exception $e) {
-                Log::error(
-                    'API CartController: ' . $e->getMessage(),
-                    ['product_id' => $id, 'cart_id' => Cart::getCart() ?? 0]
-                );
-                Log::error($e);
+                Log::error('API CartController: ' . $e->getMessage(), [
+                    'product_id' => $id,
+                    'cart_id'    => Cart::getCart() ?? 0,
+                ]);
+
                 $errors[$id] = $e->getMessage();
                 continue;
             }
@@ -369,58 +313,96 @@ class CartController extends Controller
 
         $cart = Cart::getCart();
 
-        if ($cart) {
-            try {
-
-
-                if ($address_id = request()->get('address_id')) {
-                    $address = Arr::except(Address::findOrFail($address_id)->toArray(), ['id', 'cart_id', 'order_id']);
-                } else {
-                    $address = request()->get('address');
-                }
-                $address['user_id'] =  auth()->guard('api')->user() ? auth()->guard('api')->user()->id : null;
-                $address['type'] =  Address::ADDRESS_TYPE_CART;
-
-                $cart->addresses()->create($address);
-
-                $errorsValues = [];
-                if (count($errors)) {
-                    foreach ($errors as $key => $value) {
-                        $errorsValues[] = ['id' => $key, 'message' => $value];
-                    }
-                }
-
-                return response()->json([
-                    'success' => true,
-                    'message' => __('Items added successfully'),
-                    'data'    => new CartResource(Cart::getCart()),
-                    'errors'  => count($errorsValues) ? $errorsValues : null
-                ]);
-            } catch (Exception $e) {
-                Log::error(
-                    'API CartController: ' . $e->getMessage(),
-                );
-                Log::error($e);
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage(),
-                    'data'    => null,
-                    'errors'  => null
-                ]);
-            }
-        } else {
+        if (! $cart) {
             $errorsValues = [];
-            if (count($errors)) {
-                foreach ($errors as $key => $value) {
-                    $errorsValues[] = ['id' => $key, 'message' => $value];
-                }
+            foreach ($errors as $key => $value) {
+                $errorsValues[] = ['id' => $key, 'message' => $value];
             }
+
             return response()->json([
                 'success' => false,
                 'message' => __('Something went wrong!'),
                 'data'    => null,
-                'errors'  => count($errorsValues) ? $errorsValues : null
+                'errors'  => count($errorsValues) ? $errorsValues : null,
             ]);
         }
+
+        try {
+            // Address
+            if ($address_id = request()->get('address_id')) {
+                $address = Arr::except(
+                    Address::findOrFail($address_id)->toArray(),
+                    ['id', 'cart_id', 'order_id']
+                );
+            } else {
+                $address = request()->get('address');
+            }
+
+            $address['user_id'] = auth()->guard('api')->user()->id ?? null;
+            $address['type']    = Address::ADDRESS_TYPE_CART;
+
+            $cart->addresses()->create($address);
+
+            // Apply VAT after totals
+            $this->applyVat($cart);
+
+            $errorsValues = [];
+            foreach ($errors as $key => $value) {
+                $errorsValues[] = ['id' => $key, 'message' => $value];
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => __('Items added successfully'),
+                'data'    => new CartResource($cart->fresh()),
+                'errors'  => count($errorsValues) ? $errorsValues : null,
+            ]);
+        } catch (Exception $e) {
+            Log::error('API CartController: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'data'    => null,
+                'errors'  => null,
+            ]);
+        }
+    }
+
+    /**
+     * Apply VAT based on store VAT setting.
+     *
+     * - لو store->vat_status = 1 → vat = 11% من إجمالي cart قبل الضريبة.
+     * - لو Off → vat = 0.
+     * - الدالة Idempotent: مش بتراكم الضريبة لو اتندَهت أكثر من مرة.
+     *
+     * @param  \App\Models\Cart|\Webkul\Checkout\Contracts\Cart  $cart
+     * @return void
+     */
+    protected function applyVat($cart): void
+    {
+        if (! $cart) {
+            return;
+        }
+
+        // نفترض عندك علاقة store: $cart->store وعمود vat_status في جدول stores
+        $store = $cart->store ?? null;
+
+        // رجّع الـ grand_total لقبل الضريبة عن طريق طرح الـ vat القديم
+        $baseTotal = $cart->grand_total - (float) ($cart->vat ?? 0);
+
+        if ($baseTotal < 0) {
+            $baseTotal = 0;
+        }
+
+        $vat = 0;
+
+        if ($store && (int) ($store->vat ?? 0) === 1) {
+            $vat = round($baseTotal * 0.11, 2); // 11%
+        }
+
+        $cart->vat         = $vat;
+        $cart->grand_total = $baseTotal + $vat;
+        $cart->save();
     }
 }

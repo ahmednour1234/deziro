@@ -33,6 +33,7 @@ class Order extends Model
         'payment',
         'created_at',
         'updated_at',
+        'vat'
     ];
 
     protected $statusLabel = [
