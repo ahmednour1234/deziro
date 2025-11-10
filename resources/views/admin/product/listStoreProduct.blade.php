@@ -53,11 +53,9 @@
                 </form>
             </div>
             <div class="m-3 d-flex gap-2">
-                {{-- <a href="/createStore" class=""> --}}
-                <div>
-
-                </div>
-                {{-- </a> --}}
+				<a href="{{ route('admin.product.create') }}" class="btn btn-success">
+					<i class="bx bx-plus"></i> Add Product
+				</a>
                 <ul class="pagination    ">
                     <li class="">
                         <div class="btn-group">
@@ -179,7 +177,7 @@
                                     @endif
                                 @endif
                             </a></th>
-                        <th>View Product</th>
+						<th>Actions</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -197,8 +195,10 @@
                             <td>{{ $sellingProduct->quantity }}</td>
                             <td>{{ $sellingProduct->price }}</td>
                             <td>{{ $sellingProduct->special_price }}</td>
-                            <td> <a href="/productDetail/{{ $sellingProduct->id }}" class="btn btn-info btn-sm">View More
-                                    Details</a></td>
+							<td class="d-flex gap-2 justify-content-center">
+								<a href="{{ route('admin.product.edit', $sellingProduct->id) }}" class="btn btn-sm btn-primary">Edit</a>
+								<a href="/productDetail/{{ $sellingProduct->id }}" class="btn btn-sm btn-info">View</a>
+							</td>
                             <td>
                                 @if ($sellingProduct->status == 'active')
                                     <button class="btn btn-sm btn-success active_product" value="{{ $sellingProduct->id }}"

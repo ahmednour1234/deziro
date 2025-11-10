@@ -98,6 +98,39 @@
 						</div>
 
 						<div class="col-12">
+							<hr class="my-4" />
+							<div class="d-flex justify-content-between align-items-center">
+								<h6 class="mb-0">Variants</h6>
+								<button type="button" class="btn btn-sm btn-outline-primary" id="add-variant-btn">
+									<i class="bx bx-plus"></i> Add Variant
+								</button>
+							</div>
+							<p class="text-muted mt-2 mb-0">Optional. If you add variants, consider selecting product type as Configurable.</p>
+							<div id="variants-container" class="mt-3">
+								@foreach ($product->variants as $vIndex => $variant)
+								<div class="row g-2 align-items-end mb-2 border rounded p-2">
+									<input type="hidden" name="variants[{{ $vIndex }}][id]" value="{{ $variant->id }}" />
+									<div class="col-12 col-md-4">
+										<label class="form-label">Variant Name</label>
+										<input type="text" name="variants[{{ $vIndex }}][name]" class="form-control" value="{{ $variant->name }}" />
+									</div>
+									<div class="col-6 col-md-3">
+										<label class="form-label">Price</label>
+										<input type="number" step="0.01" name="variants[{{ $vIndex }}][price]" class="form-control" value="{{ $variant->price }}" />
+									</div>
+									<div class="col-6 col-md-3">
+										<label class="form-label">Quantity</label>
+										<input type="number" min="0" name="variants[{{ $vIndex }}][quantity]" class="form-control" value="{{ $variant->quantity }}" />
+									</div>
+									<div class="col-12 col-md-2 d-grid">
+										<button type="button" class="btn btn-light text-danger remove-variant-btn">Remove</button>
+									</div>
+                                </div>
+								@endforeach
+							</div>
+						</div>
+
+						<div class="col-12">
 							<label class="form-label d-block">Existing Images</label>
 							<div class="row g-3">
 								@foreach ($images as $image)
@@ -135,5 +168,54 @@
 	</div>
 </div>
 @endsection
+@push('scripts')
+<script>
+	(function(){
+		let variantIndex = {{ $product->variants->count() }};
+		const container = document.getElementById('variants-container');
+		const addBtn = document.getElementById('add-variant-btn');
+
+		function makeVariantRow(index) {
+			const row = document.createElement('div');
+			row.className = 'row g-2 align-items-end mb-2 border rounded p-2';
+			row.innerHTML = `
+				<div class="col-12 col-md-4">
+					<label class="form-label">Variant Name</label>
+					<input type="text" name="variants[${index}][name]" class="form-control" placeholder="Variant name" />
+				</div>
+				<div class="col-6 col-md-3">
+					<label class="form-label">Price</label>
+					<input type="number" step="0.01" name="variants[${index}][price]" class="form-control" placeholder="0.00" />
+				</div>
+				<div class="col-6 col-md-3">
+					<label class="form-label">Quantity</label>
+					<input type="number" min="0" name="variants[${index}][quantity]" class="form-control" placeholder="0" />
+				</div>
+				<div class="col-12 col-md-2 d-grid">
+					<button type="button" class="btn btn-light text-danger remove-variant-btn">Remove</button>
+				</div>
+			`;
+			row.querySelector('.remove-variant-btn').addEventListener('click', function(){
+				row.remove();
+			});
+			return row;
+		}
+
+		if (addBtn) {
+			addBtn.addEventListener('click', function(){
+				container.appendChild(makeVariantRow(variantIndex++));
+			});
+		}
+
+		// Attach remove handlers for pre-rendered rows
+		document.querySelectorAll('.remove-variant-btn').forEach(function(btn){
+			btn.addEventListener('click', function(){
+				const row = btn.closest('.row');
+				if (row) row.remove();
+			});
+		});
+	})();
+</script>
+@endpush
 
 
